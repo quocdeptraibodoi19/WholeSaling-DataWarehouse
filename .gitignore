@@ -1,0 +1,12 @@
+__pycache__
+*.pyc
+
+.env/
+
+/airflow/logs/*
+/airflow/dags/test_airflow_local.py
+airflow/airflow-webserver.pid
+airflow/airflow.cfg
+airflow/airflow.db
+airflow/standalone_admin_password.txt
+airflow/webserver_config.py
