@@ -1,13 +1,15 @@
 import os
 import sys
-
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
 
 from datetime import datetime, timedelta
+
 from airflow.models.dag import DAG
+from airflow.operators.python import PythonOperator
 
 from common.helpers import ConstantsProvider
+from ingest.HR_System.full_load import HR_to_HDFS
 
 with DAG(
     "full_load_HR",
@@ -17,4 +19,13 @@ with DAG(
     start_date=datetime(2024, 1, 1),
     catchup=False,
 ) as dag:
-    pass
+    
+    t1 = PythonOperator(
+        task_id = "ingest_data_from_HR_System",
+        python_callable= HR_to_HDFS,
+        op_kwargs= {
+            "table": "Employee",
+            "source": "HR-System"
+        },
+        dag=dag,
+    ) 

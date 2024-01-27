@@ -1,5 +1,10 @@
+import sys
+import os
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.dirname(SCRIPT_DIR))
+
 from abc import ABC, abstractmethod
-from helpers import ConstantsProvider
+from .helpers import ConstantsProvider
 
 import pyodbc
 
@@ -11,6 +16,8 @@ from hdfs import InsecureClient
 from typing import Iterable
 from datetime import datetime
 
+import logging
+logger = logging.getLogger(__name__)
 
 class SysDataHook(ABC):
     @abstractmethod
@@ -32,6 +39,7 @@ class SysDataHook(ABC):
 
 class HRSystemDataHook(SysDataHook):
     def connect(self):
+        logger.info("Connecting to HR System...")
         hr_creds = ConstantsProvider.HR_sys_creds()
         self.connection = pyodbc.connect(
             "DRIVER={ODBC Driver 17 for SQL Server};\
@@ -51,16 +59,22 @@ class HRSystemDataHook(SysDataHook):
         )
 
     def disconnect(self):
+        logger.info("Disconnecting from HR System...")
         self.connection.close()
 
-    def receive_data(self, query: str, *args, **kwargs):
+    def receive_data(self, query: str, chunksize: int = None, *args, **kwargs):
+        logger.info(f"Getting data from query: {query}")
         return pd.read_sql(
-            query, self.connection, chunksize=ConstantsProvider.HR_query_chunksize()
+            query, self.connection, chunksize=chunksize
         )
+
+    def move_data(self, *args, **kwargs):
+        return super().move_data(*args, **kwargs)
 
 
 class HDFSLandingZoneDataHook(SysDataHook):
     def connect(self):
+        logger.info("Connecting to HDFS Landing Zone...")
         hadoop_creds = ConstantsProvider.Hadoop_creds()
         self.connection = InsecureClient(
             f'http://{hadoop_creds.get("host")}:{hadoop_creds.get("port")}',
@@ -71,7 +85,8 @@ class HDFSLandingZoneDataHook(SysDataHook):
         """
         hdfs lib automatically handle the process of closing connection since the connection itself is wrapped inside the context manager.
         """
-        pass
+        logger.info("Disconnecting from HDFS Landing Zone...")
+        return super().disconnect()
 
     def move_data(
         self,
@@ -85,20 +100,31 @@ class HDFSLandingZoneDataHook(SysDataHook):
         if is_partitioned:
             for i, data in enumerate(data_collection):
                 arrow_table = pa.Table.from_pandas(data)
+                logger.info(f"Moving data: {data}")
 
                 hdfs_data_path = f'staging/{source_system}/{table_name}/{datetime.now().strftime("%Y-%m-%d")}/ingested_data_{i}.parquet'
+                logger.info(f"Destination: {hdfs_data_path}")
 
-                with self.connection.write(hdfs_path=hdfs_data_path, overwrite=True) as writer:
+                with self.connection.write(
+                    hdfs_path=hdfs_data_path, overwrite=True
+                ) as writer:
                     pq.write_table(arrow_table, writer)
         else:
             hdfs_data_path = f'staging/{source_system}/{table_name}/{datetime.now().strftime("%Y-%m-%d")}/ingested_data.parquet'
+            logger.info(f"Destination: {hdfs_data_path}")
             for data in data_collection:
                 arrow_table = pa.Table.from_pandas(data)
-
-                with self.connection.write(hdfs_path=hdfs_data_path, append=True) as writer:
+                logger.info(f"Moving data: {arrow_table}")
+                
+                with self.connection.write(
+                    hdfs_path=hdfs_data_path, append=True
+                ) as writer:
                     pq.write_table(arrow_table, writer)
 
-
-class HiveDWDataHook(SysDataHook):
-    def connect(self):
-        pass
+    
+    def receive_data(self, *args, **kwargs):
+        return super().receive_data(*args, **kwargs)
+    
+# class HiveDWDataHook(SysDataHook):
+#     def connect(self):
+#         pass
