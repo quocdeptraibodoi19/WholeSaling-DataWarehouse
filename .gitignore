@@ -5,6 +5,8 @@ __pycache__
 
 /airflow/logs/*
 /airflow/dags/test_airflow_local.py
+/airflow/airflow.cfg
+/airflow/webserver_config.py
 airflow/airflow-webserver.pid
 airflow/airflow.db
 airflow/standalone_admin_password.txt
