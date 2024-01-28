@@ -42,7 +42,6 @@ def HR_to_HDFS(table: str, source: str):
                 source_system=source,
                 table_name=table,
                 data_collection=data_collection,
-                is_partitioned=True,
             )
         except Exception as e:
             logger.error(f"An error occurred: {e}")

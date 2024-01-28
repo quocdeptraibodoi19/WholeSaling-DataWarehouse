@@ -42,7 +42,7 @@ class HRSystemDataHook(SysDataHook):
         logger.info("Connecting to HR System...")
         hr_creds = ConstantsProvider.HR_sys_creds()
         self.connection = pyodbc.connect(
-            "DRIVER={ODBC Driver 17 for SQL Server};\
+            "DRIVER={ODBC Driver 18 for SQL Server};\
                     SERVER="
             + hr_creds.get("server")
             + ";\
@@ -93,34 +93,19 @@ class HDFSLandingZoneDataHook(SysDataHook):
         source_system: str,
         table_name: str,
         data_collection: Iterable[pd.DataFrame],
-        is_partitioned=False,
         *args,
         **kwargs,
     ):
-        if is_partitioned:
-            for i, data in enumerate(data_collection):
-                arrow_table = pa.Table.from_pandas(data)
-                logger.info(f"Moving data: {data}")
+        for i, data in enumerate(data_collection):
+            logger.info(f"Moving data: {data}")
 
-                hdfs_data_path = f'staging/{source_system}/{table_name}/{datetime.now().strftime("%Y-%m-%d")}/ingested_data_{i}.parquet'
-                logger.info(f"Destination: {hdfs_data_path}")
-
-                with self.connection.write(
-                    hdfs_path=hdfs_data_path, overwrite=True
-                ) as writer:
-                    pq.write_table(arrow_table, writer)
-        else:
-            hdfs_data_path = f'staging/{source_system}/{table_name}/{datetime.now().strftime("%Y-%m-%d")}/ingested_data.parquet'
+            hdfs_data_path = f'/staging/{source_system}/{table_name}/{datetime.now().strftime("%Y-%m-%d")}/ingested_data_{i}.csv'
             logger.info(f"Destination: {hdfs_data_path}")
-            for data in data_collection:
-                arrow_table = pa.Table.from_pandas(data)
-                logger.info(f"Moving data: {arrow_table}")
-                
-                with self.connection.write(
-                    hdfs_path=hdfs_data_path, append=True
-                ) as writer:
-                    pq.write_table(arrow_table, writer)
 
+            with self.connection.write(
+                hdfs_path=hdfs_data_path, overwrite=True
+            ) as writer:
+                data.to_csv(writer)
     
     def receive_data(self, *args, **kwargs):
         return super().receive_data(*args, **kwargs)
