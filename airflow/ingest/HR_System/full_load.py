@@ -8,7 +8,13 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-from common.ingester import HRSystemDataHook, HDFSLandingZoneDataHook
+from datetime import datetime
+
+from common.ingester import (
+    HRSystemDataHook,
+    HDFSLandingZoneDataHook,
+    PrestoHiveStagingDataHook,
+)
 from common.helpers import ConstantsProvider
 
 
@@ -33,7 +39,7 @@ def HR_to_HDFS(table: str, source: str):
         data_collection = hr_sys.receive_data(
             query=query, chunksize=ConstantsProvider.HR_query_chunksize()
         )
-
+        
         logger.info(f"Moving data into HDFS...")
         hdfs_sys = HDFSLandingZoneDataHook()
         hdfs_sys.connect()
@@ -43,9 +49,6 @@ def HR_to_HDFS(table: str, source: str):
                 table_name=table,
                 data_collection=data_collection,
             )
-        except Exception as e:
-            logger.error(f"An error occurred: {e}")
-            raise
         finally:
             hdfs_sys.disconnect()
     except Exception as e:
@@ -53,3 +56,26 @@ def HR_to_HDFS(table: str, source: str):
         raise
     finally:
         hr_sys.disconnect()
+
+
+def HDFS_LandingZone_to_Hive_Staging(table: str, source: str):
+    presto_hive_sys = PrestoHiveStagingDataHook()
+    presto_hive_sys.connect()
+    try:
+        hdfs_sys = HDFSLandingZoneDataHook()
+        hdfs_sys.connect()
+        try:
+            table_schema = hdfs_sys.get_data_schema(
+                table, source, datetime.now().strftime("%Y-%m-%d")
+            )
+
+            logger.info(f"Creating the external table for ingested data from table {table} and source {source} with the columns {table_schema}")
+            
+            presto_hive_sys.move_data(table, source, table_schema)
+        finally:
+            hdfs_sys.disconnect()
+    except Exception as e:
+        logger.error(f"An error occurred: {e}")
+        raise
+    finally:
+        presto_hive_sys.disconnect()

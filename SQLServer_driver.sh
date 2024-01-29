@@ -1,3 +1,5 @@
+apt-get update --y && apt-get install lsb-release
+
 if ! [[ "18.04 20.04 22.04 23.04" == *"$(lsb_release -rs)"* ]];
 then
     echo "Ubuntu $(lsb_release -rs) is not currently supported.";

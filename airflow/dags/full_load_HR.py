@@ -9,7 +9,7 @@ from airflow.models.dag import DAG
 from airflow.operators.python import PythonOperator
 
 from common.helpers import ConstantsProvider
-from ingest.HR_System.full_load import HR_to_HDFS
+from ingest.HR_System.full_load import HR_to_HDFS, HDFS_LandingZone_to_Hive_Staging
 
 with DAG(
     "full_load_HR",
@@ -28,4 +28,16 @@ with DAG(
             "source": "HR-System"
         },
         dag=dag,
-    ) 
+    )
+
+    t2 = PythonOperator(
+        task_id = "ingest_data_from_HDFS_Hive",
+        python_callable= HDFS_LandingZone_to_Hive_Staging,
+        op_kwargs= {
+            "table": "Employee",
+            "source": "HR-System"
+        },
+        dag=dag,
+    )
+
+    t1 >> t2
