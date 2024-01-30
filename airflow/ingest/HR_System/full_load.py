@@ -14,6 +14,7 @@ from common.ingester import (
     HRSystemDataHook,
     HDFSLandingZoneDataHook,
     PrestoHiveStagingDataHook,
+    HiveStagingDataHook,
 )
 from common.helpers import ConstantsProvider
 
@@ -59,8 +60,8 @@ def HR_to_HDFS(table: str, source: str):
 
 
 def HDFS_LandingZone_to_Hive_Staging(table: str, source: str):
-    presto_hive_sys = PrestoHiveStagingDataHook()
-    presto_hive_sys.connect()
+    hive_sys = HiveStagingDataHook()
+    hive_sys.connect()
     try:
         hdfs_sys = HDFSLandingZoneDataHook()
         hdfs_sys.connect()
@@ -71,11 +72,11 @@ def HDFS_LandingZone_to_Hive_Staging(table: str, source: str):
 
             logger.info(f"Creating the external table for ingested data from table {table} and source {source} with the columns {table_schema}")
             
-            presto_hive_sys.move_data(table, source, table_schema)
+            hive_sys.move_data(table, source, table_schema)
         finally:
             hdfs_sys.disconnect()
     except Exception as e:
         logger.error(f"An error occurred: {e}")
         raise
     finally:
-        presto_hive_sys.disconnect()
+        hive_sys.disconnect()

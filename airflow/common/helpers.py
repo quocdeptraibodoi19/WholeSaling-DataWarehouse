@@ -86,6 +86,17 @@ class ConstantsProvider:
             }
 
     @staticmethod
+    def Staging_Hive_creds():
+        if ConstantsProvider.get_environment() == "local":
+            # This is the credentials for the python to connect to hiveserver2
+            return {
+                "host": "hadoop-master",
+                "port": 10000,
+                "username": "hadoop",
+                "database": "staging",
+            }
+
+    @staticmethod
     def HR_query_chunksize():
         return 10**6
 

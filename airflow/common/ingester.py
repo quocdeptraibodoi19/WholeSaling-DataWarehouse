@@ -13,6 +13,7 @@ import pandas as pd
 
 from hdfs import InsecureClient
 import prestodb
+from pyhive import hive
 
 from typing import Iterable, List
 from datetime import datetime
@@ -136,6 +137,15 @@ class HDFSLandingZoneDataHook(SysDataHook):
         return list(df.columns)
 
 
+"""
+    This is for the interaction between the ELT and Presto but it seems like prestoDB is used for ad-hoc query ...
+    so there are many features regarding DDL in Hive that presto does not support for
+    => Using it for the ELT seems to not be the good idea
+    => Hive: For the ETL/ELT layer.
+    => PrestoDB: For the ad-hoc query serving layer, or for the BI tools for the better performance.
+"""
+
+
 class PrestoHiveStagingDataHook(SysDataHook):
     def connect(self):
         logger.info("Connecting to Hive Metastore via Presto SQl Engine...")
@@ -173,6 +183,9 @@ class PrestoHiveStagingDataHook(SysDataHook):
                        )
                     """
         else:
+            # TODO: There is an error regarding the fact that we can not manipulate the external data hive directly from PrestoDB due to the lack of the awareness about the metadata in Presto.
+            # TODO: Maybe everytime ingestion happens, create the external table on Hive as a temp file and then insert it into the internal table on PrestoDB (which is stored on Hive but still managed by Presto)
+            # => This may incur the data redunancy, which costs us a lot if the amount of data is huge.
             logger.info(f"{table_name} has already existed on Hive...")
             logger.info(f"Adding new partition into external table {table_name}...")
 
@@ -198,6 +211,86 @@ class PrestoHiveStagingDataHook(SysDataHook):
             cursor.execute(flush_query)
         finally:
             cursor.close()
+
+    def check_external_table_existence(self, hive_table_name: str):
+        """
+        Method to check if a specific table has existed on Hive or not
+        """
+
+        logger.info(
+            f"Checking for the existence of {hive_table_name.lower()} on Hive..."
+        )
+        checking_query = f"SHOW TABLES LIKE '{hive_table_name.lower()}'"
+
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute(checking_query)
+            result = cursor.fetchall()
+        finally:
+            cursor.close()
+
+        return len(result) != 0
+
+
+class HiveStagingDataHook(SysDataHook):
+    def connect(self):
+        logger.info("Connecting to Hive Metastore ...")
+        self.creds = ConstantsProvider.Staging_Hive_creds()
+        self.connection = hive.Connection(**self.creds)
+
+    def disconnect(self):
+        logger.info("Disconnecting from Hive Metastore...")
+        self.connection.close()
+
+    def move_data(
+        self,
+        table_name: str,
+        source_system: str,
+        table_columns: List[str] = None,
+        *args,
+        **kwargs,
+    ):
+        if not self.check_external_table_existence(hive_table_name=table_name):
+            logger.info(f"{table_name} hasn't existed on Hive yet...")
+
+            table_schema = list(map(lambda column: column + " STRING", table_columns))
+            hive_ddl = f"""CREATE EXTERNAL TABLE {table_name.lower()} 
+                       ( {", ".join(table_schema[:-1])} )
+                       PARTITIONED BY ({ConstantsProvider.ingested_meta_field()} STRING)
+                       ROW FORMAT DELIMITED
+                       FIELDS TERMINATED BY ','
+                       STORED AS TEXTFILE
+                       LOCATION '{ConstantsProvider.HDFS_LandingZone_base_dir(source_system, table_name)}'
+                    """
+
+            logger.info(
+                f"Creating the external table {table_name} on Hive with the query: {hive_ddl}"
+            )
+
+            try:
+                cursor = self.connection.cursor()
+                cursor.execute(hive_ddl)
+            finally:
+                cursor.close()
+
+        adding_partition_ddl = f"""ALTER TABLE {table_name.lower()} 
+                    ADD PARTITION ({ConstantsProvider.ingested_meta_field()}='{datetime.now().strftime("%Y-%m-%d")}') 
+                    LOCATION '{ConstantsProvider.HDFS_LandingZone_base_dir(source_system, table_name, datetime.now().strftime("%Y-%m-%d"))}'
+                """
+
+        logger.info(
+            f"Suplementing data partition into {table_name} on Hive with the query: {adding_partition_ddl}"
+        )
+
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute(adding_partition_ddl)
+        finally:
+            cursor.close()
+
+    def receive_data(self, query: str, chunksize: int = None, *args, **kwargs):
+        logger.info(f"Getting data from query: {query}")
+        return pd.read_sql(query, self.connection, chunksize=chunksize)
 
     def check_external_table_existence(self, hive_table_name: str):
         """
