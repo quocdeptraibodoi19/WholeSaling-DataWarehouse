@@ -72,7 +72,7 @@ def HDFS_LandingZone_to_Hive_Staging(table: str, source: str):
 
             logger.info(f"Creating the external table for ingested data from table {table} and source {source} with the columns {table_schema}")
             
-            hive_sys.move_data(table, source, table_schema)
+            hive_sys.move_data(table, source, table_schema, is_full_load=True)
         finally:
             hdfs_sys.disconnect()
     except Exception as e:

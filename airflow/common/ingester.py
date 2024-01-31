@@ -247,31 +247,34 @@ class HiveStagingDataHook(SysDataHook):
         table_name: str,
         source_system: str,
         table_columns: List[str] = None,
+        is_full_load : bool = False,
         *args,
         **kwargs,
-    ):
-        if not self.check_external_table_existence(hive_table_name=table_name):
-            logger.info(f"{table_name} hasn't existed on Hive yet...")
+    ):  
+        if is_full_load:    
+            drop_ddl = f"""DROP TABLE IF EXISTS {table_name.lower()}"""
 
-            table_schema = list(map(lambda column: column + " STRING", table_columns))
-            hive_ddl = f"""CREATE EXTERNAL TABLE {table_name.lower()} 
-                       ( {", ".join(table_schema[:-1])} )
-                       PARTITIONED BY ({ConstantsProvider.ingested_meta_field()} STRING)
-                       ROW FORMAT DELIMITED
-                       FIELDS TERMINATED BY ','
-                       STORED AS TEXTFILE
-                       LOCATION '{ConstantsProvider.HDFS_LandingZone_base_dir(source_system, table_name)}'
-                    """
+            logger.info(f"Dropping the table {table_name} on Hive with query: {drop_ddl}")
 
-            logger.info(
-                f"Creating the external table {table_name} on Hive with the query: {hive_ddl}"
-            )
+            with self.connection.cursor() as cursor:
+                cursor.execute(drop_ddl)
 
-            try:
-                cursor = self.connection.cursor()
-                cursor.execute(hive_ddl)
-            finally:
-                cursor.close()
+        table_schema = list(map(lambda column: column + " STRING", table_columns))
+        hive_ddl = f"""CREATE EXTERNAL TABLE IF NOT EXISTS {table_name.lower()} 
+                    ( {", ".join(table_schema[:-1])} )
+                    PARTITIONED BY ({ConstantsProvider.ingested_meta_field()} STRING)
+                    ROW FORMAT DELIMITED
+                    FIELDS TERMINATED BY ','
+                    STORED AS TEXTFILE
+                    LOCATION '{ConstantsProvider.HDFS_LandingZone_base_dir(source_system, table_name)}'
+                """
+
+        logger.info(
+            f"Creating the external table {table_name} on Hive with the query: {hive_ddl}"
+        )
+
+        with self.connection.cursor() as cursor:
+            cursor.execute(hive_ddl)
 
         adding_partition_ddl = f"""ALTER TABLE {table_name.lower()} 
                     ADD PARTITION ({ConstantsProvider.ingested_meta_field()}='{datetime.now().strftime("%Y-%m-%d")}') 
@@ -282,31 +285,9 @@ class HiveStagingDataHook(SysDataHook):
             f"Suplementing data partition into {table_name} on Hive with the query: {adding_partition_ddl}"
         )
 
-        try:
-            cursor = self.connection.cursor()
-            cursor.execute(adding_partition_ddl)
-        finally:
-            cursor.close()
+        with self.connection.cursor() as cursor:
+                    cursor.execute(adding_partition_ddl)
 
     def receive_data(self, query: str, chunksize: int = None, *args, **kwargs):
         logger.info(f"Getting data from query: {query}")
         return pd.read_sql(query, self.connection, chunksize=chunksize)
-
-    def check_external_table_existence(self, hive_table_name: str):
-        """
-        Method to check if a specific table has existed on Hive or not
-        """
-
-        logger.info(
-            f"Checking for the existence of {hive_table_name.lower()} on Hive..."
-        )
-        checking_query = f"SHOW TABLES LIKE '{hive_table_name.lower()}'"
-
-        try:
-            cursor = self.connection.cursor()
-            cursor.execute(checking_query)
-            result = cursor.fetchall()
-        finally:
-            cursor.close()
-
-        return len(result) != 0
