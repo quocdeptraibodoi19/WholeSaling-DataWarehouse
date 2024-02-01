@@ -10,3 +10,5 @@ __pycache__
 airflow/airflow-webserver.pid
 airflow/airflow.db
 airflow/standalone_admin_password.txt
+
+/logs
