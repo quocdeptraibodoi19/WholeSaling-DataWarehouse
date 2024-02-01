@@ -31,7 +31,7 @@ def HR_to_HDFS(table: str, source: str):
 
         query_columns = list(
             map(
-                lambda data: "CONVERT(NVARCHAR(MAX), " + data[0] + ") AS " + data[0],
+                lambda data: "CONVERT(NVARCHAR(MAX), " + "[" + data[0] + "]" + ") AS " + "["+ data[0] + "]",
                 columns_data.itertuples(index=False, name=None),
             )
         )

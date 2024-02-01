@@ -120,3 +120,31 @@ class ConstantsProvider:
     @staticmethod
     def ingested_meta_field():
         return "date_partition"
+
+    @staticmethod
+    def get_HR_source():
+        return "HR-System"
+
+    @staticmethod
+    def get_Product_source():
+        return "Product-Management-Platform"
+
+    @staticmethod
+    def get_WholeSaling_source():
+        return "WholeSale-System"
+
+    @staticmethod
+    def get_Ecomerce_source():
+        return "Ecomerce"
+
+    @staticmethod
+    def config_file_path(source: str):
+        if ConstantsProvider.get_environment() == "local":
+            base = "config/"
+            opts = {
+                ConstantsProvider.get_HR_source(): "hr_system.yaml",
+                ConstantsProvider.get_Product_source(): "product_system.yaml",
+                ConstantsProvider.get_WholeSaling_source(): "wholesaling_system.yaml",
+                ConstantsProvider.get_Ecomerce_source(): "ecomerce_system.yaml",
+            }
+            return base + opts[source]

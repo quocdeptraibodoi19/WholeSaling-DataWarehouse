@@ -1,0 +1,11 @@
+---
+full_load:
+ - StackholderPosition
+ - Department
+ - PhoneNumberType
+ - Shift
+ - AddressType
+ - SaleTerritoryRepHistory
+ - SalesTerritory
+ - CountryRegion
+ - StateProvince

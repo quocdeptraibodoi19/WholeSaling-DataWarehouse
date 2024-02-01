@@ -259,7 +259,7 @@ class HiveStagingDataHook(SysDataHook):
             with self.connection.cursor() as cursor:
                 cursor.execute(drop_ddl)
 
-        table_schema = list(map(lambda column: column + " STRING", table_columns))
+        table_schema = list(map(lambda column: "`" + column + "`" + " STRING", table_columns))
         hive_ddl = f"""CREATE EXTERNAL TABLE IF NOT EXISTS {table_name.lower()} 
                     ( {", ".join(table_schema[:-1])} )
                     PARTITIONED BY ({ConstantsProvider.ingested_meta_field()} STRING)
