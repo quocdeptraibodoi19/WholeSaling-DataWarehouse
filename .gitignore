@@ -11,4 +11,6 @@ airflow/airflow-webserver.pid
 airflow/airflow.db
 airflow/standalone_admin_password.txt
 
+dbt_wholesaleDW/.user.yml
+
 /logs
