@@ -10,7 +10,7 @@ from airflow.models.dag import DAG
 
 from common.helpers import ConstantsProvider
 
-from ingest.HR_System.hr_task_generator import HRTaskGenerator
+from ingest.task_generator import HRTaskGenerator
 
 with DAG(
     "full_load_HR",
@@ -20,5 +20,5 @@ with DAG(
     start_date=datetime(2024, 1, 1),
     catchup=False,
 ) as dag:
-    hr_task_generator = HRTaskGenerator(dag=dag)
-    hr_task_generator.add_all_full_load_tasks()
+    hr_task_generator = HRTaskGenerator(dag=dag, is_full_load=True)
+    hr_task_generator.add_all_tasks()

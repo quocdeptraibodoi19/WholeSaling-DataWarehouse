@@ -138,6 +138,19 @@ class ConstantsProvider:
         return "Ecomerce"
 
     @staticmethod
+    def get_DW_Layer(level: int):
+        if level == 0:
+            return "hdfs_landingzone"
+        elif level == 1:
+            return "hive_dw_staging"
+        elif level == 2:
+            return "hive_dw_NDS"
+        elif level == 3:
+            return "hive_dw_datamarts"
+        else:
+            raise ValueError("level is invalid...")
+
+    @staticmethod
     def config_file_path(source: str):
         if ConstantsProvider.get_environment() == "local":
             base = "config/"
