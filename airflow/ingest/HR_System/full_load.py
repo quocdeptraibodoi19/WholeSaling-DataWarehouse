@@ -6,8 +6,6 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 
 import logging
 
-logger = logging.getLogger(__name__)
-
 from datetime import datetime
 
 from common.ingester import (
@@ -19,7 +17,7 @@ from common.ingester import (
 from common.helpers import ConstantsProvider
 
 
-def HR_to_HDFS(table: str, source: str):
+def HR_to_HDFS(logger: logging.Logger, table: str, source: str):
     hr_sys = HRSystemDataHook()
     hr_sys.connect()
     try:
@@ -59,7 +57,7 @@ def HR_to_HDFS(table: str, source: str):
         hr_sys.disconnect()
 
 
-def HDFS_LandingZone_to_Hive_Staging(table: str, source: str):
+def HDFS_LandingZone_to_Hive_Staging(logger: logging.Logger, table: str, source: str):
     hive_sys = HiveStagingDataHook()
     hive_sys.connect()
     try:

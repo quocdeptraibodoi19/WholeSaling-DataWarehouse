@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+ - name: landingzone
+   database: staging
+   schema: staging
+   tables:
+    - name: addresstype
+    - name: countryregion
