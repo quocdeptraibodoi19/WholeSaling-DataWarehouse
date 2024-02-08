@@ -117,7 +117,7 @@ class HDFSLandingZoneDataHook(SysDataHook):
             with self.connection.write(
                 hdfs_path=hdfs_data_path, overwrite=True
             ) as writer:
-                data.to_csv(writer, index=False)
+                data.to_csv(writer, index=False, sep="|")
 
             i += 1
 
@@ -132,7 +132,7 @@ class HDFSLandingZoneDataHook(SysDataHook):
             + "ingested_data_0.csv",
             encoding="utf-8",
         ) as file:
-            df = pd.read_csv(file, nrows=1)
+            df = pd.read_csv(file, nrows=1, sep="|")
 
         return list(df.columns)
 
@@ -171,10 +171,12 @@ class PrestoHiveStagingDataHook(SysDataHook):
         hdfs_config = ConstantsProvider.hdfs_config()
 
         if not self.check_external_table_existence(hive_table_name=table_name):
-            logger.info(f"{table_name} hasn't existed on Hive yet...")
+            logger.info(
+                f"{ConstantsProvider.get_staging_table(source_system, table_name)} hasn't existed on Hive yet..."
+            )
 
             table_schema = list(map(lambda column: column + " VARCHAR", table_columns))
-            presto_sql = f"""CREATE TABLE {table_name.lower()} 
+            presto_sql = f"""CREATE TABLE {ConstantsProvider.get_staging_table(source_system, table_name)} 
                        ( {", ".join(table_schema)} )
                        WITH (
                             format = 'CSV',
@@ -186,12 +188,16 @@ class PrestoHiveStagingDataHook(SysDataHook):
             # TODO: There is an error regarding the fact that we can not manipulate the external data hive directly from PrestoDB due to the lack of the awareness about the metadata in Presto.
             # TODO: Maybe everytime ingestion happens, create the external table on Hive as a temp file and then insert it into the internal table on PrestoDB (which is stored on Hive but still managed by Presto)
             # => This may incur the data redunancy, which costs us a lot if the amount of data is huge.
-            logger.info(f"{table_name} has already existed on Hive...")
-            logger.info(f"Adding new partition into external table {table_name}...")
+            logger.info(
+                f"{ConstantsProvider.get_staging_table(source_system, table_name)} has already existed on Hive..."
+            )
+            logger.info(
+                f"Adding new partition into external table {ConstantsProvider.get_staging_table(source_system, table_name)}..."
+            )
 
             presto_sql = f"""CALL system.create_empty_partition(
                     schema_name => '{self.creds.get("schema")}',
-                    table_name => '{table_name.lower()}',
+                    table_name => '{ConstantsProvider.get_staging_table(source_system, table_name)}',
                     partition_columns => ARRAY['{ConstantsProvider.ingested_meta_field()}'],
                     partition_values => ARRAY['{datetime.now().strftime("%Y-%m-%d")}'])
                 """
@@ -204,7 +210,7 @@ class PrestoHiveStagingDataHook(SysDataHook):
             cursor = self.connection.cursor()
             cursor.execute(presto_sql)
             # Because the above presto sql just exists on the metadata of PrestoDB => need to flush into Hive Metastore for it to aware of that
-            flush_query = f"""CALL system.sync_partition_metadata(schema_name=> '{self.creds.get("schema")}', table_name=> '{table_name.lower()}', mode=> 'FULL')"""
+            flush_query = f"""CALL system.sync_partition_metadata(schema_name=> '{self.creds.get("schema")}', table_name=> '{ConstantsProvider.get_staging_table(source_system, table_name)}', mode=> 'FULL')"""
             logger.info(
                 f"Making Hive Metastore aware of metadata with the SQL on Presto: {flush_query}"
             )
@@ -247,47 +253,118 @@ class HiveStagingDataHook(SysDataHook):
         table_name: str,
         source_system: str,
         table_columns: List[str] = None,
-        is_full_load : bool = False,
+        is_full_load: bool = False,
         *args,
         **kwargs,
-    ):  
-        if is_full_load:    
-            drop_ddl = f"""DROP TABLE IF EXISTS {table_name.lower()}"""
+    ):
+        if is_full_load:
+            drop_ddl = f"""DROP TABLE IF EXISTS {ConstantsProvider.get_staging_table(source_system, table_name)}"""
 
-            logger.info(f"Dropping the table {table_name} on Hive with query: {drop_ddl}")
+            logger.info(
+                f"Dropping the table {ConstantsProvider.get_staging_table(source_system, table_name)} on Hive with query: {drop_ddl}"
+            )
 
             with self.connection.cursor() as cursor:
                 cursor.execute(drop_ddl)
 
-        table_schema = list(map(lambda column: "`" + column + "`" + " STRING", table_columns))
-        hive_ddl = f"""CREATE EXTERNAL TABLE IF NOT EXISTS {table_name.lower()} 
+        table_schema = list(
+            map(lambda column: "`" + column + "`" + " STRING", table_columns)
+        )
+        hive_ddl = f"""CREATE EXTERNAL TABLE IF NOT EXISTS {ConstantsProvider.get_staging_table(source_system, table_name)} 
                     ( {", ".join(table_schema[:-1])} )
                     PARTITIONED BY ({ConstantsProvider.ingested_meta_field()} STRING)
                     ROW FORMAT DELIMITED
-                    FIELDS TERMINATED BY ','
+                    FIELDS TERMINATED BY '|'
                     STORED AS TEXTFILE
                     LOCATION '{ConstantsProvider.HDFS_LandingZone_base_dir(source_system, table_name)}'
+                    TBLPROPERTIES ("skip.header.line.count"="1")
                 """
 
         logger.info(
-            f"Creating the external table {table_name} on Hive with the query: {hive_ddl}"
+            f"Creating the external table {ConstantsProvider.get_staging_table(source_system, table_name)} on Hive with the query: {hive_ddl}"
         )
 
         with self.connection.cursor() as cursor:
             cursor.execute(hive_ddl)
 
-        adding_partition_ddl = f"""ALTER TABLE {table_name.lower()} 
+        adding_partition_ddl = f"""ALTER TABLE {ConstantsProvider.get_staging_table(source_system, table_name)} 
                     ADD PARTITION ({ConstantsProvider.ingested_meta_field()}='{datetime.now().strftime("%Y-%m-%d")}') 
                     LOCATION '{ConstantsProvider.HDFS_LandingZone_base_dir(source_system, table_name, datetime.now().strftime("%Y-%m-%d"))}'
                 """
 
         logger.info(
-            f"Suplementing data partition into {table_name} on Hive with the query: {adding_partition_ddl}"
+            f"Suplementing data partition into {ConstantsProvider.get_staging_table(source_system, table_name)} on Hive with the query: {adding_partition_ddl}"
         )
 
         with self.connection.cursor() as cursor:
-                    cursor.execute(adding_partition_ddl)
+            cursor.execute(adding_partition_ddl)
 
     def receive_data(self, query: str, chunksize: int = None, *args, **kwargs):
         logger.info(f"Getting data from query: {query}")
         return pd.read_sql(query, self.connection, chunksize=chunksize)
+
+
+class DeltaKeyHiveStagingDataHook(HiveStagingDataHook):
+    def move_data(
+        self,
+        source: str,
+        table: str,
+        delta_keys_dict: dict,
+        *args,
+        **kwargs,
+    ):
+        create_ddl = f"""CREATE TABLE IF NOT EXISTS `{ConstantsProvider.get_delta_key_table()}` 
+                ( 
+                    `schema` STRING,
+                    `table` STRING,
+                    `delta_keys` STRING,
+                    {ConstantsProvider.ingested_meta_field()} STRING
+                )
+                CLUSTERED BY (`schema`, `table`) INTO 5 BUCKETS
+                STORED AS ORC
+                TBLPROPERTIES ("transactional"="true")
+            """
+
+        delta_key_config = {
+            "schema": "staging",
+            "table": ConstantsProvider.get_staging_table(source, table),
+            "delta_keys": str(delta_keys_dict),
+            ConstantsProvider.ingested_meta_field(): str(
+                datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            ),
+        }
+
+        logger.info(f"The current delta_config: {delta_key_config}")
+
+        delete_hql = f"""DELETE FROM `{ConstantsProvider.get_delta_key_table()}`
+                WHERE `table` = '{delta_key_config["table"]}' and `schema` = '{delta_key_config["schema"]}'"""
+
+        insert_hql = f"""INSERT INTO TABLE {ConstantsProvider.get_delta_key_table()} VALUES 
+                ( {",".join(map(lambda val: '"' + val + '"',delta_key_config.values()))} )"""
+
+        with self.connection.cursor() as cursor:
+            logger.info(
+                f"Creating table {ConstantsProvider.get_delta_key_table()} with hiveQL: {create_ddl}"
+            )
+            cursor.execute(create_ddl)
+
+            # Configuring Hive to enable ACID properties
+            ACID_Hive_configs = [
+                "SET hive.support.concurrency=true",
+                "SET hive.txn.manager=org.apache.hadoop.hive.ql.lockmgr.DbTxnManager",
+                "SET hive.enforce.bucketing=true",
+                "SET hive.exec.dynamic.partition.mode=nostrict",
+                "SET hive.compactor.initiator.on=true",
+                "SET hive.compactor.worker.threads=1",
+            ]
+
+            for config in ACID_Hive_configs:
+                cursor.execute(config)
+
+            logger.info(
+                f"""Deleting a delta key if existed with hiveQL: {delete_hql}"""
+            )
+            cursor.execute(delete_hql)
+
+            logger.info(f"""Inserting a delta key with hiveQL: {insert_hql} """)
+            cursor.execute(insert_hql)

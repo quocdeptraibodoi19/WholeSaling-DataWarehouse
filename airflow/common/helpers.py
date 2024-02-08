@@ -123,15 +123,15 @@ class ConstantsProvider:
 
     @staticmethod
     def get_HR_source():
-        return "HR-System"
+        return "HR_System"
 
     @staticmethod
     def get_Product_source():
-        return "Product-Management-Platform"
+        return "Product_Management_Platform"
 
     @staticmethod
     def get_WholeSaling_source():
-        return "WholeSale-System"
+        return "WholeSale_System"
 
     @staticmethod
     def get_Ecomerce_source():
@@ -140,15 +140,23 @@ class ConstantsProvider:
     @staticmethod
     def get_DW_Layer(level: int):
         if level == 0:
-            return "hdfs_landingzone"
+            return "landingzone"
         elif level == 1:
-            return "hive_dw_staging"
+            return "staging"
         elif level == 2:
-            return "hive_dw_NDS"
+            return "NDS"
         elif level == 3:
-            return "hive_dw_datamarts"
+            return "analytics"
         else:
             raise ValueError("level is invalid...")
+
+    @staticmethod
+    def get_delta_key_table():
+        return "delta_keys"
+
+    @staticmethod
+    def get_staging_table(source: str, table: str):
+        return f"{source.lower()}_{table.lower()}"
 
     @staticmethod
     def config_file_path(source: str):

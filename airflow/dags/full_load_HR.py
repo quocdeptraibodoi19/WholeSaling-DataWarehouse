@@ -10,15 +10,15 @@ from airflow.models.dag import DAG
 
 from common.helpers import ConstantsProvider
 
-from ingest.task_generator import HRTaskGenerator
+from ingest.task_generator import HRFullLoadTaskGenerator
 
 with DAG(
     "full_load_HR",
     default_args=ConstantsProvider.default_dag_args(),
-    description="This is the first DAG to be executed",
+    description=f"A full load data pipleline to ingest data from {ConstantsProvider.get_HR_source()}",
     schedule=timedelta(hours=3),
     start_date=datetime(2024, 1, 1),
     catchup=False,
 ) as dag:
-    hr_task_generator = HRTaskGenerator(dag=dag, is_full_load=True)
+    hr_task_generator = HRFullLoadTaskGenerator(dag=dag)
     hr_task_generator.add_all_tasks()
