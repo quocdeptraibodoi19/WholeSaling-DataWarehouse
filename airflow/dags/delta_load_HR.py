@@ -59,14 +59,14 @@ with DAG(
         dag=dag,
     )
 
-    t3 = PythonOperator(
-        task_id=f"update_detla_key_table_{source.lower()}_{table.lower()}_Hive",
-        python_callable=update_delta_keys,
-        op_kwargs={
-            "source": source,
-            "logger": logger,
-            "table_config": table_config,
-        },
-    )
+    # t3 = PythonOperator(
+    #     task_id=f"update_detla_key_table_{source.lower()}_{table.lower()}_Hive",
+    #     python_callable=update_delta_keys,
+    #     op_kwargs={
+    #         "source": source,
+    #         "logger": logger,
+    #         "table_config": table_config,
+    #     },
+    # )
 
-    t1 >> t2 >> t3
+    t1 >> t2

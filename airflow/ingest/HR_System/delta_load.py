@@ -8,7 +8,9 @@ import pandas as pd
 
 import logging
 
-from common.ingester import DeltaKeyHiveStagingDataHook
+from common.ingestion_strategies import DataIngester, HiveStagingDeltaKeyIngestionStrategy
+from common.system_data_hooks import HiveDataHook
+
 from common.helpers import ConstantsProvider
 
 from datetime import datetime
@@ -51,10 +53,10 @@ def update_delta_keys(logger: logging.Logger, table_config: dict, source: str):
     )
     logger.info(f"Getting the latest delta key with the hiveQL: {delta_load_hql}")
 
-    delta_key_hive_sys = DeltaKeyHiveStagingDataHook()
-    delta_key_hive_sys.connect()
+    hive_sys = HiveDataHook()
+    hive_sys.connect()
     try:
-        delta_keys_df = delta_key_hive_sys.receive_data(query=delta_load_hql)
+        delta_keys_df = hive_sys.execute(query=delta_load_hql)
 
         delta_keys_dict = delta_keys_df.to_dict("records")[-1]
         logger.info(
@@ -66,7 +68,8 @@ def update_delta_keys(logger: logging.Logger, table_config: dict, source: str):
             f"Convert all value of keys in the dictionary to string: {delta_keys_dict}"
         )
 
-        delta_key_hive_sys.move_data(
+        delta_hive_ingester = DataIngester(HiveStagingDeltaKeyIngestionStrategy())
+        delta_hive_ingester.ingest(
             source=source, table=table, delta_keys_dict=delta_keys_dict
         )
 
@@ -74,4 +77,4 @@ def update_delta_keys(logger: logging.Logger, table_config: dict, source: str):
         logger.error(f"An error occurred: {e}")
         raise
     finally:
-        delta_key_hive_sys.disconnect()
+        hive_sys.disconnect()

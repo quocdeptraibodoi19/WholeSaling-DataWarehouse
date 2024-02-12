@@ -8,11 +8,14 @@ import logging
 
 from datetime import datetime
 
-from common.ingester import (
+from common.system_data_hooks import (
     HRSystemDataHook,
-    HDFSLandingZoneDataHook,
-    PrestoHiveStagingDataHook,
-    HiveStagingDataHook,
+    HDFSDataHook,
+)
+from common.ingestion_strategies import (
+    HDFSLandingZoneIngestionStrategy,
+    HiveStagingIntestionStrategy,
+    DataIngester,
 )
 from common.helpers import ConstantsProvider
 
@@ -25,31 +28,44 @@ def HR_to_HDFS(logger: logging.Logger, table: str, source: str):
         logger.info(
             f"Getting columns of the table {table} with query: {metadata_query}"
         )
-        columns_data = hr_sys.receive_data(query=metadata_query)
+        columns_data = hr_sys.execute(query=metadata_query)
 
         query_columns = list(
             map(
-                lambda data: "CONVERT(NVARCHAR(MAX), " + "[" + data[0] + "]" + ") AS " + "["+ data[0] + "]",
+                lambda data: "CONVERT(NVARCHAR(MAX), "
+                + "["
+                + data[0]
+                + "]"
+                + ") AS "
+                + "["
+                + data[0]
+                + "]",
                 columns_data.itertuples(index=False, name=None),
             )
         )
         query = "SELECT " + ",".join(query_columns) + f" FROM {table}"
         logger.info(f"Getting data from {table} in {source} with query: {query}")
-        data_collection = hr_sys.receive_data(
+        data_collection = hr_sys.execute(
             query=query, chunksize=ConstantsProvider.HR_query_chunksize()
         )
-        
+
+        logger.info(
+            f"Standarlizing data (column modifieddate) with format '%b %d %Y %I:%M%p' ..."
+        )
+        changed_data_collection = ConstantsProvider.standardlize_date_format(
+            data_collection=data_collection,
+            column="ModifiedDate",
+            datetime_format="%b %d %Y %I:%M%p",
+            logger=logger,
+        )
+
         logger.info(f"Moving data into HDFS...")
-        hdfs_sys = HDFSLandingZoneDataHook()
-        hdfs_sys.connect()
-        try:
-            hdfs_sys.move_data(
-                source_system=source,
-                table_name=table,
-                data_collection=data_collection,
-            )
-        finally:
-            hdfs_sys.disconnect()
+        hdfs_ingester = DataIngester(HDFSLandingZoneIngestionStrategy())
+        hdfs_ingester.ingest(
+            source_system=source,
+            table_name=table,
+            data_collection=changed_data_collection,
+        )
     except Exception as e:
         logger.error(f"An error occurred: {e}")
         raise
@@ -58,23 +74,29 @@ def HR_to_HDFS(logger: logging.Logger, table: str, source: str):
 
 
 def HDFS_LandingZone_to_Hive_Staging(logger: logging.Logger, table: str, source: str):
-    hive_sys = HiveStagingDataHook()
-    hive_sys.connect()
+    hdfs_sys = HDFSDataHook()
+    hdfs_sys.connect()
     try:
-        hdfs_sys = HDFSLandingZoneDataHook()
-        hdfs_sys.connect()
-        try:
-            table_schema = hdfs_sys.get_data_schema(
-                table, source, datetime.now().strftime("%Y-%m-%d")
-            )
+        table_schema = hdfs_sys.execute(
+            command="data_schema",
+            table_name=table,
+            source_name=source,
+            date_str=datetime.now().strftime("%Y-%m-%d"),
+        )
 
-            logger.info(f"Creating the external table for ingested data from table {table} and source {source} with the columns {table_schema}")
-            
-            hive_sys.move_data(table, source, table_schema, is_full_load=True)
-        finally:
-            hdfs_sys.disconnect()
+        logger.info(
+            f"Creating the external table for ingested data from table {table} and source {source} with the columns {table_schema}"
+        )
+
+        hive_ingester = DataIngester(HiveStagingIntestionStrategy())
+        hive_ingester.ingest(
+            table_name=table,
+            source_system=source,
+            table_columns=table_schema,
+            is_full_load=True,
+        )
     except Exception as e:
         logger.error(f"An error occurred: {e}")
         raise
     finally:
-        hive_sys.disconnect()
+        hdfs_sys.disconnect()

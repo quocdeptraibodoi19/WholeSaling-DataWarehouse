@@ -1,8 +1,12 @@
 import os
 from datetime import timedelta
-
 from datetime import datetime
 
+from typing import Iterator
+
+import pandas as pd
+
+import logging
 
 class ConstantsProvider:
     @staticmethod
@@ -169,3 +173,11 @@ class ConstantsProvider:
                 ConstantsProvider.get_Ecomerce_source(): "ecomerce_system.yaml",
             }
             return base + opts[source]
+    
+    @staticmethod
+    def standardlize_date_format(data_collection: Iterator[pd.DataFrame], column: str, datetime_format: str, logger: logging.Logger = None):
+        for data in data_collection:
+            data[column] = pd.to_datetime(data[column], format=datetime_format)
+            if logger is not None:
+                logger.info(f"Standardlized dateframe: {data[column]}")
+            yield data
