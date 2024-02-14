@@ -2,11 +2,12 @@ import os
 from datetime import timedelta
 from datetime import datetime
 
-from typing import Iterator
+from typing import Iterator, Callable
 
 import pandas as pd
 
 import logging
+
 
 class ConstantsProvider:
     @staticmethod
@@ -122,8 +123,29 @@ class ConstantsProvider:
         return base_path
 
     @staticmethod
+    def HDFS_LandingZone_delete_reconcile_base_dir(
+        source_system: str = None, table_name: str = None, date_str: str = None
+    ):
+
+        base_path = "/delete_reconcile/"
+        if source_system:
+            base_path += f"{source_system}/"
+
+        if table_name:
+            base_path += f"{table_name}/"
+
+        if date_str:
+            base_path += f"{ConstantsProvider.ingested_meta_field()}={date_str}/"
+
+        return base_path
+
+    @staticmethod
     def ingested_meta_field():
         return "date_partition"
+
+    @staticmethod
+    def soft_delete_meta_field():
+        return "is_deleted"
 
     @staticmethod
     def get_HR_source():
@@ -141,6 +163,14 @@ class ConstantsProvider:
     def get_Ecomerce_source():
         return "Ecomerce"
 
+    @staticmethod
+    def get_HR_date_fields_for_standardization():
+        return ["ModifiedDate"]
+    
+    @staticmethod
+    def get_sources_datetime_format_standardization():
+        return "%b %d %Y %I:%M%p"
+    
     @staticmethod
     def get_DW_Layer(level: int):
         if level == 0:
@@ -163,6 +193,34 @@ class ConstantsProvider:
         return f"{source.lower()}_{table.lower()}"
 
     @staticmethod
+    def get_delta_table(source: str, table: str):
+        return f"delta_{ConstantsProvider.get_staging_table(source, table)}"
+
+    @staticmethod
+    def get_reconcile_delete_table(source: str, table: str):
+        return f"reconcile_delete_{ConstantsProvider.get_staging_table(source, table)}"
+
+    @staticmethod
+    def get_delta_temp_view_table(source: str, table: str):
+        return f"temp_{ConstantsProvider.get_delta_table(source, table)}"
+
+    @staticmethod
+    def get_reconcile_delete_temp_view_table(source: str, table: str):
+        return f"temp_{ConstantsProvider.get_reconcile_delete_table(source, table)}"
+
+    @staticmethod
+    def get_fullload_ingest_file():
+        return "ingested_data_{}.csv"
+
+    @staticmethod
+    def get_deltaload_ingest_file():
+        return "delta_ingested_data_{}.csv"
+
+    @staticmethod
+    def get_data_key_ingest_file():
+        return "data_keys_{}.csv"
+
+    @staticmethod
     def config_file_path(source: str):
         if ConstantsProvider.get_environment() == "local":
             base = "config/"
@@ -173,11 +231,47 @@ class ConstantsProvider:
                 ConstantsProvider.get_Ecomerce_source(): "ecomerce_system.yaml",
             }
             return base + opts[source]
-    
-    @staticmethod
-    def standardlize_date_format(data_collection: Iterator[pd.DataFrame], column: str, datetime_format: str, logger: logging.Logger = None):
-        for data in data_collection:
-            data[column] = pd.to_datetime(data[column], format=datetime_format)
-            if logger is not None:
-                logger.info(f"Standardlized dateframe: {data[column]}")
+
+
+class DataManipulator:
+    def __init__(self, data_collection: Iterator[pd.DataFrame], logger: logging.Logger) -> None:
+        self._data_collection = data_collection
+        self._transformations = []
+        self._logger = logger
+
+    def transform(self, transform_func: Callable[[pd.DataFrame, logging.Logger], pd.DataFrame]):
+        self._transformations.append(transform_func)
+        return self
+
+    def execute(self):
+        for data in self._data_collection:
+            for transformation in self._transformations:
+                data = transformation(data, self._logger)
+
             yield data
+
+
+class DataManipulatingManager:
+    @staticmethod
+    def standardlize_date_format(column: str, datetime_format: str):
+        def transform(data: pd.DataFrame, logger: logging.Logger):
+            data[column] = pd.to_datetime(data[column], format=datetime_format)
+
+            logger.info(
+                f"Standarlizing data (column {column}) with format '{datetime_format}' ..."
+            )
+            logger.info(f"Tunning the dataframe: {data}")
+
+            return data
+
+        return transform
+
+    @staticmethod
+    def add_new_column_data_collection(column: str, val):
+        def transform(data: pd.DataFrame, logger: logging.Logger):
+            data[column] = val
+            logger.info(f"Adding new column {column} with value {val} ...")
+            logger.info(f"Tunning the dataframe: {data}")
+            return data
+
+        return transform

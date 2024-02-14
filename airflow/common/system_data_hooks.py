@@ -94,14 +94,15 @@ class HDFSDataHook(SysDataHook):
                 table_name=kwargs.get("table_name"),
                 source_name=kwargs.get("source_name"),
                 date_str=kwargs.get("date_str"),
+                file_name=kwargs.get("file_name"),
             )
 
-    def _get_data_schema(self, table_name: str, source_name: str, date_str: str):
+    def _get_data_schema(self, table_name: str, source_name: str, date_str: str, file_name: str):
         with self.connection.read(
             ConstantsProvider.HDFS_LandingZone_base_dir(
                 source_name, table_name, date_str
             )
-            + "ingested_data_0.csv",
+            + file_name.format(0),
             encoding="utf-8",
         ) as file:
             df = pd.read_csv(file, nrows=1, sep="|")

@@ -36,6 +36,8 @@ class HDFSLandingZoneIngestionStrategy(DataIngestionStrategy):
         source_system: str,
         table_name: str,
         data_collection: Iterable[pd.DataFrame],
+        ingested_file_name: str,
+        HDFS_location_dir: str = None,
         *args,
         **kwargs,
     ):
@@ -43,18 +45,18 @@ class HDFSLandingZoneIngestionStrategy(DataIngestionStrategy):
             self.data_hook.connect()
             i = 0
             for data in data_collection:
-                data[ConstantsProvider.ingested_meta_field()] = pd.to_datetime(
-                    datetime.now().strftime("%Y-%m-%d")
-                )
 
                 self.logger.info(f"Moving data: {data}")
 
-                hdfs_data_path = (
-                    ConstantsProvider.HDFS_LandingZone_base_dir(
+                base_dir = (
+                    HDFS_location_dir
+                    if HDFS_location_dir is not None
+                    else ConstantsProvider.HDFS_LandingZone_base_dir(
                         source_system, table_name, datetime.now().strftime("%Y-%m-%d")
                     )
-                    + f"ingested_data_{i}.csv"
                 )
+
+                hdfs_data_path = base_dir + ingested_file_name.format(i)
                 self.logger.info(f"Destination: {hdfs_data_path}")
 
                 with self.data_hook.connection.write(
@@ -155,51 +157,68 @@ class HiveStagingIntestionStrategy(DataIngestionStrategy):
         self,
         table_name: str,
         source_system: str,
+        hive_table_name: str,
         table_columns: List[str] = None,
-        is_full_load: bool = False,
+        HDFS_table_location_dir: str = None,
+        HDFS_partition_location_dir: str = None,
         *args,
         **kwargs,
     ):
         try:
             self.data_hook.connect()
 
-            if is_full_load:
-                drop_ddl = f"""DROP TABLE IF EXISTS {ConstantsProvider.get_staging_table(source_system, table_name)}"""
-
-                self.logger.info(
-                    f"Dropping the table {ConstantsProvider.get_staging_table(source_system, table_name)} on Hive with query: {drop_ddl}"
+            if HDFS_table_location_dir is None and HDFS_partition_location_dir is None:
+                HDFS_table_location_dir = ConstantsProvider.HDFS_LandingZone_base_dir(
+                    source_system, table_name
+                )
+                HDFS_partition_location_dir = (
+                    ConstantsProvider.HDFS_LandingZone_base_dir(
+                        source_system, table_name, datetime.now().strftime("%Y-%m-%d")
+                    )
                 )
 
-                with self.data_hook.connection.cursor() as cursor:
-                    cursor.execute(drop_ddl)
+            drop_ddl = f"""DROP TABLE IF EXISTS {hive_table_name}"""
+
+            self.logger.info(
+                f"Dropping the table {hive_table_name} on Hive with query: {drop_ddl}"
+            )
+
+            with self.data_hook.connection.cursor() as cursor:
+                cursor.execute(drop_ddl)
 
             table_schema = list(
-                map(lambda column: "`" + column + "`" + " STRING", table_columns)
+                map(
+                    lambda column: "`" + column + "`" + " STRING",
+                    filter(
+                        lambda col: col != ConstantsProvider.ingested_meta_field(),
+                        table_columns,
+                    ),
+                )
             )
-            hive_ddl = f"""CREATE EXTERNAL TABLE IF NOT EXISTS {ConstantsProvider.get_staging_table(source_system, table_name)} 
-                        ( {", ".join(table_schema[:-1])} )
+            hive_ddl = f"""CREATE EXTERNAL TABLE IF NOT EXISTS {hive_table_name} 
+                        ( {", ".join(table_schema)} )
                         PARTITIONED BY ({ConstantsProvider.ingested_meta_field()} STRING)
                         ROW FORMAT DELIMITED
                         FIELDS TERMINATED BY '|'
                         STORED AS TEXTFILE
-                        LOCATION '{ConstantsProvider.HDFS_LandingZone_base_dir(source_system, table_name)}'
+                        LOCATION '{HDFS_table_location_dir}'
                         TBLPROPERTIES ("skip.header.line.count"="1")
                     """
 
             self.logger.info(
-                f"Creating the external table {ConstantsProvider.get_staging_table(source_system, table_name)} on Hive with the query: {hive_ddl}"
+                f"Creating the external table {hive_table_name} on Hive with the query: {hive_ddl}"
             )
 
             with self.data_hook.connection.cursor() as cursor:
                 cursor.execute(hive_ddl)
 
-            adding_partition_ddl = f"""ALTER TABLE {ConstantsProvider.get_staging_table(source_system, table_name)} 
+            adding_partition_ddl = f"""ALTER TABLE {hive_table_name} 
                         ADD PARTITION ({ConstantsProvider.ingested_meta_field()}='{datetime.now().strftime("%Y-%m-%d")}') 
-                        LOCATION '{ConstantsProvider.HDFS_LandingZone_base_dir(source_system, table_name, datetime.now().strftime("%Y-%m-%d"))}'
+                        LOCATION '{HDFS_partition_location_dir}'
                     """
 
             self.logger.info(
-                f"Suplementing data partition into {ConstantsProvider.get_staging_table(source_system, table_name)} on Hive with the query: {adding_partition_ddl}"
+                f"Suplementing data partition into {hive_table_name} on Hive with the query: {adding_partition_ddl}"
             )
 
             with self.data_hook.connection.cursor() as cursor:
@@ -295,6 +314,6 @@ class HiveStagingDeltaKeyIngestionStrategy(DataIngestionStrategy):
 class DataIngester:
     def __init__(self, ingestion_strategy: DataIngestionStrategy) -> None:
         self.ingestion_strategy = ingestion_strategy
-    
+
     def ingest(self, *args, **kwargs):
         self.ingestion_strategy.move_data(*args, **kwargs)

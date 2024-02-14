@@ -31,10 +31,10 @@ with DAG(
     logger = logging.getLogger(__name__)
     table_config = {
         "table": "Stakeholder",
-        "primary_keys": "StackHolderID",
+        "primary_keys": ["StackHolderID"],
         "delta_keys": ["ModifiedDate"],
         "custom_load_sql": "Select * from Stackholder where (ModifiedDate > {ModifiedDate})",
-        "delta_load_hql": "SELECT MAX(CAST(FROM_UNIXTIME(UNIX_TIMESTAMP(MODIFIEDDATE, 'MMM dd yyyy hh:mmaa')) AS TIMESTAMP)) AS MODIFIEDDATE FROM {hive_table}",
+        "delta_load_hql": "SELECT MAX(DATE_PARSE(MODIFIEDDATE, '%Y-%m-%d %H:%i:%s')) AS MODIFIEDDATE FROM {hive_table}",
     }
 
     t1 = PythonOperator(
@@ -59,14 +59,14 @@ with DAG(
         dag=dag,
     )
 
-    # t3 = PythonOperator(
-    #     task_id=f"update_detla_key_table_{source.lower()}_{table.lower()}_Hive",
-    #     python_callable=update_delta_keys,
-    #     op_kwargs={
-    #         "source": source,
-    #         "logger": logger,
-    #         "table_config": table_config,
-    #     },
-    # )
+    t3 = PythonOperator(
+        task_id=f"update_detla_key_table_{source.lower()}_{table.lower()}_Hive",
+        python_callable=update_delta_keys,
+        op_kwargs={
+            "source": source,
+            "logger": logger,
+            "table_config": table_config,
+        },
+    )
 
-    t1 >> t2
+    t1 >> t2 >> t3

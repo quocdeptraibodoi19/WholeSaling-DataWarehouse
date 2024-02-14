@@ -17,7 +17,9 @@ from common.ingestion_strategies import (
     HiveStagingIntestionStrategy,
     DataIngester,
 )
-from common.helpers import ConstantsProvider
+from common.helpers import ConstantsProvider, DataManipulator, DataManipulatingManager
+
+import pandas as pd
 
 
 def HR_to_HDFS(logger: logging.Logger, table: str, source: str):
@@ -49,14 +51,32 @@ def HR_to_HDFS(logger: logging.Logger, table: str, source: str):
             query=query, chunksize=ConstantsProvider.HR_query_chunksize()
         )
 
-        logger.info(
-            f"Standarlizing data (column modifieddate) with format '%b %d %Y %I:%M%p' ..."
+        data_manipulator = DataManipulator(
+            data_collection=data_collection, logger=logger
         )
-        changed_data_collection = ConstantsProvider.standardlize_date_format(
-            data_collection=data_collection,
-            column="ModifiedDate",
-            datetime_format="%b %d %Y %I:%M%p",
-            logger=logger,
+
+        for date_field in ConstantsProvider.get_HR_date_fields_for_standardization():
+            if date_field in columns_data:
+                data_manipulator.transform(
+                    DataManipulatingManager.standardlize_date_format(
+                        column=date_field,
+                        datetime_format=ConstantsProvider.get_sources_datetime_format_standardization(),
+                    )
+                )
+                
+        data_collection = (
+            data_manipulator.transform(
+                DataManipulatingManager.add_new_column_data_collection(
+                    column=ConstantsProvider.ingested_meta_field(),
+                    val=pd.to_datetime(datetime.now().strftime("%Y-%m-%d")),
+                )
+            )
+            .transform(
+                DataManipulatingManager.add_new_column_data_collection(
+                    column=ConstantsProvider.soft_delete_meta_field(), val=False
+                )
+            )
+            .execute()
         )
 
         logger.info(f"Moving data into HDFS...")
@@ -64,7 +84,8 @@ def HR_to_HDFS(logger: logging.Logger, table: str, source: str):
         hdfs_ingester.ingest(
             source_system=source,
             table_name=table,
-            data_collection=changed_data_collection,
+            data_collection=data_collection,
+            ingested_file_name=ConstantsProvider.get_fullload_ingest_file(),
         )
     except Exception as e:
         logger.error(f"An error occurred: {e}")
@@ -75,12 +96,14 @@ def HR_to_HDFS(logger: logging.Logger, table: str, source: str):
 
 def HDFS_LandingZone_to_Hive_Staging(logger: logging.Logger, table: str, source: str):
     hdfs_sys = HDFSDataHook()
-    hdfs_sys.connect()
     try:
+        hdfs_sys.connect()
+
         table_schema = hdfs_sys.execute(
             command="data_schema",
             table_name=table,
             source_name=source,
+            file_name=ConstantsProvider.get_fullload_ingest_file(),
             date_str=datetime.now().strftime("%Y-%m-%d"),
         )
 
@@ -93,7 +116,7 @@ def HDFS_LandingZone_to_Hive_Staging(logger: logging.Logger, table: str, source:
             table_name=table,
             source_system=source,
             table_columns=table_schema,
-            is_full_load=True,
+            hive_table_name=ConstantsProvider.get_staging_table(source, table),
         )
     except Exception as e:
         logger.error(f"An error occurred: {e}")
