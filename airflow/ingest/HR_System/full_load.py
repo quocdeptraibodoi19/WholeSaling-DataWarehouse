@@ -30,21 +30,20 @@ def HR_to_HDFS(logger: logging.Logger, table: str, source: str):
         logger.info(
             f"Getting columns of the table {table} with query: {metadata_query}"
         )
-        columns_data = hr_sys.execute(query=metadata_query)
-
-        query_columns = list(
+        columns_data = list(
             map(
-                lambda data: "CONVERT(NVARCHAR(MAX), "
-                + "["
-                + data[0]
-                + "]"
-                + ") AS "
-                + "["
-                + data[0]
-                + "]",
-                columns_data.itertuples(index=False, name=None),
+                lambda data: data[0],
+                hr_sys.execute(query=metadata_query).itertuples(index=False, name=None),
             )
         )
+
+        logger.info(f"The columns of {table} are: {columns_data}")
+
+        query_columns = [
+            "CONVERT(NVARCHAR(MAX), " + "[" + col + "]" + ") AS " + "[" + col + "]"
+            for col in columns_data
+        ]
+        
         query = "SELECT " + ",".join(query_columns) + f" FROM {table}"
         logger.info(f"Getting data from {table} in {source} with query: {query}")
         data_collection = hr_sys.execute(
@@ -63,7 +62,7 @@ def HR_to_HDFS(logger: logging.Logger, table: str, source: str):
                         datetime_format=ConstantsProvider.get_sources_datetime_format_standardization(),
                     )
                 )
-                
+
         data_collection = (
             data_manipulator.transform(
                 DataManipulatingManager.add_new_column_data_collection(

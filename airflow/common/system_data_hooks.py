@@ -17,7 +17,7 @@ from pyhive import hive
 import logging
 
 
-class SysDataHook():
+class SysDataHook:
     def __init__(self) -> None:
         self.logger = logging.getLogger(__name__)
         self._connection = None
@@ -34,9 +34,11 @@ class SysDataHook():
     @property
     def connection(self):
         if self._connection is None:
-            raise LookupError("Connection is None ... please connect it to the external system first")
+            raise LookupError(
+                "Connection is None ... please connect it to the external system first"
+            )
         return self._connection
-    
+
 
 class HRSystemDataHook(SysDataHook):
     def connect(self, *args, **kwargs):
@@ -97,7 +99,9 @@ class HDFSDataHook(SysDataHook):
                 file_name=kwargs.get("file_name"),
             )
 
-    def _get_data_schema(self, table_name: str, source_name: str, date_str: str, file_name: str):
+    def _get_data_schema(
+        self, table_name: str, source_name: str, date_str: str, file_name: str
+    ):
         with self.connection.read(
             ConstantsProvider.HDFS_LandingZone_base_dir(
                 source_name, table_name, date_str
@@ -169,11 +173,11 @@ class HiveDataHook(SysDataHook):
             self.creds["database"] = database
 
         self._connection = hive.Connection(**self.creds)
-    
+
     def disconnect(self, *args, **kwargs):
         self.logger.info("Disconnecting from Hive Metastore...")
         self.connection.close()
-    
+
     def execute(self, query: str, chunksize: int = None, *args, **kwargs):
         self.logger.info(f"Getting data from query: {query}")
         return pd.read_sql(query, self.connection, chunksize=chunksize)

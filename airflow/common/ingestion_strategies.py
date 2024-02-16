@@ -188,7 +188,12 @@ class HiveStagingIntestionStrategy(DataIngestionStrategy):
 
             table_schema = list(
                 map(
-                    lambda column: "`" + column + "`" + " STRING",
+                    lambda column: (
+                        "`" + column + "`" + " STRING"
+                        if column
+                        not in ConstantsProvider.get_HR_date_fields_for_standardization()
+                        else "`" + column + "`" + " TIMESTAMP"
+                    ),
                     filter(
                         lambda col: col != ConstantsProvider.ingested_meta_field(),
                         table_columns,
@@ -251,11 +256,9 @@ class HiveStagingDeltaKeyIngestionStrategy(DataIngestionStrategy):
                     `schema` STRING,
                     `table` STRING,
                     `delta_keys` STRING,
-                    {ConstantsProvider.ingested_meta_field()} STRING
+                    {ConstantsProvider.ingested_meta_field()} TIMESTAMP
                 )
-                CLUSTERED BY (`schema`, `table`) INTO 5 BUCKETS
                 STORED AS ORC
-                TBLPROPERTIES ("transactional"="true")
             """
 
             delta_key_config = {
@@ -269,11 +272,34 @@ class HiveStagingDeltaKeyIngestionStrategy(DataIngestionStrategy):
 
             self.logger.info(f"The current delta_config: {delta_key_config}")
 
-            delete_hql = f"""DELETE FROM `{ConstantsProvider.get_delta_key_table()}`
-                WHERE `table` = '{delta_key_config["table"]}' and `schema` = '{delta_key_config["schema"]}'"""
+            constructed_cols_ddl = map(
+                lambda data: (
+                    '"' + data[1] + '" AS ' + "`" + data[0] + "`"
+                    if data[0] != ConstantsProvider.ingested_meta_field()
+                    else 'CAST("' + data[1] + '" AS TIMESTAMP)' + "`" + data[0] + "`"
+                ),
+                delta_key_config.items(),
+            )
+            delta_table_ddl = f"""CREATE TABLE {ConstantsProvider.get_temp_delta_key_table()} AS
+                SELECT {",".join(map(lambda col: "t2." + "`" + col + "`", delta_key_config.keys()))} FROM 
+                    (
+                        SELECT *, ROW_NUMBER() OVER (PARTITION BY `schema`, `table` ORDER BY `{ConstantsProvider.ingested_meta_field()}` DESC) rn
+                        FROM (
+                            SELECT * FROM {ConstantsProvider.get_delta_key_table()}
+                            UNION ALL
+                            SELECT * FROM ( SELECT 
+                                {",".join(constructed_cols_ddl)} 
+                            ) subquery
+                        ) t1
+                    ) t2 WHERE t2.rn = 1
+                """
 
-            insert_hql = f"""INSERT INTO TABLE {ConstantsProvider.get_delta_key_table()} VALUES 
-                    ( {",".join(map(lambda val: '"' + val + '"',delta_key_config.values()))} )"""
+            insert_hql = f"""INSERT OVERWRITE TABLE {ConstantsProvider.get_delta_key_table()} 
+                SELECT * FROM {ConstantsProvider.get_temp_delta_key_table()}"""
+
+            delta_table_drop_ddl = (
+                f"DROP TABLE {ConstantsProvider.get_temp_delta_key_table()}"
+            )
 
             with self.data_hook.connection.cursor() as cursor:
                 self.logger.info(
@@ -281,28 +307,20 @@ class HiveStagingDeltaKeyIngestionStrategy(DataIngestionStrategy):
                 )
                 cursor.execute(create_ddl)
 
-                # Configuring Hive to enable ACID properties
-                ACID_Hive_configs = [
-                    "SET hive.support.concurrency=true",
-                    "SET hive.txn.manager=org.apache.hadoop.hive.ql.lockmgr.DbTxnManager",
-                    "SET hive.enforce.bucketing=true",
-                    "SET hive.exec.dynamic.partition.mode=nostrict",
-                    "SET hive.compactor.initiator.on=true",
-                    "SET hive.compactor.worker.threads=1",
-                ]
-
-                for config in ACID_Hive_configs:
-                    cursor.execute(config)
-
                 self.logger.info(
-                    f"""Deleting a delta key if existed with hiveQL: {delete_hql}"""
+                    f"""Creating table {ConstantsProvider.get_temp_delta_key_table()} with hiveQL: {delta_table_ddl} """
                 )
-                cursor.execute(delete_hql)
+                cursor.execute(delta_table_ddl)
 
                 self.logger.info(
-                    f"""Inserting a delta key with hiveQL: {insert_hql} """
+                    f"""Insert data from {ConstantsProvider.get_temp_delta_key_table()} to {ConstantsProvider.get_delta_key_table()}: {insert_hql} """
                 )
                 cursor.execute(insert_hql)
+
+                self.logger.info(
+                    f"""Drop {ConstantsProvider.get_temp_delta_key_table()} with hiveQL: {delta_table_drop_ddl} """
+                )
+                cursor.execute(delta_table_drop_ddl)
 
         except Exception as e:
             self.logger.error(f"An error occurred: {e}")

@@ -11,7 +11,14 @@ from airflow.models.dag import DAG
 from common.helpers import ConstantsProvider
 
 from ingest.HR_System.full_load import HR_to_HDFS, HDFS_LandingZone_to_Hive_Staging
-from ingest.HR_System.delta_load import update_delta_keys
+from ingest.HR_System.delta_load import (
+    update_delta_keys,
+    delta_HR_to_HDFS,
+    delta_HDFS_LandingZone_to_Hive_Staging,
+    delete_detection_HR_HDFS,
+    delete_detection_HDFS_LandingZone_to_Hive_Staging,
+    reconciling_delta_delete_Hive_Staging,
+)
 
 from airflow.operators.python import PythonOperator
 
@@ -34,7 +41,7 @@ with DAG(
         "primary_keys": ["StackHolderID"],
         "delta_keys": ["ModifiedDate"],
         "custom_load_sql": "Select * from Stackholder where (ModifiedDate > {ModifiedDate})",
-        "delta_load_hql": "SELECT MAX(DATE_PARSE(MODIFIEDDATE, '%Y-%m-%d %H:%i:%s')) AS MODIFIEDDATE FROM {hive_table}",
+        "delta_load_hql": "SELECT MAX(MODIFIEDDATE) AS MODIFIEDDATE FROM {hive_table}",
     }
 
     t1 = PythonOperator(
@@ -70,3 +77,67 @@ with DAG(
     )
 
     t1 >> t2 >> t3
+
+    # t4 = PythonOperator(
+    #     task_id=f"delete_detection_{table.lower()}_{source.lower()}_HDFS",
+    #     python_callable=delete_detection_HR_HDFS,
+    #     op_kwargs={
+    #         "source": source,
+    #         "logger": logger,
+    #         "table_config": table_config,
+    #     },
+    # )
+
+    # t5 = PythonOperator(
+    #     task_id=f"delete_detection_{table.lower()}_HDFS_Hive",
+    #     python_callable=delete_detection_HDFS_LandingZone_to_Hive_Staging,
+    #     op_kwargs={
+    #         "source": source,
+    #         "logger": logger,
+    #         "table_config": table_config,
+    #     },
+    # )
+
+    # t6 = PythonOperator(
+    #     task_id=f"delete_detection_{table.lower()}_Reconcile_Hive",
+    #     python_callable=reconciling_delta_delete_Hive_Staging,
+    #     op_kwargs={
+    #         "source": source,
+    #         "logger": logger,
+    #         "table_config": table_config,
+    #         "mode": "recocile_delete",
+    #     },
+    # )
+
+    # t7 = PythonOperator(
+    #     task_id=f"delta_load_{table.lower()}_{source.lower()}_HDFS",
+    #     python_callable=delta_HR_to_HDFS,
+    #     op_kwargs={
+    #         "source": source,
+    #         "logger": logger,
+    #         "table_config": table_config,
+    #     },
+    # )
+
+    # t8 = PythonOperator(
+    #     task_id=f"delta_load_{table.lower()}_HDFS_Hive",
+    #     python_callable=delta_HDFS_LandingZone_to_Hive_Staging,
+    #     op_kwargs={
+    #         "source": source,
+    #         "logger": logger,
+    #         "table_config": table_config,
+    #     },
+    # )
+
+    # t9 = PythonOperator(
+    #     task_id=f"delta_load_{table.lower()}_Reconcile_Hive",
+    #     python_callable=reconciling_delta_delete_Hive_Staging,
+    #     op_kwargs={
+    #         "source": source,
+    #         "logger": logger,
+    #         "table_config": table_config,
+    #         "mode": "delta",
+    #     },
+    # )
+
+    # t4 >> t5 >> t6 >> t7 >> t8 >> t9

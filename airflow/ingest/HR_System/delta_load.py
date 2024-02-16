@@ -34,11 +34,12 @@ def delta_HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
 
     hr_sys = HRSystemDataHook()
     presto_sys = PrestoDataHook()
+
     try:
         hr_sys.connect()
         presto_sys.connect()
-
-        delta_keys_query = f"SELECT delta_keys FROM {ConstantsProvider.get_delta_key_table()} WHERE schema = '{source}' AND table = '{table}'"
+        
+        delta_keys_query = f"SELECT delta_keys FROM {ConstantsProvider.get_delta_key_table()} WHERE schema = 'staging' AND table = '{ConstantsProvider.get_staging_table(source, table)}'"
         delta_keys_df = presto_sys.execute(query=delta_keys_query)
         delta_keys = ast.literal_eval(delta_keys_df["delta_keys"])
         logger.info(

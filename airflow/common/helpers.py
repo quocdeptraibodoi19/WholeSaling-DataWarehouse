@@ -166,11 +166,11 @@ class ConstantsProvider:
     @staticmethod
     def get_HR_date_fields_for_standardization():
         return ["ModifiedDate"]
-    
+
     @staticmethod
     def get_sources_datetime_format_standardization():
         return "%b %d %Y %I:%M%p"
-    
+
     @staticmethod
     def get_DW_Layer(level: int):
         if level == 0:
@@ -187,6 +187,10 @@ class ConstantsProvider:
     @staticmethod
     def get_delta_key_table():
         return "delta_keys"
+
+    @staticmethod
+    def get_temp_delta_key_table():
+        return "temp_delta_keys"
 
     @staticmethod
     def get_staging_table(source: str, table: str):
@@ -234,12 +238,16 @@ class ConstantsProvider:
 
 
 class DataManipulator:
-    def __init__(self, data_collection: Iterator[pd.DataFrame], logger: logging.Logger) -> None:
+    def __init__(
+        self, data_collection: Iterator[pd.DataFrame], logger: logging.Logger
+    ) -> None:
         self._data_collection = data_collection
         self._transformations = []
         self._logger = logger
 
-    def transform(self, transform_func: Callable[[pd.DataFrame, logging.Logger], pd.DataFrame]):
+    def transform(
+        self, transform_func: Callable[[pd.DataFrame, logging.Logger], pd.DataFrame]
+    ):
         self._transformations.append(transform_func)
         return self
 
@@ -255,12 +263,14 @@ class DataManipulatingManager:
     @staticmethod
     def standardlize_date_format(column: str, datetime_format: str):
         def transform(data: pd.DataFrame, logger: logging.Logger):
+
             data[column] = pd.to_datetime(data[column], format=datetime_format)
+            data[column] = data[column].dt.strftime("%Y-%m-%d %H:%M:%S")
 
             logger.info(
                 f"Standarlizing data (column {column}) with format '{datetime_format}' ..."
             )
-            logger.info(f"Tunning the dataframe: {data}")
+            logger.info(f"Tunning the dataframe: {data[column]}")
 
             return data
 
@@ -271,7 +281,7 @@ class DataManipulatingManager:
         def transform(data: pd.DataFrame, logger: logging.Logger):
             data[column] = val
             logger.info(f"Adding new column {column} with value {val} ...")
-            logger.info(f"Tunning the dataframe: {data}")
+            logger.info(f"Tunning the dataframe: {data[column]}")
             return data
 
         return transform
