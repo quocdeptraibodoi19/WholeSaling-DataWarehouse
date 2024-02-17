@@ -17,10 +17,10 @@ delta_load:
     - StackHolderID
    delta_keys:
     - ModifiedDate
-   custom_load_sql: Select * from Stackholder where (ModifiedDate > {ModifiedDate})
+   custom_load_sql: Select * from StakeHolder where (ModifiedDate > {modifieddate})
    delta_load_hql: |
         SELECT MAX(CAST(FROM_UNIXTIME(UNIX_TIMESTAMP(MODIFIEDDATE, 'MMM dd yyyy hh:mmaa')) AS TIMESTAMP)) 
-        AS MODIFIEDDATE 
+        AS modifieddate 
         FROM {hive_table}
 
  - table: Employee
@@ -28,10 +28,10 @@ delta_load:
     - EmployeeID
    delta_keys:
     - ModifiedDate
-   custom_load_sql: Select * from Employee where (ModifiedDate > {ModifiedDate})
+   custom_load_sql: Select * from Employee where (ModifiedDate > {modifieddate})
    delta_load_hql: |
         SELECT MAX(CAST(FROM_UNIXTIME(UNIX_TIMESTAMP(MODIFIEDDATE, 'MMM dd yyyy hh:mmaa')) AS TIMESTAMP)) 
-        AS MODIFIEDDATE 
+        AS modifieddate 
         FROM {hive_table}
 
  - table: EmployeeDepartmentHistory
@@ -42,10 +42,10 @@ delta_load:
     - StartDate
    delta_keys:
     - ModifiedDate
-   custom_load_sql: Select * from EmployeeDepartmentHistory where (ModifiedDate > {ModifiedDate})
+   custom_load_sql: Select * from EmployeeDepartmentHistory where (ModifiedDate > {modifieddate})
    delta_load_hql: |
         SELECT MAX(CAST(FROM_UNIXTIME(UNIX_TIMESTAMP(MODIFIEDDATE, 'MMM dd yyyy hh:mmaa')) AS TIMESTAMP)) 
-        AS MODIFIEDDATE 
+        AS modifieddate 
         FROM {hive_table}
 
  - table: EmployeePayHistory
@@ -54,10 +54,10 @@ delta_load:
     - RateChangeDate
    delta_keys:
     - ModifiedDate
-   custom_load_sql: Select * from EmployeePayHistory where (ModifiedDate > {ModifiedDate})
+   custom_load_sql: Select * from EmployeePayHistory where (ModifiedDate > {modifieddate})
    delta_load_hql: |
         SELECT MAX(CAST(FROM_UNIXTIME(UNIX_TIMESTAMP(MODIFIEDDATE, 'MMM dd yyyy hh:mmaa')) AS TIMESTAMP)) 
-        AS MODIFIEDDATE 
+        AS modifieddate 
         FROM {hive_table}
 
  - table: EmployeePhoneContact
@@ -65,10 +65,10 @@ delta_load:
     - EmployeeID
    delta_keys:
     - ModifiedDate
-   custom_load_sql: Select * from EmployeePhoneContact where (ModifiedDate > {ModifiedDate})
+   custom_load_sql: Select * from EmployeePhoneContact where (ModifiedDate > {modifieddate})
    delta_load_hql: |
         SELECT MAX(CAST(FROM_UNIXTIME(UNIX_TIMESTAMP(MODIFIEDDATE, 'MMM dd yyyy hh:mmaa')) AS TIMESTAMP)) 
-        AS MODIFIEDDATE 
+        AS modifieddate 
         FROM {hive_table}
         
  - table: JobCandidate
@@ -76,10 +76,10 @@ delta_load:
     - JobCandidateID
    delta_keys:
     - ModifiedDate
-   custom_load_sql: Select * from JobCandidate where (ModifiedDate > {ModifiedDate})
+   custom_load_sql: Select * from JobCandidate where (ModifiedDate > {modifieddate})
    delta_load_hql: |
         SELECT MAX(CAST(FROM_UNIXTIME(UNIX_TIMESTAMP(MODIFIEDDATE, 'MMM dd yyyy hh:mmaa')) AS TIMESTAMP)) 
-        AS MODIFIEDDATE 
+        AS modifieddate 
         FROM {hive_table}
 
  - table: EmployeeAddress
@@ -88,10 +88,10 @@ delta_load:
     - AddressID
    delta_keys:
     - ModifiedDate
-   custom_load_sql: Select * from EmployeeAddress where (ModifiedDate > {ModifiedDate})
+   custom_load_sql: Select * from EmployeeAddress where (ModifiedDate > {modifieddate})
    delta_load_hql: |
         SELECT MAX(CAST(FROM_UNIXTIME(UNIX_TIMESTAMP(MODIFIEDDATE, 'MMM dd yyyy hh:mmaa')) AS TIMESTAMP)) 
-        AS MODIFIEDDATE 
+        AS modifieddate 
         FROM {hive_table}
 
  - table: StackHolderEmail
@@ -99,10 +99,10 @@ delta_load:
     - StackHolderID
    delta_keys:
     - ModifiedDate
-   custom_load_sql: Select * from StackHolderEmail where (ModifiedDate > {ModifiedDate})
+   custom_load_sql: Select * from StackHolderEmail where (ModifiedDate > {modifieddate})
    delta_load_hql: |
         SELECT MAX(CAST(FROM_UNIXTIME(UNIX_TIMESTAMP(MODIFIEDDATE, 'MMM dd yyyy hh:mmaa')) AS TIMESTAMP)) 
-        AS MODIFIEDDATE 
+        AS modifieddate 
         FROM {hive_table}
 
  - table: EmployeeEmail
@@ -110,10 +110,10 @@ delta_load:
     - EmployeeID
    delta_keys:
     - ModifiedDate
-   custom_load_sql: Select * from EmployeeEmail where (ModifiedDate > {ModifiedDate})
+   custom_load_sql: Select * from EmployeeEmail where (ModifiedDate > {modifieddate})
    delta_load_hql: |
         SELECT MAX(CAST(FROM_UNIXTIME(UNIX_TIMESTAMP(MODIFIEDDATE, 'MMM dd yyyy hh:mmaa')) AS TIMESTAMP)) 
-        AS MODIFIEDDATE 
+        AS modifieddate 
         FROM {hive_table}
 
  - table: SalePersons
@@ -121,10 +121,10 @@ delta_load:
     - EmployeeID
    delta_keys:
     - ModifiedDate
-   custom_load_sql: Select * from SalePersons where (ModifiedDate > {ModifiedDate})
+   custom_load_sql: Select * from SalePersons where (ModifiedDate > {modifieddate})
    delta_load_hql: |
         SELECT MAX(CAST(FROM_UNIXTIME(UNIX_TIMESTAMP(MODIFIEDDATE, 'MMM dd yyyy hh:mmaa')) AS TIMESTAMP)) 
-        AS MODIFIEDDATE 
+        AS modifieddate 
         FROM {hive_table}
 
  - table: SalesPersonQuotaHistory
@@ -132,8 +132,8 @@ delta_load:
     - EmployeeID
    delta_keys:
     - ModifiedDate
-   custom_load_sql: Select * from SalesPersonQuotaHistory where (ModifiedDate > {ModifiedDate})
+   custom_load_sql: Select * from SalesPersonQuotaHistory where (ModifiedDate > {modifieddate})
    delta_load_hql: |
         SELECT MAX(CAST(FROM_UNIXTIME(UNIX_TIMESTAMP(MODIFIEDDATE, 'MMM dd yyyy hh:mmaa')) AS TIMESTAMP)) 
-        AS MODIFIEDDATE 
+        AS modifieddate 
         FROM {hive_table}
