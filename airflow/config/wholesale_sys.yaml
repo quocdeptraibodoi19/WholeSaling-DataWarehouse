@@ -5,7 +5,6 @@ full_load:
  - CountryRegion
  - ShipMethod
  - SpecialOffer
- - SpecialOfferProduct
 
 delta_load:
 
