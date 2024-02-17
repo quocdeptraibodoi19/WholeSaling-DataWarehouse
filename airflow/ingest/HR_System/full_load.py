@@ -21,6 +21,8 @@ from common.helpers import ConstantsProvider, DataManipulator, DataManipulatingM
 
 import pandas as pd
 
+from itertools import chain
+
 
 def HR_to_HDFS(logger: logging.Logger, table: str, source: str):
     hr_sys = HRSystemDataHook()
@@ -31,20 +33,23 @@ def HR_to_HDFS(logger: logging.Logger, table: str, source: str):
             f"Getting columns of the table {table} with query: {metadata_query}"
         )
         columns_data = list(
-            map(
-                lambda data: data[0],
-                hr_sys.execute(query=metadata_query).itertuples(index=False, name=None),
+            chain.from_iterable(
+                map(
+                    lambda data_col: list(map(lambda data: data[0], data_col)),
+                    map(
+                        lambda data: data.itertuples(index=False, name=None),
+                        hr_sys.execute(
+                            query=metadata_query,
+                            chunksize=ConstantsProvider.HR_query_chunksize(),
+                        ),
+                    ),
+                )
             )
         )
 
         logger.info(f"The columns of {table} are: {columns_data}")
 
-        query_columns = [
-            "CONVERT(NVARCHAR(MAX), " + "[" + col + "]" + ") AS " + "[" + col + "]"
-            for col in columns_data
-        ]
-        
-        query = "SELECT " + ",".join(query_columns) + f" FROM {table}"
+        query = f"SELECT * FROM {table}"
         logger.info(f"Getting data from {table} in {source} with query: {query}")
         data_collection = hr_sys.execute(
             query=query, chunksize=ConstantsProvider.HR_query_chunksize()
@@ -54,25 +59,29 @@ def HR_to_HDFS(logger: logging.Logger, table: str, source: str):
             data_collection=data_collection, logger=logger
         )
 
-        for date_field in ConstantsProvider.get_HR_date_fields_for_standardization():
-            if date_field in columns_data:
+        for field in columns_data:
+            if field in ConstantsProvider.get_HR_date_fields_for_standardization():
                 data_manipulator.transform(
                     DataManipulatingManager.standardlize_date_format(
-                        column=date_field,
+                        column=field,
                         datetime_format=ConstantsProvider.get_sources_datetime_format_standardization(),
                     )
+                )
+            else:
+                data_manipulator.transform(
+                    DataManipulatingManager.pd_column_to_string(column=field)
                 )
 
         data_collection = (
             data_manipulator.transform(
                 DataManipulatingManager.add_new_column_data_collection(
-                    column=ConstantsProvider.ingested_meta_field(),
-                    val=pd.to_datetime(datetime.now().strftime("%Y-%m-%d")),
+                    column=ConstantsProvider.soft_delete_meta_field(), val=False
                 )
             )
             .transform(
                 DataManipulatingManager.add_new_column_data_collection(
-                    column=ConstantsProvider.soft_delete_meta_field(), val=False
+                    column=ConstantsProvider.ingested_meta_field(),
+                    val=pd.to_datetime(datetime.now().strftime("%Y-%m-%d")),
                 )
             )
             .execute()
@@ -98,12 +107,10 @@ def HDFS_LandingZone_to_Hive_Staging(logger: logging.Logger, table: str, source:
     try:
         hdfs_sys.connect()
 
-        table_schema = hdfs_sys.execute(
-            command="data_schema",
+        table_schema = hdfs_sys.execute(command="data_schema")(
             table_name=table,
             source_name=source,
             file_name=ConstantsProvider.get_fullload_ingest_file(),
-            date_str=datetime.now().strftime("%Y-%m-%d"),
         )
 
         logger.info(

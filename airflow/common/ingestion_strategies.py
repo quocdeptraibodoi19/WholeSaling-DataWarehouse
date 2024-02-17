@@ -160,21 +160,15 @@ class HiveStagingIntestionStrategy(DataIngestionStrategy):
         hive_table_name: str,
         table_columns: List[str] = None,
         HDFS_table_location_dir: str = None,
-        HDFS_partition_location_dir: str = None,
         *args,
         **kwargs,
     ):
         try:
             self.data_hook.connect()
 
-            if HDFS_table_location_dir is None and HDFS_partition_location_dir is None:
+            if HDFS_table_location_dir is None:
                 HDFS_table_location_dir = ConstantsProvider.HDFS_LandingZone_base_dir(
-                    source_system, table_name
-                )
-                HDFS_partition_location_dir = (
-                    ConstantsProvider.HDFS_LandingZone_base_dir(
-                        source_system, table_name, datetime.now().strftime("%Y-%m-%d")
-                    )
+                    source_system, table_name, datetime.now().strftime("%Y-%m-%d")
                 )
 
             drop_ddl = f"""DROP TABLE IF EXISTS {hive_table_name}"""
@@ -194,15 +188,11 @@ class HiveStagingIntestionStrategy(DataIngestionStrategy):
                         not in ConstantsProvider.get_HR_date_fields_for_standardization()
                         else "`" + column + "`" + " TIMESTAMP"
                     ),
-                    filter(
-                        lambda col: col != ConstantsProvider.ingested_meta_field(),
-                        table_columns,
-                    ),
+                    table_columns
                 )
             )
             hive_ddl = f"""CREATE EXTERNAL TABLE IF NOT EXISTS {hive_table_name} 
                         ( {", ".join(table_schema)} )
-                        PARTITIONED BY ({ConstantsProvider.ingested_meta_field()} STRING)
                         ROW FORMAT DELIMITED
                         FIELDS TERMINATED BY '|'
                         STORED AS TEXTFILE
@@ -217,17 +207,6 @@ class HiveStagingIntestionStrategy(DataIngestionStrategy):
             with self.data_hook.connection.cursor() as cursor:
                 cursor.execute(hive_ddl)
 
-            adding_partition_ddl = f"""ALTER TABLE {hive_table_name} 
-                        ADD PARTITION ({ConstantsProvider.ingested_meta_field()}='{datetime.now().strftime("%Y-%m-%d")}') 
-                        LOCATION '{HDFS_partition_location_dir}'
-                    """
-
-            self.logger.info(
-                f"Suplementing data partition into {hive_table_name} on Hive with the query: {adding_partition_ddl}"
-            )
-
-            with self.data_hook.connection.cursor() as cursor:
-                cursor.execute(adding_partition_ddl)
         except Exception as e:
             self.logger.error(f"An error occurred: {e}")
             raise
@@ -280,7 +259,7 @@ class HiveStagingDeltaKeyIngestionStrategy(DataIngestionStrategy):
                 ),
                 delta_key_config.items(),
             )
-            delta_table_ddl = f"""CREATE TABLE {ConstantsProvider.get_temp_delta_key_table()} AS
+            delta_table_ddl = f"""CREATE TABLE IF NOT EXISTS {ConstantsProvider.get_temp_delta_key_table()} AS
                 SELECT {",".join(map(lambda col: "t2." + "`" + col + "`", delta_key_config.keys()))} FROM 
                     (
                         SELECT *, ROW_NUMBER() OVER (PARTITION BY `schema`, `table` ORDER BY `{ConstantsProvider.ingested_meta_field()}` DESC) rn

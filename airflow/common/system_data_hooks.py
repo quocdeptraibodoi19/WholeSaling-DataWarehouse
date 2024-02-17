@@ -16,6 +16,8 @@ from pyhive import hive
 
 import logging
 
+from datetime import datetime
+
 
 class SysDataHook:
     def __init__(self) -> None:
@@ -65,7 +67,13 @@ class HRSystemDataHook(SysDataHook):
         self.logger.info("Disconnecting from HR System...")
         self.connection.close()
 
-    def execute(self, query: str, chunksize: int = None, *args, **kwargs):
+    def execute(
+        self,
+        query: str,
+        chunksize: int = None,
+        *args,
+        **kwargs,
+    ):
         self.logger.info(f"Getting data from query: {query}")
         return pd.read_sql(query, self.connection, chunksize=chunksize)
 
@@ -92,21 +100,22 @@ class HDFSDataHook(SysDataHook):
             - command = "data_schema": to get data schema from an ingested file in HDFS
         """
         if command == "data_schema":
-            return self._get_data_schema(
-                table_name=kwargs.get("table_name"),
-                source_name=kwargs.get("source_name"),
-                date_str=kwargs.get("date_str"),
-                file_name=kwargs.get("file_name"),
-            )
+            return self._get_data_schema
 
     def _get_data_schema(
-        self, table_name: str, source_name: str, date_str: str, file_name: str
+        self,
+        table_name: str,
+        source_name: str,
+        file_name: str,
+        date_str: str = datetime.now().strftime("%Y-%m-%d"),
+        base_dir: str = None,
     ):
-        with self.connection.read(
-            ConstantsProvider.HDFS_LandingZone_base_dir(
+        if base_dir is None:
+            base_dir = ConstantsProvider.HDFS_LandingZone_base_dir(
                 source_name, table_name, date_str
             )
-            + file_name.format(0),
+        with self.connection.read(
+            base_dir + file_name.format(0),
             encoding="utf-8",
         ) as file:
             df = pd.read_csv(file, nrows=1, sep="|")
@@ -140,7 +149,13 @@ class PrestoDataHook(SysDataHook):
         self.logger.info("Disconnecting from Presto SQL Engine...")
         self.connection.close()
 
-    def execute(self, query: str, chunksize: int = None, *args, **kwargs):
+    def execute(
+        self,
+        query: str,
+        chunksize: int = None,
+        *args,
+        **kwargs,
+    ):
         self.logger.info(f"Getting data from query: {query}")
         return pd.read_sql(query, self.connection, chunksize=chunksize)
 
@@ -178,6 +193,12 @@ class HiveDataHook(SysDataHook):
         self.logger.info("Disconnecting from Hive Metastore...")
         self.connection.close()
 
-    def execute(self, query: str, chunksize: int = None, *args, **kwargs):
+    def execute(
+        self,
+        query: str,
+        chunksize: int = None,
+        *args,
+        **kwargs,
+    ):
         self.logger.info(f"Getting data from query: {query}")
         return pd.read_sql(query, self.connection, chunksize=chunksize)

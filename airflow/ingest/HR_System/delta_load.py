@@ -27,6 +27,8 @@ from datetime import datetime
 
 import ast
 
+from itertools import chain
+
 
 def delta_HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
     table = table_config.get("table")
@@ -38,10 +40,12 @@ def delta_HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
     try:
         hr_sys.connect()
         presto_sys.connect()
-        
-        delta_keys_query = f"SELECT delta_keys FROM {ConstantsProvider.get_delta_key_table()} WHERE schema = 'staging' AND table = '{ConstantsProvider.get_staging_table(source, table)}'"
+
+        delta_keys_query = f"""SELECT delta_keys FROM {ConstantsProvider.get_delta_key_table()} 
+                WHERE "schema" = 'staging' AND "table" = '{ConstantsProvider.get_staging_table(source, table)}'"""
+
         delta_keys_df = presto_sys.execute(query=delta_keys_query)
-        delta_keys = ast.literal_eval(delta_keys_df["delta_keys"])
+        delta_keys = ast.literal_eval(delta_keys_df.to_dict("records")[0]["delta_keys"])
         logger.info(
             f"The latest delta keys of the table {table} with the source {source} are: {delta_keys}"
         )
@@ -55,33 +59,53 @@ def delta_HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
         logger.info(
             f"Getting columns of the table {table} with query: {metadata_query}"
         )
-        columns_data = hr_sys.execute(query=metadata_query)
 
-        data_collection = hr_sys.execute(query=delta_load_sql)
+        columns_data = list(
+            chain.from_iterable(
+                map(
+                    lambda data_col: list(map(lambda data: data[0], data_col)),
+                    map(
+                        lambda data: data.itertuples(index=False, name=None),
+                        hr_sys.execute(
+                            query=metadata_query,
+                            chunksize=ConstantsProvider.HR_query_chunksize(),
+                        ),
+                    ),
+                )
+            )
+        )
+
+        data_collection = hr_sys.execute(
+            query=delta_load_sql, chunksize=ConstantsProvider.HR_query_chunksize()
+        )
 
         data_manipulator = DataManipulator(
             data_collection=data_collection, logger=logger
         )
 
-        for date_field in ConstantsProvider.get_HR_date_fields_for_standardization():
-            if date_field in columns_data:
+        for field in columns_data:
+            if field in ConstantsProvider.get_HR_date_fields_for_standardization():
                 data_manipulator.transform(
                     DataManipulatingManager.standardlize_date_format(
-                        column=date_field,
+                        column=field,
                         datetime_format=ConstantsProvider.get_sources_datetime_format_standardization(),
                     )
+                )
+            else:
+                data_manipulator.transform(
+                    DataManipulatingManager.pd_column_to_string(column=field)
                 )
 
         data_collection = (
             data_manipulator.transform(
                 DataManipulatingManager.add_new_column_data_collection(
-                    column=ConstantsProvider.ingested_meta_field(),
-                    val=pd.to_datetime(datetime.now().strftime("%Y-%m-%d")),
+                    column=ConstantsProvider.soft_delete_meta_field(), val=False
                 )
             )
             .transform(
                 DataManipulatingManager.add_new_column_data_collection(
-                    column=ConstantsProvider.soft_delete_meta_field(), val=False
+                    column=ConstantsProvider.ingested_meta_field(),
+                    val=pd.to_datetime(datetime.now().strftime("%Y-%m-%d")),
                 )
             )
             .execute()
@@ -112,12 +136,10 @@ def delta_HDFS_LandingZone_to_Hive_Staging(
     try:
         hdfs_sys.connect()
 
-        table_schema = hdfs_sys.execute(
-            command="data_schema",
+        table_schema = hdfs_sys.execute(command="data_schema")(
             table_name=table,
             source_name=source,
             file_name=ConstantsProvider.get_deltaload_ingest_file(),
-            date_str=datetime.now().strftime("%Y-%m-%d"),
         )
 
         logger.info(
@@ -142,18 +164,22 @@ def delete_detection_HR_HDFS(logger: logging.Logger, table_config: dict, source:
     table = table_config.get("table")
     primary_keys = table_config.get("primary_keys")
 
-    hr_sys = HRSystemDataHook()
+    presto_sys = PrestoDataHook()
     try:
-        hr_sys.connect()
+        presto_sys.connect()
 
         existed_data_query = f"""SELECT {",".join(primary_keys)} 
             FROM {ConstantsProvider.get_staging_table(source=source, table=table)} 
-            WHERE {ConstantsProvider.soft_delete_meta_field()} = False"""
+            WHERE {ConstantsProvider.soft_delete_meta_field()} = 'False'"""
+
+        data_collection = presto_sys.execute(
+            query=existed_data_query,
+            chunksize=ConstantsProvider.Presto_query_chunksize(),
+        )
 
         logger.info(
-            f"Detecting the current existed data in DataWarehouse with {existed_data_query}"
+            f"Detecting the current existed data in DataWarehouse with {existed_data_query} ... with data: {data_collection}"
         )
-        data_collection = hr_sys.execute(query=existed_data_query)
 
         data_manipulator = DataManipulator(
             data_collection=data_collection, logger=logger
@@ -181,7 +207,7 @@ def delete_detection_HR_HDFS(logger: logging.Logger, table_config: dict, source:
         logger.error(f"An error occurred: {e}")
         raise
     finally:
-        hr_sys.disconnect()
+        presto_sys.disconnect()
 
 
 def delete_detection_HDFS_LandingZone_to_Hive_Staging(
@@ -204,10 +230,7 @@ def delete_detection_HDFS_LandingZone_to_Hive_Staging(
             source_system=source,
             table_columns=primary_keys,
             hive_table_name=ConstantsProvider.get_reconcile_delete_table(source, table),
-            HDFS_table_location_dir=ConstantsProvider.HDFS_LandingZone_delete_reconcile_base_dir(
-                source, table
-            ),
-            HDFS_partition_location_dir=(
+            HDFS_table_location_dir=(
                 ConstantsProvider.HDFS_LandingZone_delete_reconcile_base_dir(
                     source, table, datetime.now().strftime("%Y-%m-%d")
                 )
@@ -221,87 +244,69 @@ def delete_detection_HDFS_LandingZone_to_Hive_Staging(
 
 
 def reconciling_delta_delete_Hive_Staging(
-    logger: logging.Logger, table_config: dict, source: str, mode: str
+    logger: logging.Logger, table_config: dict, source: str
 ):
     table = table_config.get("table")
     delta_keys = table_config.get("delta_keys")
     primary_keys = table_config.get("primary_keys")
 
     hive_sys = HiveDataHook()
-    presto_sys = PrestoDataHook()
     hdfs_sys = HDFSDataHook()
     try:
         hive_sys.connect()
+        hdfs_sys.connect()
 
-        if mode == "delta":
-            reconcile_DDL_hql = f"""CREATE VIEW {ConstantsProvider.get_delta_temp_view_table(source, table)} AS 
-                    SELECT t2.* FROM 
-                    (
-                        SELECT *, ROW_NUMBER() OVER (PARTITION BY {",".join(primary_keys)} ORDER BY {",".join(delta_keys)} DESC) rn
-                        FROM (
-                            SELECT * FROM {ConstantsProvider.get_staging_table(source, table)}
-                            UNION ALL
-                            SELECT * FROM {ConstantsProvider.get_delta_table(source, table)}
-                        ) t1
-                    ) t2 WHERE t1.rn = 1
+        # TODO: Instead of gettint data schema from HDFS like this, getting from Hive DW because staging is insecure.
+        table_schema = hdfs_sys.execute(command="data_schema")(
+            table_name=table,
+            source_name=source,
+            file_name=ConstantsProvider.get_fullload_ingest_file(),
+        )
+
+        selected_cols = map(
+            lambda col: (
+                "t1." + col
+                if col != ConstantsProvider.soft_delete_meta_field()
+                else (
+                    "'TRUE' AS " + ConstantsProvider.soft_delete_meta_field()
+                    if col != ConstantsProvider.ingested_meta_field()
+                    else datetime.now().strftime("%Y-%m-%d")
+                    + " AS "
+                    + ConstantsProvider.ingested_meta_field()
+                )
+            ),
+            table_schema,
+        )
+        delete_detection_hql = f"""SELECT {",".join(selected_cols)} 
+                    FROM {ConstantsProvider.get_staging_table(source, table)} t1
+                    WHERE NOT EXISTS (
+                        SELECT * FROM {ConstantsProvider.get_reconcile_delete_table(source, table)} t2
+                        WHERE {" AND ".join(map(lambda key: "t1." + key + " = " + "t2." + key, primary_keys))}
+                    )
                 """
 
-            logger.info(
-                f"Creating the view to reconcile the data with query: {reconcile_DDL_hql}"
-            )
+        reconcile_DDL_hql = f"""CREATE VIEW IF NOT EXISTS {ConstantsProvider.get_delta_reconcile_delete_temp_view_table(source, table)} AS 
+                SELECT {",".join(map(lambda col: "t4." + "`" + col + "`", table_schema))} FROM 
+                (
+                    SELECT *, ROW_NUMBER() OVER (PARTITION BY {",".join(primary_keys)} ORDER BY {",".join(delta_keys)} DESC) rn
+                    FROM (
+                        SELECT * FROM {ConstantsProvider.get_staging_table(source, table)}
+                        UNION ALL
+                        SELECT * FROM {ConstantsProvider.get_delta_table(source, table)}
+                        UNION ALL
+                        SELECT * FROM ( {delete_detection_hql} ) subquery
+                    ) t3
+                ) t4 WHERE t4.rn = 1
+            """
 
-            reconcile_hql = f"""INSERT OVERWRITE TABLE {ConstantsProvider.get_staging_table(source, table)}
-                        SELECT * FROM {ConstantsProvider.get_delta_temp_view_table(source, table)}"""
+        logger.info(
+            f"Creating the view to reconcile the data with query: {reconcile_DDL_hql}"
+        )
 
-            drop_reconcile_DDL_hql = f"DROP VIEW {ConstantsProvider.get_delta_temp_view_table(source, table)}"
+        reconcile_hql = f"""INSERT OVERWRITE TABLE {ConstantsProvider.get_staging_table(source, table)} 
+                    SELECT * FROM {ConstantsProvider.get_delta_reconcile_delete_temp_view_table(source, table)}"""
 
-        elif mode == "recocile_delete":
-            presto_sys.connect()
-            hdfs_sys.connect()
-
-            table_schema = hdfs_sys.execute(
-                command="data_schema",
-                table_name=table,
-                source_name=source,
-                file_name=ConstantsProvider.get_deltaload_ingest_file(),
-                date_str=datetime.now().strftime("%Y-%m-%d"),
-            )
-            selected_cols = map(
-                lambda col: (
-                    "t1." + col
-                    if col != ConstantsProvider.soft_delete_meta_field()
-                    else "TRUE AS " + ConstantsProvider.soft_delete_meta_field()
-                ),
-                table_schema,
-            )
-            delete_detection_hql = f"""SELECT {",".join(selected_cols)} 
-                        FROM {ConstantsProvider.get_staging_table(source, table)} t1
-                        WHERE NOT EXISTS (
-                            SELECT * FROM {ConstantsProvider.get_reconcile_delete_table(source, table)} t2
-                            WHERE {" AND ".join(map(lambda key: "t1." + key + " = " + "t2." + key, primary_keys))}
-                        )
-                    """
-
-            reconcile_DDL_hql = f"""CREATE VIEW {ConstantsProvider.get_reconcile_delete_temp_view_table(source, table)} AS 
-                    SELECT t2.* FROM 
-                    (
-                        SELECT *, ROW_NUMBER() OVER (PARTITION BY {",".join(primary_keys)} ORDER BY {",".join(delta_keys)} DESC) rn
-                        FROM (
-                            SELECT * FROM {ConstantsProvider.get_staging_table(source, table)}
-                            UNION ALL
-                            SELECT * FROM ( {delete_detection_hql} )
-                        ) t1
-                    ) t2 WHERE t1.rn = 1
-                """
-
-            logger.info(
-                f"Creating the view to reconcile the data with query: {reconcile_DDL_hql}"
-            )
-
-            reconcile_hql = f"""INSERT OVERWRITE TABLE {ConstantsProvider.get_staging_table(source, table)}
-                        SELECT * FROM {ConstantsProvider.get_reconcile_delete_temp_view_table(source, table)}"""
-
-            drop_reconcile_DDL_hql = f"DROP VIEW {ConstantsProvider.get_reconcile_delete_temp_view_table(source, table)}"
+        drop_reconcile_DDL_hql = f"DROP VIEW {ConstantsProvider.get_delta_reconcile_delete_temp_view_table(source, table)}"
 
         with hive_sys.connection.cursor() as cursor:
             cursor.execute(reconcile_DDL_hql)
@@ -313,6 +318,7 @@ def reconciling_delta_delete_Hive_Staging(
         raise
     finally:
         hive_sys.disconnect()
+        hdfs_sys.disconnect()
 
 
 def update_delta_keys(logger: logging.Logger, table_config: dict, source: str):

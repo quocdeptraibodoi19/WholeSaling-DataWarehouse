@@ -17,11 +17,8 @@ delta_load:
     - StackHolderID
    delta_keys:
     - ModifiedDate
-   custom_load_sql: Select * from Stackholder where (ModifiedDate > {ModifiedDate})
-   delta_load_hql: |
-        SELECT MAX(CAST(FROM_UNIXTIME(UNIX_TIMESTAMP(MODIFIEDDATE, 'MMM dd yyyy hh:mmaa')) AS TIMESTAMP)) 
-        AS MODIFIEDDATE 
-        FROM {hive_table}
+   custom_load_sql: Select * from Stackholder where (ModifiedDate > {modifieddate})
+   delta_load_hql: SELECT MAX(MODIFIEDDATE) AS MODIFIEDDATE FROM {hive_table}
 
  - table: Employee
    primary_keys:
@@ -29,8 +26,5 @@ delta_load:
    delta_keys:
     - ModifiedDate
    custom_load_sql: ~
-   delta_load_hql: |
-        SELECT MAX(CAST(FROM_UNIXTIME(UNIX_TIMESTAMP(MODIFIEDDATE, 'MMM dd yyyy hh:mmaa')) AS TIMESTAMP)) 
-        AS MODIFIEDDATE 
-        FROM {hive_table}
+   delta_load_hql: SELECT MAX(MODIFIEDDATE) AS MODIFIEDDATE FROM {hive_table}
 
