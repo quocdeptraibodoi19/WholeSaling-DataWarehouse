@@ -1,0 +1,78 @@
+---
+full_load:
+ - SalesTaxRate
+ - StateProvince
+ - CountryRegion
+ - ShipMethod
+ - SpecialOffer
+ - SpecialOfferProduct
+
+delta_load:
+
+ - table: Store
+   primary_keys:
+    - StoreID
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from Store where (ModifiedDate > {modifieddate})
+   delta_load_hql: |
+        SELECT MAX(CAST(FROM_UNIXTIME(UNIX_TIMESTAMP(MODIFIEDDATE, 'MMM dd yyyy hh:mmaa')) AS TIMESTAMP)) 
+        AS modifieddate 
+        FROM {hive_table}
+
+ - table: StoreCustomer
+   primary_keys:
+    - CustomerID
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from StoreCustomer where (ModifiedDate > {modifieddate})
+   delta_load_hql: |
+        SELECT MAX(CAST(FROM_UNIXTIME(UNIX_TIMESTAMP(MODIFIEDDATE, 'MMM dd yyyy hh:mmaa')) AS TIMESTAMP)) 
+        AS modifieddate 
+        FROM {hive_table}
+
+ - table: StoreRepCreditCard
+   primary_keys:
+    - StoreRepID
+    - CardNumber
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from StoreRepCreditCard where (ModifiedDate > {modifieddate})
+   delta_load_hql: |
+        SELECT MAX(CAST(FROM_UNIXTIME(UNIX_TIMESTAMP(MODIFIEDDATE, 'MMM dd yyyy hh:mmaa')) AS TIMESTAMP)) 
+        AS modifieddate 
+        FROM {hive_table}
+
+ - table: SalesOrderHeader
+   primary_keys:
+    - SalesOrderID
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from SalesOrderHeader where (ModifiedDate > {modifieddate})
+   delta_load_hql: |
+        SELECT MAX(CAST(FROM_UNIXTIME(UNIX_TIMESTAMP(MODIFIEDDATE, 'MMM dd yyyy hh:mmaa')) AS TIMESTAMP)) 
+        AS modifieddate 
+        FROM {hive_table}
+
+ - table: SalesOrderDetail
+   primary_keys:
+    - SalesOrderDetailID
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from SalesOrderDetail where (ModifiedDate > {modifieddate})
+   delta_load_hql: |
+        SELECT MAX(CAST(FROM_UNIXTIME(UNIX_TIMESTAMP(MODIFIEDDATE, 'MMM dd yyyy hh:mmaa')) AS TIMESTAMP)) 
+        AS modifieddate 
+        FROM {hive_table}
+
+ - table: SpecialOfferProduct
+   primary_keys:
+    - SpecialOfferID
+    - ProductID
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from SpecialOfferProduct where (ModifiedDate > {modifieddate})
+   delta_load_hql: |
+        SELECT MAX(CAST(FROM_UNIXTIME(UNIX_TIMESTAMP(MODIFIEDDATE, 'MMM dd yyyy hh:mmaa')) AS TIMESTAMP)) 
+        AS modifieddate 
+        FROM {hive_table}
