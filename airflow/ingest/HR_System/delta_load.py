@@ -362,6 +362,15 @@ def check_full_load_yet(logger: logging.Logger, table: str, source: str):
     try:
         presto_sys.connect()
 
+        check_if_delta_key_exist_query = f"""SELECT * FROM information_schema.tables WHERE table_schema = 'staging' AND table_name = 'delta_keys'"""
+
+        logger.info(f"Checking the existence of delta_keys table with: {check_if_delta_key_exist_query}")
+
+        checking_df = presto_sys.execute(query=check_if_delta_key_exist_query)
+        
+        if checking_df.empty:
+            return False
+
         query = f"""SELECT delta_keys FROM delta_keys 
                 WHERE "schema" = 'staging' AND "table" = '{ConstantsProvider.get_staging_table(source, table)}'"""
     
