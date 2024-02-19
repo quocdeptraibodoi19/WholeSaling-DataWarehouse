@@ -12,19 +12,12 @@ full_load:
 
 delta_load:
 
- - table: Stackholder
+ - table: Stakeholder
    primary_keys:
     - StackHolderID
    delta_keys:
     - ModifiedDate
-   custom_load_sql: Select * from Stackholder where (ModifiedDate > {modifieddate})
-   delta_load_hql: SELECT MAX(MODIFIEDDATE) AS MODIFIEDDATE FROM {hive_table}
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
+   delta_load_hql: SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
 
- - table: Employee
-   primary_keys:
-    - EmployeeID
-   delta_keys:
-    - ModifiedDate
-   custom_load_sql: ~
-   delta_load_hql: SELECT MAX(MODIFIEDDATE) AS MODIFIEDDATE FROM {hive_table}
 

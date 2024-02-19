@@ -50,7 +50,7 @@ def delta_HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
             f"The latest delta keys of the table {table} with the source {source} are: {delta_keys}"
         )
 
-        delta_load_sql = delta_load_sql.format(**delta_keys)
+        delta_load_sql = delta_load_sql.format(table=table, **delta_keys)
         logger.info(
             f"The query to retrieve the latest incremental data from table {table} and source {source} is: {delta_load_sql}"
         )
@@ -260,7 +260,7 @@ def reconciling_delta_delete_Hive_Staging(
         table_schema = hdfs_sys.execute(command="data_schema")(
             table_name=table,
             source_name=source,
-            file_name=ConstantsProvider.get_fullload_ingest_file(),
+            file_name=ConstantsProvider.get_deltaload_ingest_file(),
         )
 
         selected_cols = map(
@@ -349,6 +349,27 @@ def update_delta_keys(logger: logging.Logger, table_config: dict, source: str):
         delta_hive_ingester.ingest(
             source=source, table=table, delta_keys_dict=delta_keys_dict
         )
+
+    except Exception as e:
+        logger.error(f"An error occurred: {e}")
+        raise
+    finally:
+        presto_sys.disconnect()
+
+def check_full_load_yet(logger: logging.Logger, table: str, source: str):
+    presto_sys = PrestoDataHook()
+
+    try:
+        presto_sys.connect()
+
+        query = f"""SELECT delta_keys FROM delta_keys 
+                WHERE "schema" = 'staging' AND "table" = '{ConstantsProvider.get_staging_table(source, table)}'"""
+    
+        logger.info(f"Check for table {table} from the source {source} has full loaded yet with query: {query}")
+
+        data_df = presto_sys.execute(query=query)
+
+        return data_df.empty is False
 
     except Exception as e:
         logger.error(f"An error occurred: {e}")
