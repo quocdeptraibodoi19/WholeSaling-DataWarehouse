@@ -311,15 +311,12 @@ class DeltaLoadTaskGenerator(TaskGenerator):
                 "branch_detector": self._create_airflow_run_task(
                     airflow_operator_factory=PythonBranchAirflowOperatorFactory(),
                     task_id=f"""check_for_{table_config.get("table")}_FullLoad_yet""",
-                    python_callable=lambda: (
-                        f"""delete_detection_{table_config.get("table")}_{self.source}_HDFS"""
-                        if self.airflow_task_funcs.get("check_full_load_yet")(
-                            logger=self.logger,
-                            source=self.source,
-                            table=table_config.get("table"),
-                        )
-                        else f"""ingest_{table_config.get("table")}_from_{self.source}"""
-                    ),
+                    python_callable=self._branch_detector_func,
+                    op_kwargs={
+                        "table": table_config.get("table"),
+                        "true_task": f"""delete_detection_{table_config.get("table")}_{self.source}_HDFS""",
+                        "false_task": f"""ingest_{table_config.get("table")}_from_{self.source}""",
+                    },
                     dag=self.dag,
                 ),
             }
@@ -327,6 +324,24 @@ class DeltaLoadTaskGenerator(TaskGenerator):
         }
 
         self._add_task_dependency(airflow_tasks=airflow_tasks_map)
+
+    def _branch_detector_func(self, table: str, true_task: str, false_task: str):
+        self.logger.info(
+            f"Detecting what is the next task of the table {table} to be executed: {true_task} or {false_task} ... "
+        )
+
+        if self.airflow_task_funcs.get("check_full_load_yet")(
+            logger=self.logger,
+            source=self.source,
+            table=table,
+        ):
+            task_to_implemented = true_task
+        else:
+            task_to_implemented = false_task
+
+        self.logger.info(f"The task to be excuted is {task_to_implemented}")
+
+        return task_to_implemented
 
     def _create_airflow_run_task(
         self, airflow_operator_factory: AirflowOperatorFactory, *args, **kwargs
