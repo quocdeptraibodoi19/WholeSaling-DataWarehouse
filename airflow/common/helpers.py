@@ -176,18 +176,9 @@ class ConstantsProvider:
         return "%Y-%m-%d %H:%M:%S.%f"
 
     @staticmethod
-    def get_DW_Layer(level: int):
-        if level == 0:
-            return "landingzone"
-        elif level == 1:
-            return "staging"
-        elif level == 2:
-            return "NDS"
-        elif level == 3:
-            return "analytics"
-        else:
-            raise ValueError("level is invalid...")
-
+    def get_staging_DW_name():
+        return "staging"
+    
     @staticmethod
     def get_delta_key_table():
         return "delta_keys"

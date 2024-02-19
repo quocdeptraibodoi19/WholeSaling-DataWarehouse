@@ -42,7 +42,7 @@ def delta_HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
         presto_sys.connect()
 
         delta_keys_query = f"""SELECT delta_keys FROM {ConstantsProvider.get_delta_key_table()} 
-                WHERE "schema" = 'staging' AND "table" = '{ConstantsProvider.get_staging_table(source, table)}'"""
+                WHERE "schema" = '{ConstantsProvider.get_staging_DW_name()}' AND "table" = '{ConstantsProvider.get_staging_table(source, table)}'"""
 
         delta_keys_df = presto_sys.execute(query=delta_keys_query)
         delta_keys = ast.literal_eval(delta_keys_df.to_dict("records")[0]["delta_keys"])
@@ -337,7 +337,7 @@ def update_delta_keys(logger: logging.Logger, table_config: dict, source: str):
 
         delta_keys_dict = delta_keys_df.to_dict("records")[-1]
         logger.info(
-            f"""The latest delta key from table '{ConstantsProvider.get_staging_table(source, table)}' and schema 'staging': {str(delta_keys_dict)}"""
+            f"""The latest delta key from table '{ConstantsProvider.get_staging_table(source, table)}' and schema '{ConstantsProvider.get_staging_DW_name()}': {str(delta_keys_dict)}"""
         )
 
         delta_keys_dict = {key: str(val) for key, val in delta_keys_dict.items()}
@@ -362,7 +362,7 @@ def check_full_load_yet(logger: logging.Logger, table: str, source: str):
     try:
         presto_sys.connect()
 
-        check_if_delta_key_exist_query = f"""SELECT * FROM information_schema.tables WHERE table_schema = 'staging' AND table_name = 'delta_keys'"""
+        check_if_delta_key_exist_query = f"""SELECT * FROM information_schema.tables WHERE table_schema = '{ConstantsProvider.get_staging_DW_name()}' AND table_name = '{ConstantsProvider.get_delta_key_table()}'"""
 
         logger.info(f"Checking the existence of delta_keys table with: {check_if_delta_key_exist_query}")
 
@@ -371,8 +371,8 @@ def check_full_load_yet(logger: logging.Logger, table: str, source: str):
         if checking_df.empty:
             return False
 
-        query = f"""SELECT delta_keys FROM delta_keys 
-                WHERE "schema" = 'staging' AND "table" = '{ConstantsProvider.get_staging_table(source, table)}'"""
+        query = f"""SELECT delta_keys FROM {ConstantsProvider.get_staging_table(source, table)} 
+                WHERE "schema" = '{ConstantsProvider.get_staging_DW_name()}' AND "table" = '{ConstantsProvider.get_staging_table(source, table)}'"""
     
         logger.info(f"Check for table {table} from the source {source} has full loaded yet with query: {query}")
 

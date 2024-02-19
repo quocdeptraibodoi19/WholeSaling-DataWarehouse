@@ -241,7 +241,7 @@ class HiveStagingDeltaKeyIngestionStrategy(DataIngestionStrategy):
             """
 
             delta_key_config = {
-                "schema": "staging",
+                "schema": f"{ConstantsProvider.get_staging_DW_name()}",
                 "table": ConstantsProvider.get_staging_table(source, table),
                 "delta_keys": str(delta_keys_dict),
                 ConstantsProvider.ingested_meta_field(): str(
