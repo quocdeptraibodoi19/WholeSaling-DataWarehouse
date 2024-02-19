@@ -1,4 +1,4 @@
-apt-get update --y && apt-get install lsb-release
+apt-get update && apt-get install sudo curl lsb-release gcc python-dev-is-python3 libkrb5-dev
 
 if ! [[ "18.04 20.04 22.04 23.04" == *"$(lsb_release -rs)"* ]];
 then
