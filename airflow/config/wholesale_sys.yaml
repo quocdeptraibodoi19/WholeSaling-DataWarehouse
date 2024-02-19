@@ -1,0 +1,65 @@
+---
+full_load:
+ - SalesTaxRate
+ - StateProvince
+ - CountryRegion
+ - ShipMethod
+ - SpecialOffer
+
+delta_load:
+
+ - table: Store
+   primary_keys:
+    - StoreID
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
+   delta_load_hql: |
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+
+ - table: StoreCustomer
+   primary_keys:
+    - CustomerID
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
+   delta_load_hql: |
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+
+ - table: StoreRepCreditCard
+   primary_keys:
+    - StoreRepID
+    - CardNumber
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
+   delta_load_hql: |
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+
+ - table: SalesOrderHeader
+   primary_keys:
+    - SalesOrderID
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
+   delta_load_hql: |
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+
+ - table: SalesOrderDetail
+   primary_keys:
+    - SalesOrderDetailID
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
+   delta_load_hql: |
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+
+ - table: SpecialOfferProduct
+   primary_keys:
+    - SpecialOfferID
+    - ProductID
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
+   delta_load_hql: |
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}

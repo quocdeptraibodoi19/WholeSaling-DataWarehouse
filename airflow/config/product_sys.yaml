@@ -1,0 +1,182 @@
+---
+full_load:
+ - ProductCategory
+ - ProductDocument
+ - Document
+ - ProductModel
+ - ProductModelIllustration
+ - Illustration
+ - Culture
+ - ProductSubcategory
+ - UnitMeasure
+ - ShipMethod
+ - StateProvinceCountry
+ - Location
+
+
+delta_load:
+
+ - table: Product
+   primary_keys:
+    - ProductID
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
+   delta_load_hql: |
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+
+ - table: ProductCostHistory
+   primary_keys:
+    - ProductID
+    - StartDate
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
+   delta_load_hql: |
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+
+ - table: ProductDescription
+   primary_keys:
+    - ProductDescriptionID
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
+   delta_load_hql: |
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+
+ - table: ProductInventory
+   primary_keys:
+    - ProductID
+    - LocationID
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
+   delta_load_hql: |
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+
+ - table: ProductListPriceHistory
+   primary_keys:
+    - ProductID
+    - StartDate
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
+   delta_load_hql: |
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+
+ - table: ProductModelProductDescriptionCulture
+   primary_keys:
+    - ProductModelID
+    - ProductDescriptionID
+    - CultureID
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')e})
+   delta_load_hql: |
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+
+ - table: ProductPhoto
+   primary_keys:
+    - ProductPhotoID
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
+   delta_load_hql: |
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+
+ - table: ProductProductPhoto
+   primary_keys:
+    - ProductID
+    - ProductPhotoID
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
+   delta_load_hql: |
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+
+ - table: ProductVendor
+   primary_keys:
+    - ProductID
+    - VendorID
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
+   delta_load_hql: |
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+
+ - table: ProductReview
+   primary_keys:
+    - ProductReviewID
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
+   delta_load_hql: |
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+
+ - table: Vendor
+   primary_keys:
+    - VendorID
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
+   delta_load_hql: |
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+
+ - table: VendorAddress
+   primary_keys:
+    - VendorID
+    - AddressID
+    - AddressTypeID
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
+   delta_load_hql: |
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+
+ - table: WorkOrder
+   primary_keys:
+    - WorkOrderID
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
+   delta_load_hql: |
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+
+ - table: WorkOrderRouting
+   primary_keys:
+    - WorkOrderID
+    - ProductID
+    - OperationSequence
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
+   delta_load_hql: |
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+
+ - table: BillOfMaterials
+   primary_keys:
+    - BillOfMaterialsID
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
+   delta_load_hql: |
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+
+ - table: PurchaseOrderHeader
+   primary_keys:
+    - PurchaseOrderID
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
+   delta_load_hql: |
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+
+ - table: PurchaseOrderDetail
+   primary_keys:
+    - PurchaseOrderID
+    - PurchaseOrderDetailID
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
+   delta_load_hql: |
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}

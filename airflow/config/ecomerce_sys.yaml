@@ -1,0 +1,76 @@
+---
+full_load:
+ - SalesReason
+ - StateProvince
+ - CountryRegion
+ - SalesTaxRate
+ - ShipMethod
+ - SpecialOffer
+
+delta_load:
+
+ - table: User
+   primary_keys:
+    - UserID
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
+   delta_load_hql: |
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+
+ - table: UserAddress
+   primary_keys:
+    - AddressID
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
+   delta_load_hql: |
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+
+ - table: UserCreditCard
+   primary_keys:
+    - UserID
+    - CreditCardID
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
+   delta_load_hql: |
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+
+ - table: SalesOrderHeader
+   primary_keys:
+    - SalesOrderID
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
+   delta_load_hql: |
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+
+ - table: SalesOrderHeaderSalesReason
+   primary_keys:
+    - SalesOrderID
+    - SalesReasonID
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
+   delta_load_hql: |
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+
+ - table: SpecialOfferProduct
+   primary_keys:
+    - SpecialOfferID
+    - ProductID
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
+   delta_load_hql: |
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+
+ - table: ShoppingCartItem
+   primary_keys:
+    - ShoppingCartItemID
+   delta_keys:
+    - ModifiedDate
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
+   delta_load_hql: |
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
