@@ -14,3 +14,5 @@ airflow/standalone_admin_password.txt
 dbt_wholesaleDW/.user.yml
 
 /logs
+
+test.ipynb

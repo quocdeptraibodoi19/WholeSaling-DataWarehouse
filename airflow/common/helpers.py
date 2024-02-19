@@ -106,6 +106,10 @@ class ConstantsProvider:
         return 10**6
 
     @staticmethod
+    def Presto_query_chunksize():
+        return 10**6
+
+    @staticmethod
     def HDFS_LandingZone_base_dir(
         source_system: str = None, table_name: str = None, date_str: str = None
     ):
@@ -169,7 +173,7 @@ class ConstantsProvider:
 
     @staticmethod
     def get_sources_datetime_format_standardization():
-        return "%b %d %Y %I:%M%p"
+        return "%Y-%m-%d %H:%M:%S.%f"
 
     @staticmethod
     def get_DW_Layer(level: int):
@@ -211,6 +215,10 @@ class ConstantsProvider:
     @staticmethod
     def get_reconcile_delete_temp_view_table(source: str, table: str):
         return f"temp_{ConstantsProvider.get_reconcile_delete_table(source, table)}"
+
+    @staticmethod
+    def get_delta_reconcile_delete_temp_view_table(source: str, table: str):
+        return f"temp_delta_reconcile_delete_{ConstantsProvider.get_staging_table(source, table)}"
 
     @staticmethod
     def get_fullload_ingest_file():
@@ -263,13 +271,26 @@ class DataManipulatingManager:
     @staticmethod
     def standardlize_date_format(column: str, datetime_format: str):
         def transform(data: pd.DataFrame, logger: logging.Logger):
-
-            data[column] = pd.to_datetime(data[column], format=datetime_format)
-            data[column] = data[column].dt.strftime("%Y-%m-%d %H:%M:%S")
+            
+            data[column] = pd.to_datetime(data[column])
+            data[column] = data[column].dt.strftime(datetime_format)
 
             logger.info(
                 f"Standarlizing data (column {column}) with format '{datetime_format}' ..."
             )
+            logger.info(f"Tunning the dataframe: {data[column]}")
+
+            return data
+
+        return transform
+
+    @staticmethod
+    def pd_column_to_string(column: str):
+        def transform(data: pd.DataFrame, logger: logging.Logger):
+
+            data[column] = data[column].astype(str)
+            
+            logger.info(f"Convert column {column} to string ... ")
             logger.info(f"Tunning the dataframe: {data[column]}")
 
             return data

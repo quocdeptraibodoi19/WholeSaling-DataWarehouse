@@ -14,22 +14,18 @@ delta_load:
     - UserID
    delta_keys:
     - ModifiedDate
-   custom_load_sql: Select * from User where (ModifiedDate > {modifieddate})
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
    delta_load_hql: |
-        SELECT MAX(CAST(FROM_UNIXTIME(UNIX_TIMESTAMP(MODIFIEDDATE, 'MMM dd yyyy hh:mmaa')) AS TIMESTAMP)) 
-        AS modifieddate 
-        FROM {hive_table}
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
 
  - table: UserAddress
    primary_keys:
     - AddressID
    delta_keys:
     - ModifiedDate
-   custom_load_sql: Select * from UserAddress where (ModifiedDate > {modifieddate})
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
    delta_load_hql: |
-        SELECT MAX(CAST(FROM_UNIXTIME(UNIX_TIMESTAMP(MODIFIEDDATE, 'MMM dd yyyy hh:mmaa')) AS TIMESTAMP)) 
-        AS modifieddate 
-        FROM {hive_table}
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
 
  - table: UserCreditCard
    primary_keys:
@@ -37,22 +33,18 @@ delta_load:
     - CreditCardID
    delta_keys:
     - ModifiedDate
-   custom_load_sql: Select * from UserCreditCard where (ModifiedDate > {modifieddate})
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
    delta_load_hql: |
-        SELECT MAX(CAST(FROM_UNIXTIME(UNIX_TIMESTAMP(MODIFIEDDATE, 'MMM dd yyyy hh:mmaa')) AS TIMESTAMP)) 
-        AS modifieddate 
-        FROM {hive_table}
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
 
  - table: SalesOrderHeader
    primary_keys:
     - SalesOrderID
    delta_keys:
     - ModifiedDate
-   custom_load_sql: Select * from SalesOrderHeader where (ModifiedDate > {modifieddate})
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
    delta_load_hql: |
-        SELECT MAX(CAST(FROM_UNIXTIME(UNIX_TIMESTAMP(MODIFIEDDATE, 'MMM dd yyyy hh:mmaa')) AS TIMESTAMP)) 
-        AS modifieddate 
-        FROM {hive_table}
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
 
  - table: SalesOrderHeaderSalesReason
    primary_keys:
@@ -60,11 +52,9 @@ delta_load:
     - SalesReasonID
    delta_keys:
     - ModifiedDate
-   custom_load_sql: Select * from SalesOrderHeaderSalesReason where (ModifiedDate > {modifieddate})
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
    delta_load_hql: |
-        SELECT MAX(CAST(FROM_UNIXTIME(UNIX_TIMESTAMP(MODIFIEDDATE, 'MMM dd yyyy hh:mmaa')) AS TIMESTAMP)) 
-        AS modifieddate 
-        FROM {hive_table}
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
 
  - table: SpecialOfferProduct
    primary_keys:
@@ -72,19 +62,15 @@ delta_load:
     - ProductID
    delta_keys:
     - ModifiedDate
-   custom_load_sql: Select * from SpecialOfferProduct where (ModifiedDate > {modifieddate})
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
    delta_load_hql: |
-        SELECT MAX(CAST(FROM_UNIXTIME(UNIX_TIMESTAMP(MODIFIEDDATE, 'MMM dd yyyy hh:mmaa')) AS TIMESTAMP)) 
-        AS modifieddate 
-        FROM {hive_table}
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
 
  - table: ShoppingCartItem
    primary_keys:
     - ShoppingCartItemID
    delta_keys:
     - ModifiedDate
-   custom_load_sql: Select * from ShoppingCartItem where (ModifiedDate > {modifieddate})
+   custom_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
    delta_load_hql: |
-        SELECT MAX(CAST(FROM_UNIXTIME(UNIX_TIMESTAMP(MODIFIEDDATE, 'MMM dd yyyy hh:mmaa')) AS TIMESTAMP)) 
-        AS modifieddate 
-        FROM {hive_table}
+        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}

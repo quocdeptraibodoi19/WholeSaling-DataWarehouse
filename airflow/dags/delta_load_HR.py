@@ -18,11 +18,10 @@ from ingest.HR_System.delta_load import (
     delete_detection_HR_HDFS,
     delete_detection_HDFS_LandingZone_to_Hive_Staging,
     reconciling_delta_delete_Hive_Staging,
+    check_full_load_yet,
 )
 
-from airflow.operators.python import PythonOperator
-
-import logging
+from ingest.task_generator import DeltaLoadTaskGenerator
 
 with DAG(
     "delta_load_HR",
@@ -32,112 +31,22 @@ with DAG(
     start_date=datetime(2024, 1, 1),
     catchup=False,
 ) as dag:
-
-    table = "Stakeholder"
-    source = ConstantsProvider.get_HR_source()
-    logger = logging.getLogger(__name__)
-    table_config = {
-        "table": "Stakeholder",
-        "primary_keys": ["StackHolderID"],
-        "delta_keys": ["ModifiedDate"],
-        "custom_load_sql": "Select * from Stackholder where (ModifiedDate > {ModifiedDate})",
-        "delta_load_hql": "SELECT MAX(MODIFIEDDATE) AS MODIFIEDDATE FROM {hive_table}",
-    }
-
-    t1 = PythonOperator(
-        task_id=f"delta_ingest_{table}_from_{ConstantsProvider.get_HR_source()}",
-        python_callable=HR_to_HDFS,
-        op_kwargs={
-            "table": table,
-            "source": source,
-            "logger": logger,
-        },
+    hr_task_generator = DeltaLoadTaskGenerator(
         dag=dag,
-    )
-
-    t2 = PythonOperator(
-        task_id=f"delta_ingest_{table}_from_HDFS_to_Hive",
-        python_callable=HDFS_LandingZone_to_Hive_Staging,
-        op_kwargs={
-            "table": table,
-            "source": source,
-            "logger": logger,
-        },
-        dag=dag,
-    )
-
-    t3 = PythonOperator(
-        task_id=f"update_detla_key_table_{source.lower()}_{table.lower()}_Hive",
-        python_callable=update_delta_keys,
-        op_kwargs={
-            "source": source,
-            "logger": logger,
-            "table_config": table_config,
+        source=ConstantsProvider.get_HR_source(),
+        airflow_task_funcs={
+            "HR_to_HDFS": HR_to_HDFS,
+            "HDFS_LandingZone_to_Hive_Staging": HDFS_LandingZone_to_Hive_Staging,
+            "update_delta_keys": update_delta_keys,
+            "delta_HR_to_HDFS": delta_HR_to_HDFS,
+            "delta_HDFS_LandingZone_to_Hive_Staging": delta_HDFS_LandingZone_to_Hive_Staging,
+            "delete_detection_HR_HDFS": delete_detection_HR_HDFS,
+            "delete_detection_HDFS_LandingZone_to_Hive_Staging": delete_detection_HDFS_LandingZone_to_Hive_Staging,
+            "reconciling_delta_delete_Hive_Staging": reconciling_delta_delete_Hive_Staging,
+            "check_full_load_yet": check_full_load_yet,
         },
     )
+    hr_task_generator.add_all_tasks()
 
-    t1 >> t2 >> t3
 
-    # t4 = PythonOperator(
-    #     task_id=f"delete_detection_{table.lower()}_{source.lower()}_HDFS",
-    #     python_callable=delete_detection_HR_HDFS,
-    #     op_kwargs={
-    #         "source": source,
-    #         "logger": logger,
-    #         "table_config": table_config,
-    #     },
-    # )
-
-    # t5 = PythonOperator(
-    #     task_id=f"delete_detection_{table.lower()}_HDFS_Hive",
-    #     python_callable=delete_detection_HDFS_LandingZone_to_Hive_Staging,
-    #     op_kwargs={
-    #         "source": source,
-    #         "logger": logger,
-    #         "table_config": table_config,
-    #     },
-    # )
-
-    # t6 = PythonOperator(
-    #     task_id=f"delete_detection_{table.lower()}_Reconcile_Hive",
-    #     python_callable=reconciling_delta_delete_Hive_Staging,
-    #     op_kwargs={
-    #         "source": source,
-    #         "logger": logger,
-    #         "table_config": table_config,
-    #         "mode": "recocile_delete",
-    #     },
-    # )
-
-    # t7 = PythonOperator(
-    #     task_id=f"delta_load_{table.lower()}_{source.lower()}_HDFS",
-    #     python_callable=delta_HR_to_HDFS,
-    #     op_kwargs={
-    #         "source": source,
-    #         "logger": logger,
-    #         "table_config": table_config,
-    #     },
-    # )
-
-    # t8 = PythonOperator(
-    #     task_id=f"delta_load_{table.lower()}_HDFS_Hive",
-    #     python_callable=delta_HDFS_LandingZone_to_Hive_Staging,
-    #     op_kwargs={
-    #         "source": source,
-    #         "logger": logger,
-    #         "table_config": table_config,
-    #     },
-    # )
-
-    # t9 = PythonOperator(
-    #     task_id=f"delta_load_{table.lower()}_Reconcile_Hive",
-    #     python_callable=reconciling_delta_delete_Hive_Staging,
-    #     op_kwargs={
-    #         "source": source,
-    #         "logger": logger,
-    #         "table_config": table_config,
-    #         "mode": "delta",
-    #     },
-    # )
-
-    # t4 >> t5 >> t6 >> t7 >> t8 >> t9
+    

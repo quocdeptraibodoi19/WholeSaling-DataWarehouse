@@ -10,7 +10,9 @@ from airflow.models.dag import DAG
 
 from common.helpers import ConstantsProvider
 
-from ingest.task_generator import HRFullLoadTaskGenerator
+from ingest.task_generator import FullLoadTaskGenerator
+
+from ingest.HR_System.full_load import HR_to_HDFS, HDFS_LandingZone_to_Hive_Staging
 
 with DAG(
     "full_load_HR",
@@ -20,5 +22,12 @@ with DAG(
     start_date=datetime(2024, 1, 1),
     catchup=False,
 ) as dag:
-    hr_task_generator = HRFullLoadTaskGenerator(dag=dag)
+    hr_task_generator = FullLoadTaskGenerator(
+        dag=dag,
+        source=ConstantsProvider.get_HR_source(),
+        airflow_task_funcs={
+            "HR_to_HDFS": HR_to_HDFS,
+            "HDFS_LandingZone_to_Hive_Staging": HDFS_LandingZone_to_Hive_Staging,
+        },
+    )
     hr_task_generator.add_all_tasks()
