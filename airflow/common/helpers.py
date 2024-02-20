@@ -33,61 +33,65 @@ class ConstantsProvider:
     def HR_sys_creds():
         if ConstantsProvider.get_environment() == "local":
             return {
-                "server": "sql1",
-                "database": "HumanResourceSystem",
-                "username": "sa",
-                "password": "@Quoc1234",
+                "server": os.getenv("hr_server"),
+                "database": os.getenv("hr_database"),
+                "username": os.getenv("hr_user"),
+                "password": os.getenv("hr_pass"),
             }
 
     @staticmethod
     def Wholesaling_sys_creds():
         if ConstantsProvider.get_environment() == "local":
             return {
-                "server": "sql1",
-                "database": "WholeSaling",
-                "username": "sa",
-                "password": "@Quoc1234",
+                "server": os.getenv("wholesale_server"),
+                "database": os.getenv("wholesale_database"),
+                "username": os.getenv("wholesale_user"),
+                "password": os.getenv("wholesale_pass"),
             }
 
     @staticmethod
     def Product_sys_creds():
         if ConstantsProvider.get_environment() == "local":
             return {
-                "server": "sql1",
-                "database": "Product",
-                "username": "sa",
-                "password": "@Quoc1234",
+                "server": os.getenv("product_server"),
+                "database": os.getenv("product_database"),
+                "username": os.getenv("product_user"),
+                "password": os.getenv("product_pass"),
             }
 
     @staticmethod
     def Ecomerce_sys_creds():
         if ConstantsProvider.get_environment() == "local":
             return {
-                "server": "sql1",
-                "database": "Ecomerce",
-                "username": "sa",
-                "password": "@Quoc1234",
+                "server": os.getenv("ecom_server"),
+                "database": os.getenv("ecom_database"),
+                "username": os.getenv("ecom_user"),
+                "password": os.getenv("ecom_pass"),
             }
 
     @staticmethod
     def Hadoop_creds():
         if ConstantsProvider.get_environment() == "local":
-            return {"host": "hadoop-master", "port": "9870", "user": "hadoop"}
+            return {
+                "host": os.getenv("hadoop_host"),
+                "port": os.getenv("hadoop_port"),
+                "user": os.getenv("hadoop_user"),
+            }
 
     @staticmethod
     def hdfs_config():
         if ConstantsProvider.get_environment() == "local":
-            return {"host": "hadoop-master", "port": "9001"}
+            return {"host": os.getenv("hdfs_host"), "port": os.getenv("hdfs_port")}
 
     @staticmethod
     def Presto_Staging_Hive_creds():
         if ConstantsProvider.get_environment() == "local":
             return {
-                "host": "hadoop-master",
-                "port": 8080,
-                "user": "hadoop",
-                "catalog": "hive",
-                "schema": "staging",
+                "host": os.getenv("presto_host"),
+                "port": int(os.getenv("presto_port")),
+                "user": os.getenv("presto_user"),
+                "catalog": os.getenv("presto_catalog"),
+                "schema": os.getenv("presto_schema"),
             }
 
     @staticmethod
@@ -95,10 +99,10 @@ class ConstantsProvider:
         if ConstantsProvider.get_environment() == "local":
             # This is the credentials for the python to connect to hiveserver2
             return {
-                "host": "hadoop-master",
-                "port": 10000,
-                "username": "hadoop",
-                "database": "staging",
+                "host": os.getenv("hive_host"),
+                "port": int(os.getenv("hive_port")),
+                "username": os.getenv("hive_user"),
+                "database": os.getenv("hive_database"),
             }
 
     @staticmethod
@@ -178,7 +182,7 @@ class ConstantsProvider:
     @staticmethod
     def get_staging_DW_name():
         return "staging"
-    
+
     @staticmethod
     def get_delta_key_table():
         return "delta_keys"
@@ -262,7 +266,7 @@ class DataManipulatingManager:
     @staticmethod
     def standardlize_date_format(column: str, datetime_format: str):
         def transform(data: pd.DataFrame, logger: logging.Logger):
-            
+
             data[column] = pd.to_datetime(data[column])
             data[column] = data[column].dt.strftime(datetime_format)
 
@@ -280,7 +284,7 @@ class DataManipulatingManager:
         def transform(data: pd.DataFrame, logger: logging.Logger):
 
             data[column] = data[column].astype(str)
-            
+
             logger.info(f"Convert column {column} to string ... ")
             logger.info(f"Tunning the dataframe: {data[column]}")
 
