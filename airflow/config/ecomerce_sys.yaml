@@ -1,21 +1,21 @@
 ---
 full_load:
-  - table: SalesReason
+ - table: SalesReason
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: StateProvince
+ - table: StateProvince
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: CountryRegion
+ - table: CountryRegion
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: SalesTaxRate
+ - table: SalesTaxRate
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: ShipMethod
+ - table: ShipMethod
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: SpecialOffer
+ - table: SpecialOffer
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
 
