@@ -52,98 +52,118 @@ delta_load:
    custom_delta_load_sql: ~
    custom_deltakey_load_hql: ~
 
-#  - table: Employee
-#    primary_keys:
-#     - EmployeeID
-#    delta_keys:
-#     - ModifiedDate
-#    custom_full_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
-#    delta_load_hql: |
-#         SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+ - table: Employee
+   primary_keys:
+    - EmployeeID
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+   custom_full_load_sql: ~
+   custom_delta_load_sql: ~
+   custom_deltakey_load_hql: ~
 
 
-#  - table: EmployeeDepartmentHistory
-#    primary_keys:
-#     - EmployeeID
-#     - DepartmentID
-#     - ShiftID
-#     - StartDate
-#    delta_keys:
-#     - ModifiedDate
-#    custom_full_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
-#    delta_load_hql: |
-#         SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+ - table: EmployeeDepartmentHistory
+   primary_keys:
+    - EmployeeID
+    - DepartmentID
+    - ShiftID
+    - StartDate
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+   custom_full_load_sql: ~
+   custom_delta_load_sql: ~
+   custom_deltakey_load_hql: ~
 
-#  - table: EmployeePayHistory
-#    primary_keys:
-#     - EmployeeID
-#     - RateChangeDate
-#    delta_keys:
-#     - ModifiedDate
-#    custom_full_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
-#    delta_load_hql: |
-#         SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+ - table: EmployeePayHistory
+   primary_keys:
+    - EmployeeID
+    - RateChangeDate
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+   custom_full_load_sql: ~
+   custom_delta_load_sql: ~
+   custom_deltakey_load_hql: ~
 
-#  - table: EmployeePhoneContact
-#    primary_keys:
-#     - EmployeeID
-#    delta_keys:
-#     - ModifiedDate
-#    custom_full_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
-#    delta_load_hql: |
-#         SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+ - table: EmployeePhoneContact
+   primary_keys:
+    - EmployeeID
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+   custom_full_load_sql: ~
+   custom_delta_load_sql: ~
+   custom_deltakey_load_hql: ~
         
-#  - table: JobCandidate
-#    primary_keys:
-#     - JobCandidateID
-#    delta_keys:
-#     - ModifiedDate
-#    custom_full_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
-#    delta_load_hql: |
-#         SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+ - table: JobCandidate
+   primary_keys:
+    - JobCandidateID
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+   custom_full_load_sql: ~
+   custom_delta_load_sql: ~
+   custom_deltakey_load_hql: ~
 
-#  - table: EmployeeAddress
-#    primary_keys:
-#     - EmployeeID
-#     - AddressID
-#    delta_keys:
-#     - ModifiedDate
-#    custom_full_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
-#    delta_load_hql: |
-#         SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+ - table: EmployeeAddress
+   primary_keys:
+    - EmployeeID
+    - AddressID
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+   custom_full_load_sql: ~
+   custom_delta_load_sql: ~
+   custom_deltakey_load_hql: ~
 
-#  - table: StackHolderEmail
-#    primary_keys:
-#     - StackHolderID
-#    delta_keys:
-#     - ModifiedDate
-#    custom_full_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
-#    delta_load_hql: |
-#         SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+ - table: StackHolderEmail
+   primary_keys:
+    - StackHolderID
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+   custom_full_load_sql: ~
+   custom_delta_load_sql: ~
+   custom_deltakey_load_hql: ~
 
-#  - table: EmployeeEmail
-#    primary_keys:
-#     - EmployeeID
-#    delta_keys:
-#     - ModifiedDate
-#    custom_full_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
-#    delta_load_hql: |
-#         SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+ - table: EmployeeEmail
+   primary_keys:
+    - EmployeeID
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+   custom_full_load_sql: ~
+   custom_delta_load_sql: ~
+   custom_deltakey_load_hql: ~
 
-#  - table: SalePersons
-#    primary_keys:
-#     - EmployeeID
-#    delta_keys:
-#     - ModifiedDate
-#    custom_full_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
-#    delta_load_hql: |
-#         SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+ - table: SalePersons
+   primary_keys:
+    - EmployeeID
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+   custom_full_load_sql: ~
+   custom_delta_load_sql: ~
+   custom_deltakey_load_hql: ~
 
-#  - table: SalesPersonQuotaHistory
-#    primary_keys:
-#     - EmployeeID
-#    delta_keys:
-#     - ModifiedDate
-#    custom_full_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
-#    delta_load_hql: |
-#         SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+ - table: SalesPersonQuotaHistory
+   primary_keys:
+    - EmployeeID
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+   custom_full_load_sql: ~
+   custom_delta_load_sql: ~
+   custom_deltakey_load_hql: ~
