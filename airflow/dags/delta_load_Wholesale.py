@@ -10,8 +10,8 @@ from airflow.models.dag import DAG
 
 from common.helpers import ConstantsProvider
 
-from ingest.HR_System.full_load import HR_to_HDFS, HDFS_LandingZone_to_Hive_Staging
-from ingest.HR_System.delta_load import (
+from ingest.WholeSale_System.full_load import HR_to_HDFS, HDFS_LandingZone_to_Hive_Staging
+from ingest.WholeSale_System.delta_load import (
     update_delta_keys,
     delta_HR_to_HDFS,
     delta_HDFS_LandingZone_to_Hive_Staging,
@@ -31,9 +31,9 @@ with DAG(
     start_date=datetime(2024, 1, 1),
     catchup=False,
 ) as dag:
-    hr_task_generator = DeltaLoadTaskGenerator(
+    wholesale_task_generator = DeltaLoadTaskGenerator(
         dag=dag,
-        source=ConstantsProvider.get_HR_source(),
+        source=ConstantsProvider.get_WholeSaling_source(),
         airflow_task_funcs={
             "HR_to_HDFS": HR_to_HDFS,
             "HDFS_LandingZone_to_Hive_Staging": HDFS_LandingZone_to_Hive_Staging,
@@ -46,4 +46,4 @@ with DAG(
             "check_full_load_yet": check_full_load_yet,
         },
     )
-    hr_task_generator.add_all_tasks()
+    wholesale_task_generator.add_all_tasks()

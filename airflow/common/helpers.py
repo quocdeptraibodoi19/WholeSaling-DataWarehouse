@@ -229,9 +229,9 @@ class ConstantsProvider:
             base = "config/"
             opts = {
                 ConstantsProvider.get_HR_source(): "hr_system.yaml",
-                ConstantsProvider.get_Product_source(): "product_system.yaml",
-                ConstantsProvider.get_WholeSaling_source(): "wholesaling_system.yaml",
-                ConstantsProvider.get_Ecomerce_source(): "ecomerce_system.yaml",
+                ConstantsProvider.get_Product_source(): "product_sys.yaml",
+                ConstantsProvider.get_WholeSaling_source(): "wholesale_sys.yaml",
+                ConstantsProvider.get_Ecomerce_source(): "ecomerce_sys.yaml",
             }
             return base + opts[source]
 
