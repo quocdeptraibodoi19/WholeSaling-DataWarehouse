@@ -74,7 +74,7 @@ def HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
                 columns_data,
             )
 
-            query = f"""SELECT {",".join(columns_selects)} FROM {table}"""
+            query = f"""SELECT {",".join(columns_selects)} FROM [{table}]"""
         else:
             query = custom_full_load_sql
 

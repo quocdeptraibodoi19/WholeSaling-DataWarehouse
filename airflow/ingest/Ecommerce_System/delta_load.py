@@ -96,7 +96,7 @@ def delta_HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
                 lambda key: f"([{key}] > " + "'{" + f"{key.lower()}" + "}')", delta_keys
             )
 
-            delta_load_sql = f"""SELECT {",".join(columns_selects)} FROM {table} WHERE {" AND ".join(delta_conditions)}"""
+            delta_load_sql = f"""SELECT {",".join(columns_selects)} FROM [{table}] WHERE {" AND ".join(delta_conditions)}"""
         else:
             delta_load_sql = custom_delta_load_sql
 
