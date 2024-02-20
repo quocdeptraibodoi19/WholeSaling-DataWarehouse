@@ -9,7 +9,7 @@ import logging
 from datetime import datetime
 
 from common.system_data_hooks import (
-    HRSystemDataHook,
+    ProductSystemDataHook,
     HDFSDataHook,
 )
 from common.ingestion_strategies import (
@@ -28,9 +28,11 @@ def HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
     table = table_config.get("table")
     custom_full_load_sql = table_config.get("custom_full_load_sql")
 
-    hr_sys = HRSystemDataHook()
-    hr_sys.connect()
+    product_sys = ProductSystemDataHook()
+
     try:
+        product_sys.connect()
+
         if custom_full_load_sql is None:
             logger.info(
                 f"Custom load SQL is not specified ... Gonna construct the load SQL for table {table} from source {source}"
@@ -47,7 +49,7 @@ def HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
                         lambda data_col: list(map(lambda data: data[0], data_col)),
                         map(
                             lambda data: data.itertuples(index=False, name=None),
-                            hr_sys.execute(
+                            product_sys.execute(
                                 query=metadata_query,
                                 chunksize=ConstantsProvider.HR_query_chunksize(),
                             ),
@@ -78,7 +80,7 @@ def HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
 
         logger.info(f"Getting data from {table} in {source} with query: {query}")
 
-        data_collection = hr_sys.execute(
+        data_collection = product_sys.execute(
             query=query, chunksize=ConstantsProvider.HR_query_chunksize()
         )
 
@@ -113,7 +115,7 @@ def HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
         logger.error(f"An error occurred: {e}")
         raise
     finally:
-        hr_sys.disconnect()
+        product_sys.disconnect()
 
 
 def HDFS_LandingZone_to_Hive_Staging(logger: logging.Logger, table: str, source: str):
