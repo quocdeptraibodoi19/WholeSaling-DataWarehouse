@@ -24,33 +24,60 @@ import pandas as pd
 from itertools import chain
 
 
-def HR_to_HDFS(logger: logging.Logger, table: str, source: str):
+def HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
+    table = table_config.get("table")
+    custom_full_load_sql = table_config.get("custom_full_load_sql")
+
     hr_sys = HRSystemDataHook()
     hr_sys.connect()
     try:
-        metadata_query = f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table}'"
-        logger.info(
-            f"Getting columns of the table {table} with query: {metadata_query}"
-        )
-        columns_data = list(
-            chain.from_iterable(
-                map(
-                    lambda data_col: list(map(lambda data: data[0], data_col)),
+        if custom_full_load_sql is None:
+            logger.info(
+                f"Custom load SQL is not specified ... Gonna construct the load SQL for table {table} from source {source}"
+            )
+
+            metadata_query = f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table}'"
+
+            logger.info(
+                f"Getting columns of the table {table} with query: {metadata_query}"
+            )
+            columns_data = list(
+                chain.from_iterable(
                     map(
-                        lambda data: data.itertuples(index=False, name=None),
-                        hr_sys.execute(
-                            query=metadata_query,
-                            chunksize=ConstantsProvider.HR_query_chunksize(),
+                        lambda data_col: list(map(lambda data: data[0], data_col)),
+                        map(
+                            lambda data: data.itertuples(index=False, name=None),
+                            hr_sys.execute(
+                                query=metadata_query,
+                                chunksize=ConstantsProvider.HR_query_chunksize(),
+                            ),
                         ),
-                    ),
+                    )
                 )
             )
-        )
 
-        logger.info(f"The columns of {table} are: {columns_data}")
+            logger.info(f"The columns of {table} are: {columns_data}")
 
-        query = f"SELECT * FROM {table}"
+            custom_casts = table_config.get("custom_casts")
+            custom_casts_fields = (
+                list(custom_casts.keys()) if custom_casts is not None else []
+            )
+
+            columns_selects = map(
+                lambda col: (
+                    custom_casts[col] + " AS " + "[" + col + "]"
+                    if col in custom_casts_fields
+                    else f"CONVERT(NVARCHAR(MAX), [{col}]) AS [{col}]"
+                ),
+                columns_data,
+            )
+
+            query = f"""SELECT {",".join(columns_selects)} FROM {table}"""
+        else:
+            query = custom_full_load_sql
+
         logger.info(f"Getting data from {table} in {source} with query: {query}")
+
         data_collection = hr_sys.execute(
             query=query, chunksize=ConstantsProvider.HR_query_chunksize()
         )
@@ -58,19 +85,6 @@ def HR_to_HDFS(logger: logging.Logger, table: str, source: str):
         data_manipulator = DataManipulator(
             data_collection=data_collection, logger=logger
         )
-
-        for field in columns_data:
-            if field in ConstantsProvider.get_HR_date_fields_for_standardization():
-                data_manipulator.transform(
-                    DataManipulatingManager.standardlize_date_format(
-                        column=field,
-                        datetime_format=ConstantsProvider.get_sources_datetime_format_standardization(),
-                    )
-                )
-            else:
-                data_manipulator.transform(
-                    DataManipulatingManager.pd_column_to_string(column=field)
-                )
 
         data_collection = (
             data_manipulator.transform(

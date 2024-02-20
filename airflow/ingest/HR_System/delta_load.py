@@ -32,7 +32,8 @@ from itertools import chain
 
 def delta_HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
     table = table_config.get("table")
-    delta_load_sql = table_config.get("custom_load_sql")
+    custom_delta_load_sql = table_config.get("custom_delta_load_sql")
+    delta_keys = table_config.get("delta_keys")
 
     hr_sys = HRSystemDataHook()
     presto_sys = PrestoDataHook()
@@ -50,29 +51,58 @@ def delta_HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
             f"The latest delta keys of the table {table} with the source {source} are: {delta_keys}"
         )
 
+        if custom_delta_load_sql is None:
+            logger.info(
+                f"Custom load SQL is not specified ... Gonna construct the load SQL for table {table} from source {source}"
+            )
+
+            metadata_query = f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table}'"
+
+            logger.info(
+                f"Getting columns of the table {table} with query: {metadata_query}"
+            )
+            columns_data = list(
+                chain.from_iterable(
+                    map(
+                        lambda data_col: list(map(lambda data: data[0], data_col)),
+                        map(
+                            lambda data: data.itertuples(index=False, name=None),
+                            hr_sys.execute(
+                                query=metadata_query,
+                                chunksize=ConstantsProvider.HR_query_chunksize(),
+                            ),
+                        ),
+                    )
+                )
+            )
+
+            logger.info(f"The columns of {table} are: {columns_data}")
+
+            custom_casts = table_config.get("custom_casts")
+            custom_casts_fields = (
+                list(custom_casts.keys()) if custom_casts is not None else []
+            )
+
+            columns_selects = map(
+                lambda col: (
+                    custom_casts[col] + " AS " + "[" + col + "]"
+                    if col in custom_casts_fields
+                    else f"CONVERT(NVARCHAR(MAX), [{col}]) AS [{col}]"
+                ),
+                columns_data,
+            )
+
+            delta_conditions = map(
+                lambda key: f"([{key}] > " + "'{" + f"{key.lower()}" + "}')", delta_keys
+            )
+
+            delta_load_sql = f"""SELECT {",".join(columns_selects)} FROM {table} WHERE {" AND ".join(delta_conditions)}"""
+        else:
+            delta_load_sql = custom_delta_load_sql
+
         delta_load_sql = delta_load_sql.format(table=table, **delta_keys)
         logger.info(
             f"The query to retrieve the latest incremental data from table {table} and source {source} is: {delta_load_sql}"
-        )
-
-        metadata_query = f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table}'"
-        logger.info(
-            f"Getting columns of the table {table} with query: {metadata_query}"
-        )
-
-        columns_data = list(
-            chain.from_iterable(
-                map(
-                    lambda data_col: list(map(lambda data: data[0], data_col)),
-                    map(
-                        lambda data: data.itertuples(index=False, name=None),
-                        hr_sys.execute(
-                            query=metadata_query,
-                            chunksize=ConstantsProvider.HR_query_chunksize(),
-                        ),
-                    ),
-                )
-            )
         )
 
         data_collection = hr_sys.execute(
@@ -82,19 +112,6 @@ def delta_HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
         data_manipulator = DataManipulator(
             data_collection=data_collection, logger=logger
         )
-
-        for field in columns_data:
-            if field in ConstantsProvider.get_HR_date_fields_for_standardization():
-                data_manipulator.transform(
-                    DataManipulatingManager.standardlize_date_format(
-                        column=field,
-                        datetime_format=ConstantsProvider.get_sources_datetime_format_standardization(),
-                    )
-                )
-            else:
-                data_manipulator.transform(
-                    DataManipulatingManager.pd_column_to_string(column=field)
-                )
 
         data_collection = (
             data_manipulator.transform(
@@ -323,17 +340,29 @@ def reconciling_delta_delete_Hive_Staging(
 
 def update_delta_keys(logger: logging.Logger, table_config: dict, source: str):
     table = table_config.get("table")
-    delta_load_hql = table_config.get("delta_load_hql")
-
-    delta_load_hql = delta_load_hql.format(
-        hive_table=ConstantsProvider.get_staging_table(source, table)
-    )
-    logger.info(f"Getting the latest delta key with the hiveQL: {delta_load_hql}")
+    custom_deltakey_load_hql = table_config.get("custom_deltakey_load_hql")
+    delta_keys = table_config.get("delta_keys")
 
     presto_sys = PrestoDataHook()
     presto_sys.connect()
     try:
-        delta_keys_df = presto_sys.execute(query=delta_load_hql)
+        if custom_deltakey_load_hql is None:
+            logger.info(
+                f"Custom delta key load HQL is not specified ... Gonna construct the delta key load HQL for table {table} from source {source}"
+            )
+
+            delta_keys_selects = map(
+                lambda delta_key: f"MAX({delta_key}) AS {delta_key.lower()}", delta_keys
+            )
+            delta_key_load_hql = f"""SELECT {",".join(delta_keys_selects)} FROM {ConstantsProvider.get_staging_table(source, table)}"""
+        else:
+            delta_key_load_hql = custom_deltakey_load_hql
+
+        logger.info(
+            f"Getting the latest delta key with the hiveQL: {delta_key_load_hql}"
+        )
+
+        delta_keys_df = presto_sys.execute(query=delta_key_load_hql)
 
         delta_keys_dict = delta_keys_df.to_dict("records")[-1]
         logger.info(
@@ -356,6 +385,7 @@ def update_delta_keys(logger: logging.Logger, table_config: dict, source: str):
     finally:
         presto_sys.disconnect()
 
+
 def check_full_load_yet(logger: logging.Logger, table: str, source: str):
     presto_sys = PrestoDataHook()
 
@@ -364,17 +394,21 @@ def check_full_load_yet(logger: logging.Logger, table: str, source: str):
 
         check_if_delta_key_exist_query = f"""SELECT * FROM information_schema.tables WHERE table_schema = '{ConstantsProvider.get_staging_DW_name()}' AND table_name = '{ConstantsProvider.get_delta_key_table()}'"""
 
-        logger.info(f"Checking the existence of delta_keys table with: {check_if_delta_key_exist_query}")
+        logger.info(
+            f"Checking the existence of delta_keys table with: {check_if_delta_key_exist_query}"
+        )
 
         checking_df = presto_sys.execute(query=check_if_delta_key_exist_query)
-        
+
         if checking_df.empty:
             return False
 
-        query = f"""SELECT delta_keys FROM {ConstantsProvider.get_staging_table(source, table)} 
+        query = f"""SELECT delta_keys FROM {ConstantsProvider.get_delta_key_table()} 
                 WHERE "schema" = '{ConstantsProvider.get_staging_DW_name()}' AND "table" = '{ConstantsProvider.get_staging_table(source, table)}'"""
-    
-        logger.info(f"Check for table {table} from the source {source} has full loaded yet with query: {query}")
+
+        logger.info(
+            f"Check for table {table} from the source {source} has full loaded yet with query: {query}"
+        )
 
         data_df = presto_sys.execute(query=query)
 

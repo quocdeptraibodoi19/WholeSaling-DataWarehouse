@@ -98,7 +98,7 @@ class PrestoHiveStagingIngestionStrategy(DataIngestionStrategy):
                 )
 
                 table_schema = list(
-                    map(lambda column: column + " VARCHAR", table_columns)
+                    map(lambda column: column + " NVARCHAR(MAX)", table_columns)
                 )
                 presto_sql = f"""CREATE TABLE {ConstantsProvider.get_staging_table(source_system, table_name)} 
                         ( {", ".join(table_schema)} )

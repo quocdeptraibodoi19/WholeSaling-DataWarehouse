@@ -117,29 +117,29 @@ class FullLoadTaskGenerator(TaskGenerator):
         self.source = source
         self.airflow_task_funcs = airflow_task_funcs
 
-    def add_all_tasks(self, tables: list = None, *args, **kwargs):
+    def add_all_tasks(self, tables_configs: list = None, *args, **kwargs):
         self.logger.info(
             f"Parsing yaml file {ConstantsProvider.config_file_path(source=self.source)}..."
         )
 
-        if tables is None:
+        if tables_configs is None:
             with open(
                 ConstantsProvider.config_file_path(source=self.source),
                 "r",
             ) as file:
-                tables = yaml.load(file, yaml.Loader).get("full_load")
+                tables_configs = yaml.load(file, yaml.Loader).get("full_load")
 
-        self._add_tasks(tables=tables)
+        self._add_tasks(tables_configs=tables_configs)
 
-    def _add_tasks(self, tables: list, *args, **kwargs):
+    def _add_tasks(self, tables_configs: list, *args, **kwargs):
         airflow_tasks_map = {
-            table: [
+            table_config.get("table"): [
                 self._create_airflow_run_task(
                     airflow_operator_factory=PythonAirflowOperatorFactory(),
-                    task_id=f"ingest_{table}_from_{self.source}",
+                    task_id=f"""ingest_{table_config.get("table")}_from_{self.source}""",
                     python_callable=self.airflow_task_funcs.get("HR_to_HDFS"),
                     op_kwargs={
-                        "table": table,
+                        "table_config": table_config,
                         "source": self.source,
                         "logger": self.logger,
                     },
@@ -147,19 +147,19 @@ class FullLoadTaskGenerator(TaskGenerator):
                 ),
                 self._create_airflow_run_task(
                     airflow_operator_factory=PythonAirflowOperatorFactory(),
-                    task_id=f"ingest_{table}_from_HDFS_to_Hive",
+                    task_id=f"""ingest_{table_config.get("table")}_from_HDFS_to_Hive""",
                     python_callable=self.airflow_task_funcs.get(
                         "HDFS_LandingZone_to_Hive_Staging"
                     ),
                     op_kwargs={
-                        "table": table,
+                        "table": table_config.get("table"),
                         "source": self.source,
                         "logger": self.logger,
                     },
                     dag=self.dag,
                 ),
             ]
-            for table in tables
+            for table_config in tables_configs
         }
 
         self._add_task_dependency(airflow_tasks=airflow_tasks_map)
@@ -210,7 +210,7 @@ class DeltaLoadTaskGenerator(TaskGenerator):
                         task_id=f"""ingest_{table_config.get("table")}_from_{self.source}""",
                         python_callable=self.airflow_task_funcs.get("HR_to_HDFS"),
                         op_kwargs={
-                            "table": table_config.get("table"),
+                            "table_config": table_config,
                             "source": self.source,
                             "logger": self.logger,
                         },
