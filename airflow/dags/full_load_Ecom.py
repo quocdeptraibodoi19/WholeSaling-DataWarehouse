@@ -18,7 +18,7 @@ with DAG(
     "full_load_Ecom",
     default_args=ConstantsProvider.default_dag_args(),
     description=f"A full load data pipleline to ingest data from {ConstantsProvider.get_Ecomerce_source()}",
-    schedule=timedelta(hours=3),
+    schedule=timedelta(hours=24),
     start_date=datetime(2024, 1, 1),
     catchup=False,
 ) as dag:
