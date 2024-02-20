@@ -16,7 +16,7 @@ from common.ingestion_strategies import (
 )
 from common.system_data_hooks import (
     PrestoDataHook,
-    HRSystemDataHook,
+    ProductSystemDataHook,
     HDFSDataHook,
     HiveDataHook,
 )
@@ -35,11 +35,11 @@ def delta_HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
     custom_delta_load_sql = table_config.get("custom_delta_load_sql")
     delta_keys = table_config.get("delta_keys")
 
-    hr_sys = HRSystemDataHook()
+    product_sys = ProductSystemDataHook()
     presto_sys = PrestoDataHook()
 
     try:
-        hr_sys.connect()
+        product_sys.connect()
         presto_sys.connect()
 
         delta_keys_query = f"""SELECT delta_keys FROM {ConstantsProvider.get_delta_key_table()} 
@@ -67,7 +67,7 @@ def delta_HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
                         lambda data_col: list(map(lambda data: data[0], data_col)),
                         map(
                             lambda data: data.itertuples(index=False, name=None),
-                            hr_sys.execute(
+                            product_sys.execute(
                                 query=metadata_query,
                                 chunksize=ConstantsProvider.HR_query_chunksize(),
                             ),
@@ -105,7 +105,7 @@ def delta_HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
             f"The query to retrieve the latest incremental data from table {table} and source {source} is: {delta_load_sql}"
         )
 
-        data_collection = hr_sys.execute(
+        data_collection = product_sys.execute(
             query=delta_load_sql, chunksize=ConstantsProvider.HR_query_chunksize()
         )
 
@@ -140,7 +140,7 @@ def delta_HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
         logger.error(f"An error occurred: {e}")
         raise
     finally:
-        hr_sys.disconnect()
+        product_sys.disconnect()
         presto_sys.disconnect()
 
 

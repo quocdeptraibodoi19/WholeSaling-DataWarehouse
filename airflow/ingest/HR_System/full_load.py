@@ -29,8 +29,9 @@ def HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
     custom_full_load_sql = table_config.get("custom_full_load_sql")
 
     hr_sys = HRSystemDataHook()
-    hr_sys.connect()
     try:
+        hr_sys.connect()
+
         if custom_full_load_sql is None:
             logger.info(
                 f"Custom load SQL is not specified ... Gonna construct the load SQL for table {table} from source {source}"

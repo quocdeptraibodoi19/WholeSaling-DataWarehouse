@@ -77,7 +77,111 @@ class HRSystemDataHook(SysDataHook):
         self.logger.info(f"Getting data from query: {query}")
         return pd.read_sql(query, self.connection, chunksize=chunksize)
 
+class ProductSystemDataHook(SysDataHook):
+    def connect(self, *args, **kwargs):
+        self.logger.info("Connecting to Product System...")
+        self.creds = ConstantsProvider.Product_sys_creds()
+        self._connection = pyodbc.connect(
+            "DRIVER={ODBC Driver 18 for SQL Server};\
+                    SERVER="
+            + self.creds.get("server")
+            + ";\
+                    DATABASE="
+            + self.creds.get("database")
+            + ";\
+                    UID="
+            + self.creds.get("username")
+            + ";\
+                    PWD="
+            + self.creds.get("password")
+            + "; \
+                    TrustServerCertificate=yes;"
+        )
 
+    def disconnect(self, *args, **kwargs):
+        self.logger.info("Disconnecting from Product System...")
+        self.connection.close()
+
+    def execute(
+        self,
+        query: str,
+        chunksize: int = None,
+        *args,
+        **kwargs,
+    ):
+        self.logger.info(f"Getting data from query: {query}")
+        return pd.read_sql(query, self.connection, chunksize=chunksize)
+
+class WholeSaleSystemDataHook(SysDataHook):
+    def connect(self, *args, **kwargs):
+        self.logger.info("Connecting to WholeSale System...")
+        self.creds = ConstantsProvider.Wholesaling_sys_creds()
+        self._connection = pyodbc.connect(
+            "DRIVER={ODBC Driver 18 for SQL Server};\
+                    SERVER="
+            + self.creds.get("server")
+            + ";\
+                    DATABASE="
+            + self.creds.get("database")
+            + ";\
+                    UID="
+            + self.creds.get("username")
+            + ";\
+                    PWD="
+            + self.creds.get("password")
+            + "; \
+                    TrustServerCertificate=yes;"
+        )
+
+    def disconnect(self, *args, **kwargs):
+        self.logger.info("Disconnecting from WholeSale System...")
+        self.connection.close()
+
+    def execute(
+        self,
+        query: str,
+        chunksize: int = None,
+        *args,
+        **kwargs,
+    ):
+        self.logger.info(f"Getting data from query: {query}")
+        return pd.read_sql(query, self.connection, chunksize=chunksize)
+    
+class EcommerceSystemDataHook(SysDataHook):
+    def connect(self, *args, **kwargs):
+        self.logger.info("Connecting to Ecommerce System...")
+        self.creds = ConstantsProvider.Ecomerce_sys_creds()
+        self._connection = pyodbc.connect(
+            "DRIVER={ODBC Driver 18 for SQL Server};\
+                    SERVER="
+            + self.creds.get("server")
+            + ";\
+                    DATABASE="
+            + self.creds.get("database")
+            + ";\
+                    UID="
+            + self.creds.get("username")
+            + ";\
+                    PWD="
+            + self.creds.get("password")
+            + "; \
+                    TrustServerCertificate=yes;"
+        )
+
+    def disconnect(self, *args, **kwargs):
+        self.logger.info("Disconnecting from Ecommerce System...")
+        self.connection.close()
+
+    def execute(
+        self,
+        query: str,
+        chunksize: int = None,
+        *args,
+        **kwargs,
+    ):
+        self.logger.info(f"Getting data from query: {query}")
+        return pd.read_sql(query, self.connection, chunksize=chunksize)
+    
 class HDFSDataHook(SysDataHook):
     def connect(self, *args, **kwargs):
         self.logger.info("Connecting to HDFS Landing Zone...")
