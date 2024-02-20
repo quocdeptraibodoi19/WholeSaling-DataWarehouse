@@ -1,11 +1,23 @@
 ---
 full_load:
- - SalesReason
- - StateProvince
- - CountryRegion
- - SalesTaxRate
- - ShipMethod
- - SpecialOffer
+ - table: SalesReason
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+ - table: StateProvince
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+ - table: CountryRegion
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+ - table: SalesTaxRate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+ - table: ShipMethod
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+ - table: SpecialOffer
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
 
 delta_load:
 
@@ -14,18 +26,22 @@ delta_load:
     - UserID
    delta_keys:
     - ModifiedDate
-   custom_full_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
-   delta_load_hql: |
-        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+   custom_full_load_sql: ~
+   custom_delta_load_sql: ~
+   custom_deltakey_load_hql: ~
 
  - table: UserAddress
    primary_keys:
     - AddressID
    delta_keys:
     - ModifiedDate
-   custom_full_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
-   delta_load_hql: |
-        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+   custom_full_load_sql: ~
+   custom_delta_load_sql: ~
+   custom_deltakey_load_hql: ~
 
  - table: UserCreditCard
    primary_keys:
@@ -33,18 +49,22 @@ delta_load:
     - CreditCardID
    delta_keys:
     - ModifiedDate
-   custom_full_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
-   delta_load_hql: |
-        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+   custom_full_load_sql: ~
+   custom_delta_load_sql: ~
+   custom_deltakey_load_hql: ~
 
  - table: SalesOrderHeader
    primary_keys:
     - SalesOrderID
    delta_keys:
     - ModifiedDate
-   custom_full_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
-   delta_load_hql: |
-        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+   custom_full_load_sql: ~
+   custom_delta_load_sql: ~
+   custom_deltakey_load_hql: ~
 
  - table: SalesOrderHeaderSalesReason
    primary_keys:
@@ -52,9 +72,11 @@ delta_load:
     - SalesReasonID
    delta_keys:
     - ModifiedDate
-   custom_full_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
-   delta_load_hql: |
-        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+   custom_full_load_sql: ~
+   custom_delta_load_sql: ~
+   custom_deltakey_load_hql: ~
 
  - table: SpecialOfferProduct
    primary_keys:
@@ -62,15 +84,19 @@ delta_load:
     - ProductID
    delta_keys:
     - ModifiedDate
-   custom_full_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
-   delta_load_hql: |
-        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+   custom_full_load_sql: ~
+   custom_delta_load_sql: ~
+   custom_deltakey_load_hql: ~
 
  - table: ShoppingCartItem
    primary_keys:
     - ShoppingCartItemID
    delta_keys:
     - ModifiedDate
-   custom_full_load_sql: Select * from {table} where (ModifiedDate > '{modifieddate}')
-   delta_load_hql: |
-        SELECT MAX(MODIFIEDDATE) AS modifieddate FROM {hive_table}
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+   custom_full_load_sql: ~
+   custom_delta_load_sql: ~
+   custom_deltakey_load_hql: ~
