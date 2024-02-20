@@ -24,9 +24,9 @@ from ingest.Product_System.delta_load import (
 from ingest.task_generator import DeltaLoadTaskGenerator
 
 with DAG(
-    "delta_load_HR",
+    "delta_load_Product",
     default_args=ConstantsProvider.default_dag_args(),
-    description=f"A delta load data pipleline to ingest data from {ConstantsProvider.get_HR_source()}",
+    description=f"A delta load data pipleline to ingest data from {ConstantsProvider.get_Product_source()}",
     schedule=timedelta(hours=3),
     start_date=datetime(2024, 1, 1),
     catchup=False,
