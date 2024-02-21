@@ -282,7 +282,7 @@ def reconciling_delta_delete_Hive_Staging(
 
         selected_cols = map(
             lambda col: (
-                "t1." + col
+                f"t1.`{col}`"
                 if col != ConstantsProvider.soft_delete_meta_field()
                 else (
                     "'TRUE' AS " + ConstantsProvider.soft_delete_meta_field()
@@ -298,14 +298,14 @@ def reconciling_delta_delete_Hive_Staging(
                     FROM {ConstantsProvider.get_staging_table(source, table)} t1
                     WHERE NOT EXISTS (
                         SELECT * FROM {ConstantsProvider.get_reconcile_delete_table(source, table)} t2
-                        WHERE {" AND ".join(map(lambda key: "t1." + key + " = " + "t2." + key, primary_keys))}
+                        WHERE {" AND ".join(map(lambda key: f"t1.`{key}` = t2.`{key}`", primary_keys))}
                     )
                 """
 
         reconcile_DDL_hql = f"""CREATE VIEW IF NOT EXISTS {ConstantsProvider.get_delta_reconcile_delete_temp_view_table(source, table)} AS 
                 SELECT {",".join(map(lambda col: "t4." + "`" + col + "`", table_schema))} FROM 
                 (
-                    SELECT *, ROW_NUMBER() OVER (PARTITION BY {",".join(primary_keys)} ORDER BY {",".join(delta_keys)} DESC) rn
+                    SELECT *, ROW_NUMBER() OVER (PARTITION BY {",".join(map(lambda key: f"`{key}`", primary_keys))} ORDER BY {",".join(map(lambda key: f"`{key}`", delta_keys))} DESC) rn
                     FROM (
                         SELECT * FROM {ConstantsProvider.get_staging_table(source, table)}
                         UNION ALL
