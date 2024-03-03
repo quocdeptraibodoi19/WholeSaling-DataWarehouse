@@ -44,3 +44,7 @@ export presto_port=8080
 export presto_user=$hadoop_user
 export presto_catalog=hive
 export presto_schema=staging
+
+export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64/
+export HADOOP_CONF_DIR=./airflow/config/
+export HADOOP_USER_NAME=hadoop

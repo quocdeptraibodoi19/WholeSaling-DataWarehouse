@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?><!--
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+-->
+<configuration>
+        <property>
+                <name>system:java.io.tmpdir</name>
+                <value>/tmp/hive/java</value>
+        </property>
+        <property>
+                <name>system:user.name</name>
+                <value>${user.name}</value>
+        </property>
+        <property>
+                <name>spark.yarn.jars</name>
+                <value>hdfs://hadoop-master:9001/spark-jars/*</value>
+        </property>
+        <property>
+                <name>javax.jdo.option.ConnectionURL</name>
+                <value>jdbc:mysql://mysql-metastore:3306/metastore?createDatabaseIfNotExist=true</value>
+                <description>metadata is stored in a MySQL server</description>
+        </property>
+        <property>
+                <name>javax.jdo.option.ConnectionDriverName</name>
+                <value>com.mysql.cj.jdbc.Driver</value>
+                <description>MySQL JDBC driver class</description>
+        </property>
+        <property>
+                <name>javax.jdo.option.ConnectionUserName</name>
+                <value>metastore</value>
+                <description>user name for connecting to mysql server</description>
+        </property>
+        <property>
+                <name>javax.jdo.option.ConnectionPassword</name>
+                <value>1234</value>
+                <description>password for connecting to mysql server</description>
+        </property>
+        <property>
+                <name>hive.server2.enable.doAs</name>
+                <value>false</value>
+        </property>
+        <property>
+                <name>hive.exec.pre.hooks</name>
+                <value>org.apache.hadoop.hive.ql.hooks.ATSHook</value>
+        </property>
+        <property>
+                <name>hive.exec.post.hooks</name>
+                <value>org.apache.hadoop.hive.ql.hooks.ATSHook</value>
+        </property>
+        <property>
+                <name>hive.exec.failure.hooks</name>
+                <value>org.apache.hadoop.hive.ql.hooks.ATSHook</value>
+        </property>
+        <property>
+                <name>hive.metastore.schema.verification</name>
+                <value>true</value>
+                <description>
+                Enforce metastore schema version consistency.
+                True: Verify that version information stored in is compatible with one from Hive jars.  Also disable automatic
+                                schema migration attempt. Users are required to manually migrate schema after Hive upgrade which ensures
+                                proper metastore schema migration. (Default)
+                False: Warn if the version information stored in metastore doesn't match with one from in Hive jars.
+                </description>
+        </property>
+        <property>
+                <name>hive.execution.engine</name>
+                <value>tez</value>
+                <description>
+                Expects one of [mr, tez, spark].
+                Chooses execution engine. Options are: mr (Map reduce, default), tez, spark. While MR
+                remains the default engine for historical reasons, it is itself a historical engine
+                and is deprecated in Hive 2 line. It may be removed without further warning.
+                </description>
+    </property>
+</configuration>
+
+        <!-- <property>
+                <name>hive.metastore.uris</name>
+                <value>thrift://hadoop-master:9083</value>
+        </property> -->
