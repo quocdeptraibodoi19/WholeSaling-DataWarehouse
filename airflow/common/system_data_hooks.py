@@ -13,6 +13,7 @@ import pandas as pd
 from hdfs import InsecureClient
 import prestodb
 from pyhive import hive
+from pyspark.sql import SparkSession
 
 import logging
 
@@ -77,6 +78,7 @@ class HRSystemDataHook(SysDataHook):
         self.logger.info(f"Getting data from query: {query}")
         return pd.read_sql(query, self.connection, chunksize=chunksize)
 
+
 class ProductSystemDataHook(SysDataHook):
     def connect(self, *args, **kwargs):
         self.logger.info("Connecting to Product System...")
@@ -112,6 +114,7 @@ class ProductSystemDataHook(SysDataHook):
         self.logger.info(f"Getting data from query: {query}")
         return pd.read_sql(query, self.connection, chunksize=chunksize)
 
+
 class WholeSaleSystemDataHook(SysDataHook):
     def connect(self, *args, **kwargs):
         self.logger.info("Connecting to WholeSale System...")
@@ -146,7 +149,8 @@ class WholeSaleSystemDataHook(SysDataHook):
     ):
         self.logger.info(f"Getting data from query: {query}")
         return pd.read_sql(query, self.connection, chunksize=chunksize)
-    
+
+
 class EcommerceSystemDataHook(SysDataHook):
     def connect(self, *args, **kwargs):
         self.logger.info("Connecting to Ecommerce System...")
@@ -181,7 +185,8 @@ class EcommerceSystemDataHook(SysDataHook):
     ):
         self.logger.info(f"Getting data from query: {query}")
         return pd.read_sql(query, self.connection, chunksize=chunksize)
-    
+
+
 class HDFSDataHook(SysDataHook):
     def connect(self, *args, **kwargs):
         self.logger.info("Connecting to HDFS Landing Zone...")
@@ -306,3 +311,44 @@ class HiveDataHook(SysDataHook):
     ):
         self.logger.info(f"Getting data from query: {query}")
         return pd.read_sql(query, self.connection, chunksize=chunksize)
+
+
+class SparkSQLDataHook(SysDataHook):
+    def connect(
+        self, spark_app_name: str = None, database: str = None, *args, **kwargs
+    ):
+        self.logger.info("Connecting to SparkSQL Driver ...")
+
+        self.config = ConstantsProvider.SparkSQL_Context_config()
+        self._connection = (
+            SparkSession.builder.appName(
+                spark_app_name
+                if spark_app_name is not None
+                else self.config.get("appname")
+            )
+            .master(self.config.get("master"))
+            .config("hive.metastore.uris", self.config.get("hive.metastore.uris"))
+            .config(
+                "spark.sql.warehouse.dir", self.config.get("spark.sql.warehouse.dir")
+            )
+            .enableHiveSupport()
+            .getOrCreate()
+        )
+
+        if database is not None:
+            self._connection.sql(f"use {database}")
+        else:
+            self._connection.sql(f"""use {self.config.get("spark.default.db")}""")
+
+    def disconnect(self, *args, **kwargs):
+        self.logger.info("Disconnecting from SparkSQL...")
+        self.connection.stop()
+
+    def execute(
+        self,
+        query: str,
+        *args,
+        **kwargs,
+    ):
+        self.logger.info(f"Getting data from query: {query}")
+        return self.connection.sql(query)

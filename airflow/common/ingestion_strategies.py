@@ -15,7 +15,7 @@ from datetime import datetime
 
 import logging
 
-from .system_data_hooks import HDFSDataHook, PrestoDataHook, HiveDataHook
+from .system_data_hooks import HDFSDataHook, PrestoDataHook, HiveDataHook, SparkSQLDataHook
 
 
 class DataIngestionStrategy:
@@ -214,10 +214,10 @@ class HiveStagingIntestionStrategy(DataIngestionStrategy):
             self.data_hook.disconnect()
 
 
-class HiveStagingDeltaKeyIngestionStrategy(DataIngestionStrategy):
+class SparkSQLDeltaKeyIngestionStrategy(DataIngestionStrategy):
     def __init__(self) -> None:
         super().__init__()
-        self.data_hook = HiveDataHook()
+        self.data_hook = SparkSQLDataHook()
 
     def move_data(
         self,
@@ -228,7 +228,7 @@ class HiveStagingDeltaKeyIngestionStrategy(DataIngestionStrategy):
         **kwargs,
     ):
         try:
-            self.data_hook.connect()
+            self.data_hook.connect(spark_app_name=f"DeltaKeyIngestion_{source}_{table}")
 
             create_ddl = f"""CREATE TABLE IF NOT EXISTS `{ConstantsProvider.get_delta_key_table()}` 
                 ( 
@@ -280,26 +280,25 @@ class HiveStagingDeltaKeyIngestionStrategy(DataIngestionStrategy):
                 f"DROP TABLE {ConstantsProvider.get_temp_delta_key_table()}"
             )
 
-            with self.data_hook.connection.cursor() as cursor:
-                self.logger.info(
-                    f"Creating table {ConstantsProvider.get_delta_key_table()} with hiveQL: {create_ddl}"
-                )
-                cursor.execute(create_ddl)
+            self.logger.info(
+                f"Creating table {ConstantsProvider.get_delta_key_table()} with hiveQL: {create_ddl}"
+            )
+            self.data_hook.connection.sql(create_ddl)
 
-                self.logger.info(
-                    f"""Creating table {ConstantsProvider.get_temp_delta_key_table()} with hiveQL: {delta_table_ddl} """
-                )
-                cursor.execute(delta_table_ddl)
+            self.logger.info(
+                f"""Creating table {ConstantsProvider.get_temp_delta_key_table()} with hiveQL: {delta_table_ddl} """
+            )
+            self.data_hook.connection.sql(delta_table_ddl)
 
-                self.logger.info(
-                    f"""Insert data from {ConstantsProvider.get_temp_delta_key_table()} to {ConstantsProvider.get_delta_key_table()}: {insert_hql} """
-                )
-                cursor.execute(insert_hql)
+            self.logger.info(
+                f"""Insert data from {ConstantsProvider.get_temp_delta_key_table()} to {ConstantsProvider.get_delta_key_table()}: {insert_hql} """
+            )
+            self.data_hook.connection.sql(insert_hql)
 
-                self.logger.info(
-                    f"""Drop {ConstantsProvider.get_temp_delta_key_table()} with hiveQL: {delta_table_drop_ddl} """
-                )
-                cursor.execute(delta_table_drop_ddl)
+            self.logger.info(
+                f"""Drop {ConstantsProvider.get_temp_delta_key_table()} with hiveQL: {delta_table_drop_ddl} """
+            )
+            self.data_hook.connection.sql(delta_table_drop_ddl)
 
         except Exception as e:
             self.logger.error(f"An error occurred: {e}")

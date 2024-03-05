@@ -106,6 +106,17 @@ class ConstantsProvider:
             }
 
     @staticmethod
+    def SparkSQL_Context_config():
+        if ConstantsProvider.get_environment() == "local":
+            return {
+                "master": os.getenv("spark_master"),
+                "appname": "ELT-SPARKAPP",
+                "hive.metastore.uris": os.getenv("spark_hive_metastore_uris"),
+                "spark.sql.warehouse.dir": os.getenv("spark_sql_warehouse_dir"),
+                "spark.default.db": os.getenv("hive_database"),
+            }
+
+    @staticmethod
     def HR_query_chunksize():
         return 10**6
 

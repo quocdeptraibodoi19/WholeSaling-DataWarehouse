@@ -128,6 +128,7 @@ prison==0.2.1
 protobuf==4.25.2
 psutil==5.9.7
 pure-sasl==0.6.2
+py4j==0.10.9.7
 pyarrow==15.0.0
 pycparser==2.21
 pydantic==2.5.3
@@ -136,6 +137,7 @@ Pygments==2.17.2
 PyHive==0.7.0
 PyJWT==2.8.0
 pyodbc==5.0.1
+pyspark==3.5.1
 python-daemon==3.0.1
 python-dateutil==2.8.2
 python-decouple==3.8

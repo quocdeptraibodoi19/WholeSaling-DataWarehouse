@@ -46,5 +46,9 @@ export presto_catalog=hive
 export presto_schema=staging
 
 export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64/
-export HADOOP_CONF_DIR=./airflow/config/
+export HADOOP_CONF_DIR=$AIRFLOW_HOME/config/
 export HADOOP_USER_NAME=hadoop
+
+export spark_master=spark://hadoop-master:7077
+export spark_hive_metastore_uris=thrift://$hadoop_host:9083
+export spark_sql_warehouse_dir=hdfs://$hadoop_host:9001/sparksql-dw/

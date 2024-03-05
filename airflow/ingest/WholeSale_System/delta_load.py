@@ -10,15 +10,14 @@ import logging
 
 from common.ingestion_strategies import (
     DataIngester,
-    HiveStagingDeltaKeyIngestionStrategy,
+    SparkSQLDeltaKeyIngestionStrategy,
     HDFSLandingZoneIngestionStrategy,
     HiveStagingIntestionStrategy,
 )
 from common.system_data_hooks import (
-    PrestoDataHook,
-    WholeSaleSystemDataHook,
+    EcommerceSystemDataHook,
     HDFSDataHook,
-    HiveDataHook,
+    SparkSQLDataHook
 )
 
 from common.helpers import ConstantsProvider, DataManipulator, DataManipulatingManager
@@ -35,17 +34,17 @@ def delta_HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
     custom_delta_load_sql = table_config.get("custom_delta_load_sql")
     delta_keys = table_config.get("delta_keys")
 
-    wholesale_sys = WholeSaleSystemDataHook()
-    presto_sys = PrestoDataHook()
-
+    ecom_sys = EcommerceSystemDataHook()
+    sparksql_sys = SparkSQLDataHook()
     try:
-        wholesale_sys.connect()
-        presto_sys.connect()
+        ecom_sys.connect()
+        sparksql_sys.connect(spark_app_name=f"delta_HR_to_HDFS_{source}_{table}")
 
         delta_keys_query = f"""SELECT delta_keys FROM {ConstantsProvider.get_delta_key_table()} 
                 WHERE "schema" = '{ConstantsProvider.get_staging_DW_name()}' AND "table" = '{ConstantsProvider.get_staging_table(source, table)}'"""
 
-        delta_keys_df = presto_sys.execute(query=delta_keys_query)
+        delta_keys_df = sparksql_sys.execute(query=delta_keys_query).toPandas()
+
         delta_keys = ast.literal_eval(delta_keys_df.to_dict("records")[0]["delta_keys"])
         logger.info(
             f"The latest delta keys of the table {table} with the source {source} are: {delta_keys}"
@@ -67,7 +66,7 @@ def delta_HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
                         lambda data_col: list(map(lambda data: data[0], data_col)),
                         map(
                             lambda data: data.itertuples(index=False, name=None),
-                            wholesale_sys.execute(
+                            ecom_sys.execute(
                                 query=metadata_query,
                                 chunksize=ConstantsProvider.HR_query_chunksize(),
                             ),
@@ -105,7 +104,7 @@ def delta_HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
             f"The query to retrieve the latest incremental data from table {table} and source {source} is: {delta_load_sql}"
         )
 
-        data_collection = wholesale_sys.execute(
+        data_collection = ecom_sys.execute(
             query=delta_load_sql, chunksize=ConstantsProvider.HR_query_chunksize()
         )
 
@@ -140,9 +139,8 @@ def delta_HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
         logger.error(f"An error occurred: {e}")
         raise
     finally:
-        wholesale_sys.disconnect()
-        presto_sys.disconnect()
-
+        ecom_sys.disconnect()
+        sparksql_sys.disconnect()
 
 def delta_HDFS_LandingZone_to_Hive_Staging(
     logger: logging.Logger, table_config: dict, source: str
@@ -180,19 +178,21 @@ def delta_HDFS_LandingZone_to_Hive_Staging(
 def delete_detection_HR_HDFS(logger: logging.Logger, table_config: dict, source: str):
     table = table_config.get("table")
     primary_keys = table_config.get("primary_keys")
-
-    presto_sys = PrestoDataHook()
+    
+    sparksql_sys = SparkSQLDataHook()
     try:
-        presto_sys.connect()
+        sparksql_sys.connect(spark_app_name=f"delete_detection_HR_HDFS_{source}_{table}")
 
         existed_data_query = f"""SELECT {",".join(primary_keys)} 
             FROM {ConstantsProvider.get_staging_table(source=source, table=table)} 
             WHERE {ConstantsProvider.soft_delete_meta_field()} = 'False'"""
 
-        data_collection = presto_sys.execute(
-            query=existed_data_query,
-            chunksize=ConstantsProvider.Presto_query_chunksize(),
-        )
+        data_collection = [
+            sparksql_sys.execute(
+                query=existed_data_query,
+                chunksize=ConstantsProvider.Presto_query_chunksize(),
+            ).toPandas()
+        ]
 
         logger.info(
             f"Detecting the current existed data in DataWarehouse with {existed_data_query} ... with data: {data_collection}"
@@ -224,8 +224,7 @@ def delete_detection_HR_HDFS(logger: logging.Logger, table_config: dict, source:
         logger.error(f"An error occurred: {e}")
         raise
     finally:
-        presto_sys.disconnect()
-
+        sparksql_sys.disconnect()
 
 def delete_detection_HDFS_LandingZone_to_Hive_Staging(
     logger: logging.Logger, table_config: dict, source: str
@@ -267,11 +266,11 @@ def reconciling_delta_delete_Hive_Staging(
     delta_keys = table_config.get("delta_keys")
     primary_keys = table_config.get("primary_keys")
 
-    hive_sys = HiveDataHook()
+    sparksql_sys = SparkSQLDataHook()
     hdfs_sys = HDFSDataHook()
     try:
-        hive_sys.connect()
         hdfs_sys.connect()
+        sparksql_sys.connect(spark_app_name=f"reconciling_delta_delete_Hive_Staging_{source}_{table}")
 
         # TODO: Instead of gettint data schema from HDFS like this, getting from Hive DW because staging is insecure.
         table_schema = hdfs_sys.execute(command="data_schema")(
@@ -325,27 +324,26 @@ def reconciling_delta_delete_Hive_Staging(
 
         drop_reconcile_DDL_hql = f"DROP VIEW {ConstantsProvider.get_delta_reconcile_delete_temp_view_table(source, table)}"
 
-        with hive_sys.connection.cursor() as cursor:
-            cursor.execute(reconcile_DDL_hql)
-            cursor.execute(reconcile_hql)
-            cursor.execute(drop_reconcile_DDL_hql)
+        sparksql_sys.execute(reconcile_DDL_hql)
+        sparksql_sys.execute(reconcile_hql)
+        sparksql_sys.execute(drop_reconcile_DDL_hql)
 
     except Exception as e:
         logger.error(f"An error occurred: {e}")
         raise
     finally:
-        hive_sys.disconnect()
         hdfs_sys.disconnect()
-
+        sparksql_sys.disconnect()
 
 def update_delta_keys(logger: logging.Logger, table_config: dict, source: str):
     table = table_config.get("table")
     custom_deltakey_load_hql = table_config.get("custom_deltakey_load_hql")
     delta_keys = table_config.get("delta_keys")
 
-    presto_sys = PrestoDataHook()
-    presto_sys.connect()
+    sparksql_sys = SparkSQLDataHook()
     try:
+        sparksql_sys.connect(spark_app_name=f"update_delta_keys_{source}_{table}")
+
         if custom_deltakey_load_hql is None:
             logger.info(
                 f"Custom delta key load HQL is not specified ... Gonna construct the delta key load HQL for table {table} from source {source}"
@@ -362,7 +360,7 @@ def update_delta_keys(logger: logging.Logger, table_config: dict, source: str):
             f"Getting the latest delta key with the hiveQL: {delta_key_load_hql}"
         )
 
-        delta_keys_df = presto_sys.execute(query=delta_key_load_hql)
+        delta_keys_df = sparksql_sys.execute(query=delta_key_load_hql).toPandas()
 
         delta_keys_dict = delta_keys_df.to_dict("records")[-1]
         logger.info(
@@ -374,8 +372,8 @@ def update_delta_keys(logger: logging.Logger, table_config: dict, source: str):
             f"Convert all value of keys in the dictionary to string: {delta_keys_dict}"
         )
 
-        delta_hive_ingester = DataIngester(HiveStagingDeltaKeyIngestionStrategy())
-        delta_hive_ingester.ingest(
+        delta_sparksql_ingester = DataIngester(SparkSQLDeltaKeyIngestionStrategy())
+        delta_sparksql_ingester.ingest(
             source=source, table=table, delta_keys_dict=delta_keys_dict
         )
 
@@ -383,14 +381,12 @@ def update_delta_keys(logger: logging.Logger, table_config: dict, source: str):
         logger.error(f"An error occurred: {e}")
         raise
     finally:
-        presto_sys.disconnect()
-
+        sparksql_sys.disconnect()
 
 def check_full_load_yet(logger: logging.Logger, table: str, source: str):
-    presto_sys = PrestoDataHook()
-
+    sparksql_sys = SparkSQLDataHook()
     try:
-        presto_sys.connect()
+        sparksql_sys.connect(spark_app_name=f"check_full_load_yet_{source}_{table}")
 
         check_if_delta_key_exist_query = f"""SELECT * FROM information_schema.tables WHERE table_schema = '{ConstantsProvider.get_staging_DW_name()}' AND table_name = '{ConstantsProvider.get_delta_key_table()}'"""
 
@@ -398,7 +394,7 @@ def check_full_load_yet(logger: logging.Logger, table: str, source: str):
             f"Checking the existence of delta_keys table with: {check_if_delta_key_exist_query}"
         )
 
-        checking_df = presto_sys.execute(query=check_if_delta_key_exist_query)
+        checking_df = sparksql_sys.execute(query=check_if_delta_key_exist_query).toPandas()
 
         if checking_df.empty:
             return False
@@ -410,7 +406,7 @@ def check_full_load_yet(logger: logging.Logger, table: str, source: str):
             f"Check for table {table} from the source {source} has full loaded yet with query: {query}"
         )
 
-        data_df = presto_sys.execute(query=query)
+        data_df = sparksql_sys.execute(query=query).toPandas()
 
         return data_df.empty is False
 
@@ -418,4 +414,4 @@ def check_full_load_yet(logger: logging.Logger, table: str, source: str):
         logger.error(f"An error occurred: {e}")
         raise
     finally:
-        presto_sys.disconnect()
+        sparksql_sys.disconnect()
