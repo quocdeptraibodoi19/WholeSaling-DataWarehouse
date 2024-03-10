@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+ - name: wholesale
+   schema: staging
+   description: Source tables replicated from WholeSaling System.
+   tables:
+    - name: wholesale_system_salestaxrate
+      

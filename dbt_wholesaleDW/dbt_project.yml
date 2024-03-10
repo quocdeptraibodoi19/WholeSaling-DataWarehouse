@@ -37,5 +37,8 @@ models:
     # Config indicated by + and applies to all files under models/example/
     example:
       +materialized: view
-      my_second_dbt_model:
-       +schema: marketing 
+      +schema: example 
+
+    NDS:
+      +materialized: view
+      +schema: nds

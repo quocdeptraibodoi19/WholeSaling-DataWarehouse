@@ -1,0 +1,36 @@
+version: 2
+
+sources:
+ - name: ecomerce
+   schema: staging
+   description: Source tables replicated from Ecomerce System.
+   tables: 
+    - name: ecomerce_salesreason
+      description: Reason for saling a product online.
+      columns:
+        - name: salesreasonid
+          tests:
+            - not_null
+          description: Unique Id for sale reasons (incremental numbers).
+        
+        - name: reasontype
+          description: Type of the saling reasons.
+        
+        - name: modifieddate
+          description: Time date for updating a row.
+
+        - name: is_deleted
+          description: Soft deletion flag.
+
+        - name: date_partition
+          description: Date of ingestion (which can help hive to form a partition from the source).
+
+    - name: ecomerce_countryregion
+
+    - name: ecomerce_salestaxrate
+
+    - name: ecomerce_shipmethod
+
+    - name: ecomerce_specialoffer
+
+    - name: ecomerce_stateprovince

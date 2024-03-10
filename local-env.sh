@@ -5,7 +5,7 @@ export ENV=local
 export DBT_PROJECT_DIR=$(pwd)/dbt_wholesaleDW
 export DBT_PROFILES_DIR=$(pwd)/dbt_wholesaleDW
 
-export USER=$(whoami)
+export USER=quok
 
 export hr_server=sql1
 export hr_database=HumanResourceSystem

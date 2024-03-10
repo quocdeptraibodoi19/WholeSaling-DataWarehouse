@@ -1,0 +1,16 @@
+version: 2
+
+sources:
+ - name: hr_system
+   database: staging
+   schema: staging
+   tables:
+    - name: hr_system_addresstype
+    - name: hr_system_countryregion
+    - name: hr_system_department
+    - name: hr_system_phonenumbertype
+    - name: hr_system_salesterritory
+    - name: hr_system_saleterritoryrephistory
+    - name: hr_system_shift
+    - name: hr_system_stackholderposition
+    - name: hr_system_stateprovince
