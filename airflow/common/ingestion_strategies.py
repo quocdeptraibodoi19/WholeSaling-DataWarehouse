@@ -213,6 +213,99 @@ class HiveStagingIntestionStrategy(DataIngestionStrategy):
         finally:
             self.data_hook.disconnect()
 
+class HiveStagingDeltaKeyIngestionStrategy(DataIngestionStrategy):
+    def __init__(self) -> None:
+        super().__init__()
+        self.data_hook = HiveDataHook()
+
+    def move_data(
+        self,
+        source: str,
+        table: str,
+        delta_keys_dict: dict,
+        *args,
+        **kwargs,
+    ):
+        try:
+            self.data_hook.connect()
+
+            create_ddl = f"""CREATE TABLE IF NOT EXISTS `{ConstantsProvider.get_delta_key_table()}` 
+                ( 
+                    `schema` STRING,
+                    `table` STRING,
+                    `delta_keys` STRING,
+                    {ConstantsProvider.ingested_meta_field()} TIMESTAMP
+                )
+                STORED AS ORC
+            """
+
+            delta_key_config = {
+                "schema": f"{ConstantsProvider.get_staging_DW_name()}",
+                "table": ConstantsProvider.get_staging_table(source, table),
+                "delta_keys": str(delta_keys_dict),
+                ConstantsProvider.ingested_meta_field(): str(
+                    datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                ),
+            }
+
+            self.logger.info(f"The current delta_config: {delta_key_config}")
+
+            constructed_cols_ddl = map(
+                lambda data: (
+                    '"' + data[1] + '" AS ' + "`" + data[0] + "`"
+                    if data[0] != ConstantsProvider.ingested_meta_field()
+                    else 'CAST("' + data[1] + '" AS TIMESTAMP)' + "`" + data[0] + "`"
+                ),
+                delta_key_config.items(),
+            )
+            delta_table_ddl = f"""CREATE TABLE IF NOT EXISTS {ConstantsProvider.get_temp_delta_key_table()} AS
+                SELECT {",".join(map(lambda col: "t2." + "`" + col + "`", delta_key_config.keys()))} FROM 
+                    (
+                        SELECT *, ROW_NUMBER() OVER (PARTITION BY `schema`, `table` ORDER BY `{ConstantsProvider.ingested_meta_field()}` DESC) rn
+                        FROM (
+                            SELECT * FROM {ConstantsProvider.get_delta_key_table()}
+                            UNION ALL
+                            SELECT * FROM ( SELECT 
+                                {",".join(constructed_cols_ddl)} 
+                            ) subquery
+                        ) t1
+                    ) t2 WHERE t2.rn = 1
+                """
+
+            insert_hql = f"""INSERT OVERWRITE TABLE {ConstantsProvider.get_delta_key_table()} 
+                SELECT * FROM {ConstantsProvider.get_temp_delta_key_table()}"""
+
+            delta_table_drop_ddl = (
+                f"DROP TABLE {ConstantsProvider.get_temp_delta_key_table()}"
+            )
+
+            with self.data_hook.connection.cursor() as cursor:
+                self.logger.info(
+                    f"Creating table {ConstantsProvider.get_delta_key_table()} with hiveQL: {create_ddl}"
+                )
+                cursor.execute(create_ddl)
+
+                self.logger.info(
+                    f"""Creating table {ConstantsProvider.get_temp_delta_key_table()} with hiveQL: {delta_table_ddl} """
+                )
+                cursor.execute(delta_table_ddl)
+
+                self.logger.info(
+                    f"""Insert data from {ConstantsProvider.get_temp_delta_key_table()} to {ConstantsProvider.get_delta_key_table()}: {insert_hql} """
+                )
+                cursor.execute(insert_hql)
+
+                self.logger.info(
+                    f"""Drop {ConstantsProvider.get_temp_delta_key_table()} with hiveQL: {delta_table_drop_ddl} """
+                )
+                cursor.execute(delta_table_drop_ddl)
+
+        except Exception as e:
+            self.logger.error(f"An error occurred: {e}")
+            raise
+        finally:
+            self.data_hook.disconnect()
+
 
 class SparkSQLDeltaKeyIngestionStrategy(DataIngestionStrategy):
     def __init__(self) -> None:

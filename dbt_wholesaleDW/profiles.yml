@@ -4,6 +4,5 @@ AdventureWork:
     type: hive
     host: hadoop-master
     port: 10000
-    user: hadoop
     schema: "{{ 'dw_' + env_var('USER') if env_var('ENV') == 'local' else 'dw' }}"
   target: dev

@@ -5,5 +5,5 @@ sources:
    database: staging
    schema: staging
    tables:
-    - name: addresstype
-    - name: countryregion
+    - name: ecomerce_salesreason
+    - name: ecomerce_countryregion
