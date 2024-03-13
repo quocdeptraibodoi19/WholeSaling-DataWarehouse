@@ -1,42 +1,95 @@
 ---
 full_load:
- - table: ProductCategory
-   custom_casts:
-    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
- - table: ProductDocument
-   custom_casts:
-    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
- - table: Document
-   custom_casts:
-    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-    Document: CONVERT(NVARCHAR(MAX), [Document], 1)
- - table: ProductModel
-   custom_casts:
-    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
- - table: ProductModelIllustration
-   custom_casts:
-    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
- - table: Illustration
-   custom_casts:
-    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
- - table: Culture
-   custom_casts:
-    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
- - table: ProductSubcategory
-   custom_casts:
-    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
- - table: UnitMeasure
-   custom_casts:
-    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
- - table: ShipMethod
-   custom_casts:
-    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
- - table: StateProvinceCountry
-   custom_casts:
-    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
- - table: Location
-   custom_casts:
-    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: ProductCategory
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: ProductDocument
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: Document
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+      Document: CONVERT(NVARCHAR(MAX), [Document], 1)
+  - table: ProductModel
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: ProductModelIllustration
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: Illustration
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: Culture
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: ProductSubcategory
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: UnitMeasure
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: ShipMethod
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: StateProvinceCountry
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: Location
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: Product
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: ProductCostHistory
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: ProductDescription
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: ProductInventory
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: ProductListPriceHistory
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: ProductModelProductDescriptionCulture
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: ProductPhoto
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+      ThumbNailPhoto: CONVERT(NVARCHAR(MAX), [ThumbNailPhoto], 1)
+      LargePhoto: CONVERT(NVARCHAR(MAX), [LargePhoto], 1)
+  - table: ProductProductPhoto
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: ProductVendor
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: ProductReview
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: Vendor
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: VendorAddress
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: WorkOrder
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: WorkOrderRouting
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: BillOfMaterials
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: PurchaseOrderHeader
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: PurchaseOrderDetail
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
 
 delta_load:
 

@@ -26,11 +26,11 @@ sources:
           description: Date of ingestion (which can help hive to form a partition from the source).
 
     - name: ecomerce_countryregion
-
     - name: ecomerce_salestaxrate
-
     - name: ecomerce_shipmethod
-
-    - name: ecomerce_specialoffer
-
     - name: ecomerce_stateprovince
+    - name: ecomerce_usercreditcard
+    - name: ecomerce_shoppingcartitem
+    - name: ecomerce_user
+    - name: ecomerce_specialoffer
+    - name: ecomerce_specialofferproduct

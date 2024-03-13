@@ -1,20 +1,38 @@
 ---
 full_load:
- - table: SalesTaxRate
-   custom_casts:
-    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
- - table: StateProvince
-   custom_casts:
-    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
- - table: CountryRegion
-   custom_casts:
-    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
- - table: ShipMethod
-   custom_casts:
-    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
- - table: SpecialOffer
-   custom_casts:
-    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: SalesTaxRate
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: StateProvince
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: CountryRegion
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: ShipMethod
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: SpecialOffer
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: Store
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: StoreCustomer
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: StoreRepCreditCard
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: SalesOrderHeader
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: SalesOrderDetail
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: SpecialOfferProduct
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
 
 delta_load:
 
