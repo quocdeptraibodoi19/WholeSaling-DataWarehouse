@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+ - name: product
+   schema: staging
+   description: Source tables replicated from Product System.
+   tables:
+    - name: product_management_platform_vendor
