@@ -1,0 +1,38 @@
+version: 2
+
+sources:
+ - name: production
+   database: staging
+   schema: staging
+   tables:
+    - name: product_management_platform_billofmaterials
+    - name: product_management_platform_culture
+    - name: product_management_platform_document
+    - name: product_management_platform_illustration
+    - name: product_management_platform_location
+    - name: product_management_platform_product
+    - name: product_management_platform_productcategory
+    - name: product_management_platform_productcosthistory
+    - name: product_management_platform_productdescription
+    - name: product_management_platform_productdocument
+    - name: product_management_platform_productinventory
+    - name: product_management_platform_productlistpricehistory
+    - name: product_management_platform_productmodel
+    - name: product_management_platform_productmodelillustration
+    - name: product_management_platform_productmodelproductdescriptionculture
+    - name: product_management_platform_productphoto
+    - name: product_management_platform_productproductphoto
+    - name: product_management_platform_productreview
+    - name: product_management_platform_productsubcategory
+    - name: product_management_platform_productvendor
+    - name: product_management_platform_purchaseorderdetail
+    - name: product_management_platform_purchaseorderheader
+    - name: product_management_platform_shipmethod
+    - name: product_management_platform_stateprovincecountry
+    - name: product_management_platform_unitmeasure
+    - name: product_management_platform_vendor
+    - name: product_management_platform_vendoraddress
+    - name: product_management_platform_workorder
+    - name: product_management_platform_workorderrouting
+
+
