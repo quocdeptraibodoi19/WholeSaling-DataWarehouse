@@ -6,7 +6,6 @@
 
 with CTE as (
     select
-        row_number() over(order by cardnumber, cardtype, expmonth, expyear, is_deleted) as creditcardid,
         cardnumber,
         cardtype,
         expmonth,
@@ -17,7 +16,6 @@ with CTE as (
     from {{ source('ecomerce', 'ecomerce_usercreditcard') }}
     union all
     select
-        row_number() over(order by cardnumber, cardtype, expmonth, expyear, is_deleted) as creditcardid,
         cardnumber,
         cardtype,
         expmonth,
@@ -27,4 +25,7 @@ with CTE as (
         date_partition
     from {{ source('wholesale', 'wholesale_system_storerepcreditcard') }}
 )
-select * from CTE
+select 
+    row_number() over(order by CTE.cardnumber, CTE.cardtype, CTE.expmonth, CTE.expyear) as creditcardid,
+    CTE.*
+from CTE

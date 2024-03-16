@@ -1,6 +1,6 @@
 {{ config(materialized='view') }}
 
-select 
+select
     departmentid,
     name,
     groupname,
