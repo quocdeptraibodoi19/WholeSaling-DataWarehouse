@@ -27,7 +27,7 @@ select
     s.modifieddate,
     s.is_deleted,
     s.date_partition
-from CTE inner join ref("sales_CreditCard") s
+from CTE inner join {{ ref("sales_CreditCard") }} s
 on 
     cte.cardnumber = s.cardnumber 
     and
