@@ -1,8 +1,16 @@
 {{ config(materialized='view') }}
 
 -- Using mapping to map to the BussinessEntityId
+with CTE as(
+    select 
+        bussinessentityid,
+        external_id
+    from {{ ref("person_BussinessEntity") }} 
+    where source = "hr_system_employee"
+)
 select
-    employeeid,
+    CTE.bussinessentityid,
+    employeeid as old_employeeid,
     nationalidnumber,
     loginid,
     organizationnode,
@@ -20,3 +28,5 @@ select
     is_deleted,
     date_partition
 from {{ source("hr_system", "hr_system_employee") }}
+inner join CTE
+on CTE.external_id = employeeid

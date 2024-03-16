@@ -9,6 +9,7 @@ with CTE as(
 )
 select distinct 
     CTE.bussinessentityid,
+    storeid as old_storeid,
     name,
     employeenationalidnumber as salespersonid,
     demographics,

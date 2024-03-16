@@ -1,21 +1,25 @@
 {{ config(materialized='view') }}
 
-select
-    row_number() over(order by userid, accountnumber) as customerid,
-    userid as personid,
-    "" as storeid,
-    accountnumber,
-    modifieddate,
-    is_deleted,
-    date_partition
-from {{ source("ecomerce", "ecomerce_user") }} 
-union all
+with CTE as ( 
+    select
+        userid as personid,
+        null as storeid,
+        accountnumber,
+        modifieddate,
+        is_deleted,
+        date_partition
+    from {{ ref("sales_CustomerOnlineUser") }} 
+    union all
+    select 
+        storerepid as personid,
+        storeid,
+        accountnumber,
+        modifieddate,
+        is_deleted,
+        date_partition
+    from {{ ref("sales_CustomerStoreUser") }}
+)
 select 
-    row_number() over(order by customerid, storeid, storerepid, accountnumber) as customerid,
-    storerepid as personid,
-    storeid,
-    accountnumber,
-    modifieddate,
-    is_deleted,
-    date_partition
-from {{ source("wholesale", "wholesale_system_storecustomer") }}
+    row_number() over (order by personid, storeid, accountnumber) as customerid,
+    CTE.*
+from CTE

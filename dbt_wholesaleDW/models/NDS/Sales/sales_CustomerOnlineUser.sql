@@ -9,6 +9,7 @@ with CTE as (
 )
 select
     CTE.bussinessentityid as userid,
+    s.userid as old_userid,
     s.accountnumber,
     s.modifieddate,
     s.is_deleted,

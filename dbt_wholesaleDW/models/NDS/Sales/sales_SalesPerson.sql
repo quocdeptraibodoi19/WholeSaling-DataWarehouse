@@ -1,14 +1,16 @@
 {{ config(materialized='view') }}
 
 select 
-    employeeid,
-    territoryid,
-    salesquota,
-    bonus,
-    commissionpct,
-    salesytd,
-    saleslastyear,
-    modifieddate,
-    is_deleted,
-    date_partition
-from {{ source("hr_system", "hr_system_salepersons") }}
+    t.bussinessentityid,
+    s.territoryid,
+    s.salesquota,
+    s.bonus,
+    s.commissionpct,
+    s.salesytd,
+    s.saleslastyear,
+    s.modifieddate,
+    s.is_deleted,
+    s.date_partition
+from {{ source("hr_system", "hr_system_salepersons") }} s
+inner join {{ ref("hr_Employee") }} t
+on s.employeeid = t.old_employeeid
