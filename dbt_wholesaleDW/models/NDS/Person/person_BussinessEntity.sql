@@ -49,7 +49,7 @@ with CTE as (
         is_deleted, 
         date_partition,
         "product_management_platform_vendor" as source
-    from {{ source("product", "product_management_platform_vendor") }}
+    from {{ source("production", "product_management_platform_vendor") }}
 )
 select 
     row_number() over(order by CTE.external_id, CTE.source) as bussinessentityid,
