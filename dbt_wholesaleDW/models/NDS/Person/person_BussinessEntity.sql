@@ -8,7 +8,7 @@ with CTE as (
         modifieddate, 
         is_deleted, 
         date_partition,
-        "ecomerce_user" as table_source
+        "ecomerce_user" as source
     from {{ source("ecomerce", "ecomerce_user") }}
     union all
     select 
@@ -16,7 +16,7 @@ with CTE as (
         modifieddate, 
         is_deleted, 
         date_partition,
-        "wholesale_system_storecustomer" as table_source
+        "wholesale_system_storecustomer" as source
     from {{ source("wholesale", "wholesale_system_storecustomer") }}
     union all
     select 
@@ -24,15 +24,23 @@ with CTE as (
         modifieddate, 
         is_deleted, 
         date_partition,
-        "wholesale_system_store" as table_source
+        "wholesale_system_store" as source
     from {{ source("wholesale", "wholesale_system_store") }}
+    union all
+    select  
+        storerepid as external_id, 
+        modifieddate, 
+        is_deleted, 
+        date_partition,
+        "wholesale_system_store_storerep" as source
+    from {{ source("wholesale", "wholesale_system_storecustomer") }} where storerepid != ""
     union all
     select 
         employeeid as external_id, 
         modifieddate, 
         is_deleted, 
         date_partition,
-        "hr_system_employee" as table_source
+        "hr_system_employee" as source
     from {{ source("hr_system", "hr_system_employee") }}
     union all
     select 
@@ -40,15 +48,16 @@ with CTE as (
         modifieddate, 
         is_deleted, 
         date_partition,
-        "product_management_platform_vendor" as table_source
+        "product_management_platform_vendor" as source
     from {{ source("product", "product_management_platform_vendor") }}
 )
 select 
-    row_number() over(order by CTE.external_id, CTE.table_source) as bussinessentityid,
+    row_number() over(order by CTE.external_id, CTE.source) as bussinessentityid,
     modifieddate, 
     is_deleted, 
     date_partition,
-    table_source
+    external_id,
+    source
 from CTE
 
 {% if is_incremental() %}
