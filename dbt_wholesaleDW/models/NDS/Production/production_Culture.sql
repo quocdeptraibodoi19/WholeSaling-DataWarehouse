@@ -1,9 +1,9 @@
 {{ config(materialized='view') }}
 
 select 
-    specialofferid,
-    productid,
+    cultureid,
+    name,
     modifieddate,
     is_deleted,
     date_partition
-from {{ source("ecomerce", "ecomerce_specialofferproduct") }}
+from {{ source("production", "product_management_platform_culture") }}

@@ -1,10 +1,11 @@
 {{ config(materialized='view') }}
 
-Select
-    salesreasonid,
+select 
+    shiftid,
     name,
-    reasontype,
+    starttime,
+    endtime,
     modifieddate,
     is_deleted,
     date_partition
-from {{ source('ecomerce', 'ecomerce_salesreason') }}  
+from {{ source("hr_system", "hr_system_shift") }}

@@ -1,32 +1,65 @@
 ---
 full_load:
- - table: StackholderPosition
-   custom_casts:
-    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
- - table: Department
-   custom_casts:
-    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
- - table: PhoneNumberType
-   custom_casts:
-    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
- - table: Shift
-   custom_casts:
-    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
- - table: AddressType
-   custom_casts:
-    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
- - table: SaleTerritoryRepHistory
-   custom_casts:
-    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
- - table: SalesTerritory
-   custom_casts:
-    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
- - table: CountryRegion
-   custom_casts:
-    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
- - table: StateProvince
-   custom_casts:
-    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: StackholderPosition
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: Department
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: PhoneNumberType
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: Shift
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: AddressType
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: SaleTerritoryRepHistory
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: SalesTerritory
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: CountryRegion
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: StateProvince
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: Stakeholder
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: Employee
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: EmployeeDepartmentHistory
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: EmployeePayHistory
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: EmployeePhoneContact
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: JobCandidate
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: EmployeeAddress
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: StackHolderEmail
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: EmployeeEmail
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: SalePersons
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: SalesPersonQuotaHistory
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
 
 delta_load:
 

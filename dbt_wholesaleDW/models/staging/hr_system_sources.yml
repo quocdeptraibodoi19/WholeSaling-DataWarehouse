@@ -14,3 +14,5 @@ sources:
     - name: hr_system_shift
     - name: hr_system_stackholderposition
     - name: hr_system_stateprovince
+    - name: hr_system_employee
+    - name: hr_system_salepersons

@@ -1,9 +1,9 @@
 {{ config(materialized='view') }}
 
 select 
-    specialofferid,
-    productid,
+    phonenumbertypeid,
+    name,
     modifieddate,
     is_deleted,
     date_partition
-from {{ source("ecomerce", "ecomerce_specialofferproduct") }}
+from {{ source("hr_system", "hr_system_phonenumbertype") }}

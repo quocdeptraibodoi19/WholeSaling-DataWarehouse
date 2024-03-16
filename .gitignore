@@ -16,3 +16,5 @@ dbt_wholesaleDW/.user.yml
 /logs
 
 test.ipynb
+
+local-env.sh

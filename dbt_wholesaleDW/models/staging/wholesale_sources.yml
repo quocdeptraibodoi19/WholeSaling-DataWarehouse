@@ -5,5 +5,14 @@ sources:
    schema: staging
    description: Source tables replicated from WholeSaling System.
    tables:
+    - name: wholesale_system_countryregion
+    - name: wholesale_system_salesorderdetail
+    - name: wholesale_system_salesorderheader
     - name: wholesale_system_salestaxrate
-      
+    - name: wholesale_system_shipmethod
+    - name: wholesale_system_specialoffer
+    - name: wholesale_system_specialofferproduct
+    - name: wholesale_system_stateprovince
+    - name: wholesale_system_store
+    - name: wholesale_system_storecustomer
+    - name: wholesale_system_storerepcreditcard
