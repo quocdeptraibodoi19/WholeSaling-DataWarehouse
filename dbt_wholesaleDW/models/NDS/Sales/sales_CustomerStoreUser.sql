@@ -5,14 +5,14 @@ with CTE as(
         bussinessentityid,
         external_id
     from {{ ref("person_BussinessEntity") }} 
-    where source = "wholesale_system_storecustomer"
+    where source = "storecustomer"
 ),
 CTE2 as (
     select 
         bussinessentityid,
         external_id
     from {{ ref("person_BussinessEntity") }} 
-    where source = "wholesale_system_store_storerep"
+    where source = "store_rep"
 )
 select 
     CTE2.bussinessentityid as storerepid,

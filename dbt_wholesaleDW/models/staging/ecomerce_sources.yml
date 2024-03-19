@@ -34,3 +34,4 @@ sources:
     - name: ecomerce_user
     - name: ecomerce_specialoffer
     - name: ecomerce_specialofferproduct
+    - name: ecomerce_useraddress

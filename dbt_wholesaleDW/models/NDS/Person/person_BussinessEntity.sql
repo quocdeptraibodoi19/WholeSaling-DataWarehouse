@@ -8,7 +8,7 @@ with CTE as (
         modifieddate, 
         is_deleted, 
         date_partition,
-        "ecomerce_user" as source
+        "ecom_user" as source
     from {{ source("ecomerce", "ecomerce_user") }}
     union all
     select 
@@ -16,7 +16,7 @@ with CTE as (
         modifieddate, 
         is_deleted, 
         date_partition,
-        "wholesale_system_storecustomer" as source
+        "storecustomer" as source
     from {{ source("wholesale", "wholesale_system_storecustomer") }}
     union all
     select 
@@ -24,7 +24,7 @@ with CTE as (
         modifieddate, 
         is_deleted, 
         date_partition,
-        "wholesale_system_store" as source
+        "store" as source
     from {{ source("wholesale", "wholesale_system_store") }}
     union all
     select  
@@ -32,7 +32,7 @@ with CTE as (
         modifieddate, 
         is_deleted, 
         date_partition,
-        "wholesale_system_store_storerep" as source
+        "store_rep" as source
     from {{ source("wholesale", "wholesale_system_storecustomer") }} where storerepid != ""
     union all
     select 
@@ -40,7 +40,7 @@ with CTE as (
         modifieddate, 
         is_deleted, 
         date_partition,
-        "hr_system_employee" as source
+        "employee" as source
     from {{ source("hr_system", "hr_system_employee") }}
     union all
     select 
@@ -48,8 +48,8 @@ with CTE as (
         modifieddate, 
         is_deleted, 
         date_partition,
-        "product_management_platform_vendor" as source
-    from {{ source("product", "product_management_platform_vendor") }}
+        "vendor" as source
+    from {{ source("production", "product_management_platform_vendor") }}
 )
 select 
     row_number() over(order by CTE.external_id, CTE.source) as bussinessentityid,

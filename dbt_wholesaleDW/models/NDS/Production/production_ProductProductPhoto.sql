@@ -3,7 +3,7 @@
 select 
     productid,
     productphotoid,   
-    primary,          	
+    `primary`,          	
     modifieddate,
     is_deleted,
     date_partition

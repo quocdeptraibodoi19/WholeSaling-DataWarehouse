@@ -13,4 +13,4 @@ select
     modifieddate,
     is_deleted,
     date_partition
-from {{ source("product", "product_management_platform_vendor") }}
+from {{ source("production", "product_management_platform_vendor") }}
