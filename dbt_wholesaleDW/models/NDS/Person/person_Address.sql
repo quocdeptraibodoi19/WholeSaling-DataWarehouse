@@ -45,5 +45,7 @@ select
     stateprovinceid,
     postalcode,
     spatiallocation,
-    modifieddate
+    modifieddate,
+    source,
+    source_key
 from CTE
