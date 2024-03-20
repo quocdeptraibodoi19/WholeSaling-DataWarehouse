@@ -1,12 +1,18 @@
 {{ config(materialized='view') }}
 
 select 
-    shipmethodid,     	
-    name,
-    shipbase,
-    shiprate,
-    rowguid,          	
+    workorderid,     	
+    productid,
+    operationsequence,
+    locationid,
+    scheduledstartdate,
+    scheduledenddate,
+    actualstartdate,
+    actualenddate,
+    actualresourcehrs,
+    plannedcost,
+    actualcost,  	
     modifieddate,
     is_deleted,
     date_partition
-from {{ source("production", "product_management_platform_shipmethod") }}
+from {{ source("production", "product_management_platform_workorderrouting") }}
