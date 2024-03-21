@@ -18,6 +18,17 @@ CREATE TABLE dbo.Employee (
     VacationHours INT,
     SickLeaveHours INT,
     CurrentFlag BIT,
+    NameStyle BIT,
+    Title NVARCHAR(8),
+    FirstName NVARCHAR(50),
+    MiddleName NVARCHAR(50),
+    LastName NVARCHAR(50),
+    Suffix NVARCHAR(10),
+    EmailPromotion INT,
+    AdditionalContactInfo XML,
+    Demographics XML,
+    PasswordHash NVARCHAR(100),
+    PasswordSalt NVARCHAR(50),
     ModifiedDate DATETIME
 );
 
@@ -37,6 +48,17 @@ INSERT INTO
         VacationHours,
         SickLeaveHours,
         CurrentFlag,
+        NameStyle,
+        Title,
+        FirstName,
+        MiddleName,
+        LastName,
+        Suffix,
+        EmailPromotion,
+        AdditionalContactInfo,
+        Demographics,
+        PasswordHash,
+        PasswordSalt,
         ModifiedDate
     )
 SELECT
@@ -47,19 +69,34 @@ SELECT
                     NULL
             )
     ) AS EmployeeID,
-    NationalIDNumber,
-    LoginID,
-    OrganizationNode,
-    OrganizationLevel,
-    Jobtitle,
-    BirthDate,
-    MaritalStatus,
-    Gender,
-    HireDate,
-    SalariedFlag,
-    VacationHours,
-    SickLeaveHours,
-    CurrentFlag,
-    ModifiedDate
+    S.NationalIDNumber,
+    S.LoginID,
+    S.OrganizationNode,
+    S.OrganizationLevel,
+    S.Jobtitle,
+    S.BirthDate,
+    S.MaritalStatus,
+    S.Gender,
+    S.HireDate,
+    S.SalariedFlag,
+    S.VacationHours,
+    S.SickLeaveHours,
+    S.CurrentFlag,
+    T.NameStyle,
+    T.Title,
+    T.FirstName,
+    T.MiddleName,
+    T.LastName,
+    T.Suffix,
+    T.EmailPromotion,
+    T.AdditionalContactInfo,
+    T.Demographics,
+    K.PasswordHash,
+    K.PasswordSalt,
+    S.ModifiedDate
 FROM
-    [AdventureWorks2014].[HumanResources].[Employee];
+    [AdventureWorks2014].[HumanResources].[Employee] S
+INNER JOIN [AdventureWorks2014].[Person].[Person] T
+ON S.BusinessEntityID = T.BusinessEntityID
+INNER JOIN [AdventureWorks2014].[Person].[Password] K
+ON S.BusinessEntityID = K.BusinessEntityID

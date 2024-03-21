@@ -1,28 +1,27 @@
 /*
-    For constructing Person
-*/
-
+ For constructing Person,
+ Just this table is used to construct
+ */
 Use HumanResourceSystem;
 
 GO
+    DROP TABLE IF EXISTS dbo.StakeHolder;
 
-DROP TABLE IF EXISTS dbo.StakeHolder;
-
-    CREATE TABLE [dbo].[StakeHolder] (
-        StackHolderID INT PRIMARY KEY,
-        PersonType NVARCHAR(2),
-        NameStyle BIT,
-        Title NVARCHAR(8),
-        FirstName NVARCHAR(50),
-        MiddleName NVARCHAR(50),
-        LastName NVARCHAR(50),
-        Suffix NVARCHAR(10),
-        PositionTypeID INT,
-        EmailPromotion INT,
-        AdditionalContactInfo XML,
-        Demographics XML,
-        ModifiedDate DATETIME
-    )
+CREATE TABLE [dbo].[StakeHolder] (
+    StackHolderID INT PRIMARY KEY,
+    PersonType NVARCHAR(2),
+    NameStyle BIT,
+    Title NVARCHAR(8),
+    FirstName NVARCHAR(50),
+    MiddleName NVARCHAR(50),
+    LastName NVARCHAR(50),
+    Suffix NVARCHAR(10),
+    PositionTypeID INT,
+    EmailPromotion INT,
+    AdditionalContactInfo XML,
+    Demographics XML,
+    ModifiedDate DATETIME
+)
 INSERT INTO
     [dbo].[StakeHolder] (
         StackHolderID,
@@ -66,4 +65,4 @@ FROM
     [AdventureWorks2014].[Person].[Person] T
     INNER JOIN [AdventureWorks2014].[Person].[BusinessEntityContact] S ON T.BusinessEntityID = S.PersonID
 WHERE
-    PersonType IN ('SP', 'VC', 'GC', 'EM', "SC");
+    PersonType IN ('SP', 'VC', 'GC', "SC");

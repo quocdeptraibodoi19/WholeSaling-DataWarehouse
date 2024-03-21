@@ -1,29 +1,30 @@
-Use HumanResourceSystem;
+USE HumanResourceSystem;
 
 GO
-    DROP TABLE IF EXISTS dbo.StackholderPassword;
 
-CREATE TABLE dbo.[StackholderPassword](
-    StackHolderID INT PRIMARY KEY,
-    PasswordHash NVARCHAR(100),
-    PasswordSalt NVARCHAR(50),
-    ModifiedDate DATETIME
-);
+DROP TABLE IF EXISTS dbo.StackholderPhoneContact;
+
+    CREATE TABLE dbo.StackholderPhoneContact (
+        StackHolderID INT PRIMARY KEY,
+        PhoneNumber NVARCHAR(20),
+        PhoneNumberTypeID INT,
+        ModifiedDate DATETIME
+    );
 
 INSERT INTO
-    dbo.[StackholderPassword] (
-        [StackHolderID],
-        [PasswordHash],
-        [PasswordSalt],
-        [ModifiedDate]
+    dbo.StackholderPhoneContact (
+        StackHolderID,
+        PhoneNumber,
+        PhoneNumberTypeID,
+        ModifiedDate
     )
 SELECT
-    t.StackHolderID,
-    s.PasswordHash,
-    s.PasswordSalt,
-    s.ModifiedDate
+    CTE.StackHolderID,
+    T.PhoneNumber,
+    T.PhoneNumberTypeID,
+    T.ModifiedDate
 FROM
-    [AdventureWorks2014].[Person].[Password] s
+    [AdventureWorks2014].[Person].[PersonPhone] AS T
     INNER JOIN (
         SELECT
             ROW_NUMBER() OVER (
@@ -33,7 +34,8 @@ FROM
                             NULL
                     )
             ) AS StackHolderID,
-            T.BusinessEntityID PersonType,
+            PersonType,
+            T.BusinessEntityID,
             NameStyle,
             Title,
             FirstName,
@@ -52,5 +54,5 @@ FROM
             [AdventureWorks2014].[Person].[Person] T
             INNER JOIN [AdventureWorks2014].[Person].[BusinessEntityContact] S ON T.BusinessEntityID = S.PersonID
         WHERE
-            PersonType IN ('SP', 'VC', 'GC', "SC")
-    ) t ON t.BusinessEntityID = s.BusinessEntityID
+            PersonType IN ('SP', 'VC', 'GC', "SC");
+    ) AS CTE ON CTE.BusinessEntityID = T.BusinessEntityID;
