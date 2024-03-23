@@ -4,21 +4,25 @@ GO
     DROP TABLE IF EXISTS dbo.Email;
 
 CREATE TABLE dbo.Email (
-    ID INT PRIMARY KEY,
+    ID INT,
+    [Source] NVARCHAR(12),
     EmailAddressID INT,
     EmailAddress NVARCHAR(255),
-    ModifiedDate DATETIME
+    ModifiedDate DATETIME,
+    PRIMARY KEY (ID, [Source])
 );
 
 INSERT INTO
     dbo.Email (
         ID,
+        [Source],
         EmailAddressID,
         EmailAddress,
         ModifiedDate
     )
 SELECT
     CTE.StackHolderID AS ID,
+    'StakeHolder' AS Source,
     [EmailAddressID],
     [EmailAddress],
     K.ModifiedDate
@@ -51,14 +55,15 @@ FROM
             END AS ModifiedDate
         FROM
             [AdventureWorks2014].[Person].[Person] T
-            INNER JOIN [AdventureWorks2014].[Person].[BusinessEntityContact] S ON T.BusinessEntityID = S.PersonID
+            LEFT JOIN [AdventureWorks2014].[Person].[BusinessEntityContact] S ON T.BusinessEntityID = S.PersonID
         WHERE
-            PersonType IN ('SP', 'VC', 'GC', "SC")
+            PersonType IN ('VC', 'GC', 'SC')
     ) AS CTE ON CTE.BusinessEntityID = K.BusinessEntityID
 UNION
 ALL
 SELECT
     CTE.EmployeeID AS ID,
+    'Employee' AS Source,
     [EmailAddressID],
     [EmailAddress],
     K.ModifiedDate
