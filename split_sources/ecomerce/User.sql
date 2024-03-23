@@ -4,7 +4,7 @@
 USE Ecomerce;
 
 GO
-    DROP TABLE IF EXISTS dbo.User;
+    DROP TABLE IF EXISTS dbo.[User];
 
 CREATE TABLE dbo.[User] (
     UserID INT PRIMARY KEY,

@@ -39,7 +39,7 @@ SELECT
     [UnitPrice],
     [UnitPriceDiscount],
     [LineTotal],
-    S.[ModifiedDate]
+    Q.[ModifiedDate]
 FROM
     [AdventureWorks2014].[Sales].[SalesOrderDetail] Q
     INNER JOIN (

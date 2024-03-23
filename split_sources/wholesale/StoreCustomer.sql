@@ -81,9 +81,9 @@ FROM
             END AS ModifiedDate
         FROM
             [AdventureWorks2014].[Person].[Person] T
-            INNER JOIN [AdventureWorks2014].[Person].[BusinessEntityContact] S ON T.BusinessEntityID = S.PersonID
+            LEFT JOIN [AdventureWorks2014].[Person].[BusinessEntityContact] S ON T.BusinessEntityID = S.PersonID
         WHERE
-            PersonType IN  ('SP', 'VC', 'GC', "SC")
+            PersonType IN  ('VC', 'GC', 'SC')
     ) AS CTE2 ON S.PersonID = CTE2.BusinessEntityID
 WHERE
     S.StoreID is Not NULL

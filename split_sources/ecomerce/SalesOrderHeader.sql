@@ -31,6 +31,49 @@ CREATE TABLE dbo.SalesOrderHeader (
     ModifiedDate DATETIME
 );
 
+WITH CTE AS (
+    SELECT
+        [BillToAddressID],
+        [ShipToAddressID]
+    FROM
+        [AdventureWorks2014].[Sales].[SalesOrderHeader]
+    WHERE
+        [OnlineOrderFlag] = 1
+),
+TransactionAddress AS (
+    SELECT
+        ROW_NUMBER() OVER (
+            ORDER BY
+                (
+                    SELECT
+                        NULL
+                )
+        ) AS AddressID,
+        [AddressID] AS OldAddressID,
+        [AddressLine1],
+        [AddressLine2],
+        [City],
+        [StateProvinceID],
+        [PostalCode],
+        [SpatialLocation],
+        [rowguid],
+        [ModifiedDate]
+    FROM
+        [AdventureWorks2014].[Person].[Address]
+    WHERE
+        [AddressID] IN (
+            SELECT
+                [BillToAddressID]
+            FROM
+                CTE
+        )
+        OR [AddressID] IN (
+            SELECT
+                [ShipToAddressID]
+            FROM
+                CTE
+        )
+)
 INSERT INTO
     dbo.SalesOrderHeader (
         [SalesOrderID],
@@ -58,48 +101,6 @@ INSERT INTO
         [TotalDue],
         [Comment],
         [ModifiedDate]
-    ) WITH TransactionAddress AS (
-        WITH CTE AS (
-            SELECT
-                [BillToAddressID],
-                [ShipToAddressID]
-            FROM
-                [AdventureWorks2014].[Sales].[SalesOrderHeader]
-            WHERE
-                [OnlineOrderFlag] = 1
-        )
-        SELECT
-            ROW_NUMBER() OVER (
-                ORDER BY
-                    (
-                        SELECT
-                            NULL
-                    )
-            ) AS AddressID,
-            [AddressID] AS OldAddressID,
-            [AddressLine1],
-            [AddressLine2],
-            [City],
-            [StateProvinceID],
-            [PostalCode],
-            [SpatialLocation],
-            [rowguid],
-            [ModifiedDate]
-        FROM
-            [AdventureWorks2014].[Person].[Address]
-        WHERE
-            [AddressID] IN (
-                SELECT
-                    [BillToAddressID]
-                FROM
-                    CTE
-            )
-            OR [AddressID] IN (
-                SELECT
-                    [ShipToAddressID]
-                FROM
-                    CTE
-            )
     )
 SELECT
     [SalesOrderID],

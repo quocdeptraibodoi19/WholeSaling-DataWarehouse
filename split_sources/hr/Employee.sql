@@ -1,3 +1,4 @@
+/* Employee consists of EM and SP */
 USE HumanResourceSystem;
 
 GO

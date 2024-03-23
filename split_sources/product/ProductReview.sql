@@ -1,23 +1,41 @@
-USE WholeSaling;
+USE Product;
 
 GO
-    DROP TABLE IF EXISTS dbo.SpecialOfferProduct;
+    DROP TABLE IF EXISTS dbo.ProductReview;
 
-CREATE TABLE dbo.SpecialOfferProduct (
-    SpecialOfferID INT,
+CREATE TABLE ProductReview(
+    ProductReviewID INT PRIMARY KEY,
     ProductID INT,
-    ModifiedDate DATETIME,
-    PRIMARY KEY (SpecialOfferID, ProductID)
+    ReviewerName NVARCHAR(50),
+    ReviewDate DATETIME,
+    EmailAddress NVARCHAR(100),
+    Rating INT,
+    Comments NVARCHAR(MAX),
+    ModifiedDate DATETIME
 );
 
 INSERT INTO
-    dbo.SpecialOfferProduct (SpecialOfferID, ProductID, ModifiedDate)
+    ProductReview (
+        ProductReviewID,
+        ProductID,
+        ReviewerName,
+        ReviewDate,
+        EmailAddress,
+        Rating,
+        Comments,
+        ModifiedDate
+    )
 SELECT
-    S.SpecialOfferID,
-    CTE.ProductID,
-    S.ModifiedDate
+    S.[ProductReviewID],
+    CTE.[ProductID],
+    S.[ReviewerName],
+    S.[ReviewDate],
+    S.[EmailAddress],
+    S.[Rating],
+    S.[Comments],
+    S.[ModifiedDate]
 FROM
-    [AdventureWorks2014].[Sales].[SpecialOfferProduct] S
+    [AdventureWorks2014].[Production].[ProductReview] S
     INNER JOIN (
         SELECT
             ROW_NUMBER() OVER (

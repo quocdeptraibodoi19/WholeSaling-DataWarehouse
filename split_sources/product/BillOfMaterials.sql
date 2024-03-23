@@ -13,7 +13,6 @@ CREATE TABLE dbo.BillOfMaterials (
     BOMLevel INT,
     PerAssemblyQty DECIMAL(18, 2),
     ModifiedDate DATETIME,
-    FOREIGN KEY (ProductAssemblyID) REFERENCES dbo.Product(ProductID)
 );
 
 INSERT INTO

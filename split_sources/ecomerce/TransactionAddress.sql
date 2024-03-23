@@ -4,7 +4,7 @@ GO
     DROP TABLE IF EXISTS dbo.TransactionAddress;
 
 CREATE TABLE dbo.TransactionAddress (
-    AddressID INT,
+    AddressID INT PRIMARY KEY,
     AddressLine1 NVARCHAR(255),
     AddressLine2 NVARCHAR(255),
     City NVARCHAR(50),
@@ -12,11 +12,19 @@ CREATE TABLE dbo.TransactionAddress (
     PostalCode NVARCHAR(15),
     SpatialLocation GEOGRAPHY,
     ModifiedDate DATETIME,
-    PRIMARY KEY (EmployeeID, AddressID)
 );
 
+WITH CTE AS (
+    SELECT
+        [BillToAddressID],
+        [ShipToAddressID]
+    FROM
+        [AdventureWorks2014].[Sales].[SalesOrderHeader]
+    WHERE
+        [OnlineOrderFlag] = 1
+)
 INSERT INTO
-    dbo.EmployeeAddress (
+    dbo.TransactionAddress (
         AddressID,
         AddressLine1,
         AddressLine2,
@@ -25,14 +33,6 @@ INSERT INTO
         PostalCode,
         SpatialLocation,
         ModifiedDate
-    ) WITH CTE AS (
-        SELECT
-            [BillToAddressID],
-            [ShipToAddressID]
-        FROM
-            [AdventureWorks2014].[Sales].[SalesOrderHeader]
-        WHERE
-            [OnlineOrderFlag] = 1
     )
 SELECT
     ROW_NUMBER() OVER (
@@ -48,7 +48,6 @@ SELECT
     [StateProvinceID],
     [PostalCode],
     [SpatialLocation],
-    [rowguid],
     [ModifiedDate]
 FROM
     [AdventureWorks2014].[Person].[Address]

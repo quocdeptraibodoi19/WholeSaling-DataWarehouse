@@ -7,7 +7,7 @@ CREATE TABLE dbo.SalesTerritory (
     TerritoryID INT PRIMARY KEY,
     Name NVARCHAR(50),
     CountryRegionCode NVARCHAR(3),
-    Group NVARCHAR(50),
+    [Group] NVARCHAR(50),
     SalesYTD MONEY,
     SalesLastYear MONEY,
     CostYTD MONEY,
@@ -24,7 +24,6 @@ INSERT INTO
         [SalesLastYear],
         [CostYTD],
         [CostLastYear],
-        [rowguid],
         [ModifiedDate]
     )
 SELECT
@@ -36,7 +35,6 @@ SELECT
     [SalesLastYear],
     [CostYTD],
     [CostLastYear],
-    [rowguid],
     [ModifiedDate]
 FROM
     [AdventureWorks2014].[Sales].[SalesTerritory]
