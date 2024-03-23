@@ -1,13 +1,15 @@
 USE WholeSaling;
 
 GO
-    CREATE TABLE IF NOT EXISTS dbo.Currency (
-        CurrencyCode NVARCHAR(3) PRIMARY KEY,
-        Name NVARCHAR(50),
-        ModifiedDate DATETIME
-    );
+    DROP TABLE IF EXISTS dbo.Currency;
 
-NSERT INTO dbo.Currency ([CurrencyCode], [Name], [ModifiedDate])
+CREATE TABLE dbo.Currency (
+    CurrencyCode NVARCHAR(3) PRIMARY KEY,
+    Name NVARCHAR(50),
+    ModifiedDate DATETIME
+);
+
+INSERT INTO dbo.Currency ([CurrencyCode], [Name], [ModifiedDate])
 SELECT
     [CurrencyCode],
     [Name],

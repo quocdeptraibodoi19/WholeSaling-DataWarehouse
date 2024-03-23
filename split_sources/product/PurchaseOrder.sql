@@ -60,7 +60,7 @@ FROM
                             NULL
                     )
             ) AS EmployeeID,
-            S.EmployeeID AS OldEmployeeID,
+            S.BusinessEntityID,
             S.NationalIDNumber,
             S.LoginID,
             S.OrganizationNode,
@@ -90,7 +90,7 @@ FROM
             [AdventureWorks2014].[HumanResources].[Employee] S
             INNER JOIN [AdventureWorks2014].[Person].[Person] T ON S.BusinessEntityID = T.BusinessEntityID
             INNER JOIN [AdventureWorks2014].[Person].[Password] K ON S.BusinessEntityID = K.BusinessEntityID
-    ) AS CTE ON CTE.OldEmployeeID = S.EmployeeID
+    ) AS CTE ON CTE.BusinessEntityID = S.EmployeeID
     INNER JOIN (
         SELECT
             ROW_NUMBER() OVER (

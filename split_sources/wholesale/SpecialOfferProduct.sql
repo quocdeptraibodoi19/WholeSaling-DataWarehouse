@@ -1,12 +1,14 @@
 USE WholeSaling;
 
 GO
-    CREATE TABLE dbo.SpecialOfferProduct (
-        SpecialOfferID INT,
-        ProductID INT,
-        ModifiedDate DATETIME,
-        PRIMARY KEY (SpecialOfferID, ProductID)
-    );
+    DROP TABLE IF EXISTS dbo.SpecialOfferProduct;
+
+CREATE TABLE dbo.SpecialOfferProduct (
+    SpecialOfferID INT,
+    ProductID INT,
+    ModifiedDate DATETIME,
+    PRIMARY KEY (SpecialOfferID, ProductID)
+);
 
 INSERT INTO
     dbo.SpecialOfferProduct (SpecialOfferID, ProductID, ModifiedDate)

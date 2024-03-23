@@ -29,6 +29,49 @@ CREATE TABLE dbo.SalesOrderHeader (
     ModifiedDate DATETIME
 );
 
+WITH CTE AS (
+    SELECT
+        [BillToAddressID],
+        [ShipToAddressID]
+    FROM
+        [AdventureWorks2014].[Sales].[SalesOrderHeader]
+    WHERE
+        [OnlineOrderFlag] = 0
+),
+TransactionAddress AS (
+    SELECT
+        ROW_NUMBER() OVER (
+            ORDER BY
+                (
+                    SELECT
+                        NULL
+                )
+        ) AS AddressID,
+        [AddressID] AS OldAddressID,
+        [AddressLine1],
+        [AddressLine2],
+        [City],
+        [StateProvinceID],
+        [PostalCode],
+        [SpatialLocation],
+        [rowguid],
+        [ModifiedDate]
+    FROM
+        [AdventureWorks2014].[Person].[Address]
+    WHERE
+        [AddressID] IN (
+            SELECT
+                [BillToAddressID]
+            FROM
+                CTE
+        )
+        OR [AddressID] IN (
+            SELECT
+                [ShipToAddressID]
+            FROM
+                CTE
+        )
+)
 INSERT INTO
     dbo.SalesOrderHeader (
         [SalesOrderID],
@@ -54,48 +97,6 @@ INSERT INTO
         [Freight],
         [TotalDue],
         [ModifiedDate]
-    ) WITH TransactionAddress AS (
-        WITH CTE AS (
-            SELECT
-                [BillToAddressID],
-                [ShipToAddressID]
-            FROM
-                [AdventureWorks2014].[Sales].[SalesOrderHeader]
-            WHERE
-                [OnlineOrderFlag] = 0
-        )
-        SELECT
-            ROW_NUMBER() OVER (
-                ORDER BY
-                    (
-                        SELECT
-                            NULL
-                    )
-            ) AS AddressID,
-            [AddressID] AS OldAddressID,
-            [AddressLine1],
-            [AddressLine2],
-            [City],
-            [StateProvinceID],
-            [PostalCode],
-            [SpatialLocation],
-            [rowguid],
-            [ModifiedDate]
-        FROM
-            [AdventureWorks2014].[Person].[Address]
-        WHERE
-            [AddressID] IN (
-                SELECT
-                    [BillToAddressID]
-                FROM
-                    CTE
-            )
-            OR [AddressID] IN (
-                SELECT
-                    [ShipToAddressID]
-                FROM
-                    CTE
-            )
     )
 SELECT
     ROW_NUMBER() OVER (
@@ -193,13 +194,13 @@ FROM
                     [AdventureWorks2014].[Person].[Person] T
                     LEFT JOIN [AdventureWorks2014].[Person].[BusinessEntityContact] S ON T.BusinessEntityID = S.PersonID
                 WHERE
-                    PersonType IN  ('SP', 'VC', 'GC', "SC");
+                    PersonType IN ('VC', 'GC', 'SC')
             ) AS CTE2 ON S.PersonID = CTE2.BusinessEntityID
         WHERE
             S.StoreID is Not NULL
     ) AS CTE ON S.CustomerID = CTE.oldCustomerID
     INNER JOIN [AdventureWorks2014].[HumanResources].[Employee] K ON K.BusinessEntityID = S.SalesPersonID
-    INNER JOIN CTE T1 ON T1.OldAddressID = S.BillToAddressID
-    INNER JOIN CTE T2 ON T2.OldAddressID = S.ShipToAddressID
+    INNER JOIN TransactionAddress T1 ON T1.OldAddressID = S.BillToAddressID
+    INNER JOIN TransactionAddress T2 ON T2.OldAddressID = S.ShipToAddressID
 WHERE
     S.[OnlineOrderFlag] = 0

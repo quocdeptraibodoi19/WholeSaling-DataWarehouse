@@ -1,15 +1,17 @@
 USE WholeSaling;
 
 GO
-    CREATE TABLE dbo.StateProvince (
-        StateProvinceID INT PRIMARY KEY,
-        StateProvinceCode NVARCHAR(255),
-        CountryRegionCode NVARCHAR(2),
-        IsOnlyStateProvinceFlag BIT,
-        Name NVARCHAR(255),
-        TerritoryID INT,
-        ModifiedDate DATETIME
-    );
+    DROP TABLE IF EXISTS dbo.StateProvince;
+
+CREATE TABLE dbo.StateProvince (
+    StateProvinceID INT PRIMARY KEY,
+    StateProvinceCode NVARCHAR(255),
+    CountryRegionCode NVARCHAR(2),
+    IsOnlyStateProvinceFlag BIT,
+    Name NVARCHAR(255),
+    TerritoryID INT,
+    ModifiedDate DATETIME
+);
 
 INSERT INTO
     dbo.StateProvince (
