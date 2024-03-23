@@ -1,0 +1,163 @@
+FullName,Alpha2Code,CountryCode
+Afghanistan,AF,AFG
+Albania,AL,ALB
+Algeria,DZ,DZA
+Andorra,AD,AND
+Angola,AO,AGO
+Antigua and Barbuda,AG,ATG
+Argentina,AR,ARG
+Armenia,AM,ARM
+Australia,AU,AUS
+Austria,AT,AUT
+Azerbaijan,AZ,AZE
+Bahamas,BS,BHS
+Bahrain,BH,BHR
+Bangladesh,BD,BGD
+Barbados,BB,BRB
+Belarus,BY,BLR
+Belgium,BE,BEL
+Belize,BZ,BLZ
+Benin,BJ,BEN
+Bhutan,BT,BTN
+Bolivia,BO,BOL
+Bosnia and Herzegovina,BA,BIH
+Botswana,BW,BWA
+Brazil,BR,BRA
+Brunei,BN,BRN
+Bulgaria,BG,BGR
+Burkina Faso,BF,BFA
+Burundi,BI,BDI
+Cambodia,KH,KHM
+Cameroon,CM,CMR
+Canada,CA,CAN
+Cape Verde,CV,CPV
+Central African Republic,CF,CAF
+Chad,TD,TCD
+Chile,CL,CHL
+China,CN,CHN
+Colombia,CO,COL
+Comoros,KM,COM
+Congo (Congo-Brazzaville),CG,COG
+Costa Rica,CR,CRI
+Croatia,HR,HRV
+Cuba,CU,CUB
+Cyprus,CY,CYP
+Czechia,CZ,CZE
+Denmark,DK,DNK
+Djibouti,DJ,DJI
+Dominica,DM,DMA
+Dominican Republic,DO,DOM
+East Timor (Timor-Leste),TL,TLS
+Ecuador,EC,ECU
+Egypt,EG,EGY
+El Salvador,SV,SLV
+Equatorial Guinea,GQ,GNQ
+Eritrea,ER,ERI
+Estonia,EE,EST
+Eswatini (fmr. "Swaziland"),SZ,SWZ
+Ethiopia,ET,ETH
+Fiji,FJ,FJI
+Finland,FI,FIN
+France,FR,FRA
+Gabon,GA,GAB
+Gambia,GM,GMB
+Georgia,GE,GEO
+Germany,DE,DEU
+Ghana,GH,GHA
+Greece,GR,GRC
+Grenada,GD,GRD
+Guatemala,GT,GTM
+Guinea,GN,GIN
+Guinea-Bissau,GW,GNB
+Guyana,GY,GUY
+Haiti,HT,HTI
+Honduras,HN,HND
+Hungary,HU,HUN
+Iceland,IS,ISL
+India,IN,IND
+Indonesia,ID,IDN
+Iran,IR,IRN
+Iraq,IQ,IRQ
+Ireland,IE,IRL
+Israel,IL,ISR
+Italy,IT,ITA
+Jamaica,JM,JAM
+Japan,JP,JPN
+Jordan,JO,JOR
+Kazakhstan,KZ,KAZ
+Kenya,KE,KEN
+Kiribati,KI,KIR
+Korea (North),KP,PRK
+Korea (South),KR,KOR
+Kosovo,XK,XKX
+Kuwait,KW,KWT
+Kyrgyzstan,KG,KGZ
+Laos,LA,LAO
+Latvia,LV,LVA
+Lebanon,LB,LBN
+Lesotho,LS,LSO
+Liberia,LR,LBR
+Libya,LY,LBY
+Liechtenstein,LI,LIE
+Lithuania,LT,LTU
+Luxembourg,LU,LUX
+Madagascar,MG,MDG
+Malawi,MW,MWI
+Malaysia,MY,MYS
+Maldives,MV,MDV
+Mali,ML,MLI
+Malta,MT,MLT
+Marshall Islands,MH,MHL
+Mauritania,MR,MRT
+Mauritius,MU,MUS
+Mexico,MX,MEX
+Micronesia,FM,FSM
+Moldova,MD,MDA
+Monaco,MC,MCO
+Mongolia,MN,MNG
+Montenegro,ME,MNE
+Morocco,MA,MAR
+Mozambique,MZ,MOZ
+Myanmar (formerly Burma),MM,MMR
+Namibia,NA,NAM
+Nauru,NR,NRU
+Nepal,NP,NPL
+Netherlands,NL,NLD
+New Zealand,NZ,NZL
+Nicaragua,NI,NIC
+Niger,NE,NER
+Nigeria,NG,NGA
+North Macedonia (formerly Macedonia),MK,MKD
+Norway,NO,NOR
+Oman,OM,OMN
+Pakistan,PK,PAK
+Palau,PW,PLW
+Palestine State,PS,PSE
+Panama,PA,PAN
+Papua New Guinea,PG,PNG
+Paraguay,PY,PRY
+Peru,PE,PER
+Philippines,PH,PHL
+Poland,PL,POL
+Portugal,PT,PRT
+Qatar,QA,QAT
+Romania,RO,ROU
+Russia,RU,RUS
+Rwanda,RW,RWA
+Saint Kitts and Nevis,KN,KNA
+Saint Lucia,LC,LCA
+United Kingdom,GB,GBR
+Northern Mariana Islands,MP,MNP
+Virgin Islands (U.S.),VI,VIR
+American Samoa,AS,ASM
+United States,US,USA
+United States Minor Outlying Islands,UM,UMI
+Uruguay,UY,URY
+Uzbekistan,UZ,UZB
+Vanuatu,VU,VUT
+Vatican City,VA,VAT
+Venezuela,VE,VEN
+Vietnam,VN,VNM
+Yemen,YE,YEM
+Zambia,ZM,ZMB
+Zimbabwe,ZW,ZWE
