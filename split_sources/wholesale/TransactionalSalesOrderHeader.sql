@@ -1,6 +1,3 @@
-/*
- Need fix ... this is wrong.
- */
 USE WholeSaling;
 
 GO
@@ -204,8 +201,5 @@ FROM
     INNER JOIN [AdventureWorks2014].[HumanResources].[Employee] K ON K.BusinessEntityID = S.SalesPersonID
     INNER JOIN CTE T1 ON T1.OldAddressID = S.BillToAddressID
     INNER JOIN CTE T2 ON T2.OldAddressID = S.ShipToAddressID
-    LEFT JOIN (
-        
-    )
 WHERE
     S.[OnlineOrderFlag] = 0

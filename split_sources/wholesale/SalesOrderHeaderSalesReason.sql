@@ -1,83 +1,27 @@
 USE WholeSaling;
 
 GO
-    DROP TABLE IF EXISTS dbo.SalesOrderDetail;
+    DROP TABLE IF EXISTS dbo.SalesOrderHeaderSalesReason;
 
-CREATE TABLE dbo.SalesOrderDetail (
+CREATE TABLE dbo.SalesOrderHeaderSalesReason (
     SalesOrderID INT,
-    SalesOrderDetailID INT PRIMARY KEY,
-    CarrierTrackingNumber NVARCHAR(25),
-    OrderQty INT,
-    ProductID INT,
-    SpecialOfferID INT,
-    UnitPrice MONEY,
-    UnitPriceDiscount MONEY,
-    LineTotal MONEY,
+    SalesReasonID INT,
     ModifiedDate DATETIME,
+    PRIMARY KEY (SalesOrderID, SalesReasonID)
 );
 
 INSERT INTO
-    dbo.SalesOrderDetail (
-        SalesOrderID,
-        [SalesOrderDetailID],
-        [CarrierTrackingNumber],
-        [OrderQty],
-        [ProductID],
-        [SpecialOfferID],
-        [UnitPrice],
-        [UnitPriceDiscount],
-        [LineTotal],
+    dbo.SalesOrderHeaderSalesReason (
+        [SalesOrderID],
+        [SalesReasonID],
         [ModifiedDate]
     )
 SELECT
-    CTE1.SalesOrderID,
-    [SalesOrderDetailID],
-    [CarrierTrackingNumber],
-    [OrderQty],
-    CTE.[ProductID],
-    [SpecialOfferID],
-    [UnitPrice],
-    [UnitPriceDiscount],
-    [LineTotal],
+    CTE.[SalesOrderID],
+    S.[SalesReasonID],
     S.[ModifiedDate]
 FROM
-    [AdventureWorks2014].[Sales].[SalesOrderDetail] S
-    INNER JOIN (
-        SELECT
-            ROW_NUMBER() OVER (
-                ORDER BY
-                    (
-                        SELECT
-                            NULL
-                    )
-            ) AS ProductID,
-            [ProductID] AS OldProductID,
-            [Name],
-            [ProductNumber],
-            [MakeFlag],
-            [FinishedGoodsFlag],
-            [Color],
-            [SafetyStockLevel],
-            [ReorderPoint],
-            [StandardCost],
-            [ListPrice],
-            [Size],
-            [SizeUnitMeasureCode],
-            [WeightUnitMeasureCode],
-            [Weight],
-            [DaysToManufacture],
-            [ProductLine],
-            [Class],
-            [Style],
-            [ProductSubcategoryID],
-            [ProductModelID],
-            [SellStartDate],
-            [SellEndDate],
-            [DiscontinuedDate],
-            [ModifiedDate]
-        FROM
-            [AdventureWorks2014].[Production].[Product]
-    ) AS CTE ON CTE.OldProductID = S.ProductID
+    [AdventureWorks2014].[Sales].[SalesOrderHeaderSalesReason] S
     INNER JOIN (
         WITH TransactionAddress AS (
             WITH CTE AS (
@@ -130,7 +74,7 @@ FROM
                             NULL
                     )
             ) AS SalesOrderID,
-            S.[SalesOrderID] AS OldSalesOrderID,
+            S.SalesOrderID AS OldSalesOrderID,
             S.[RevisionNumber],
             S.[OrderDate],
             S.[DueDate],
@@ -230,4 +174,4 @@ INNER JOIN CTE T1 ON T1.OldAddressID = S.BillToAddressID
 INNER JOIN CTE T2 ON T2.OldAddressID = S.ShipToAddressID
 WHERE
     S.[OnlineOrderFlag] = 0
-) AS CTE1 ON CTE1.OldSalesOrderID = S.SalesOrderID
+) AS CTE ON CTE.OldSalesOrderID = S.SalesOrderID
