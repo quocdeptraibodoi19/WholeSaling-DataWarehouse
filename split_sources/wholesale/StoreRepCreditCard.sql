@@ -63,7 +63,7 @@ FROM
             [AdventureWorks2014].[Person].[Person] T
             LEFT JOIN [AdventureWorks2014].[Person].[BusinessEntityContact] S ON T.BusinessEntityID = S.PersonID
         WHERE
-            PersonType IN ('SP', 'VC', 'GC', "SC")
+            PersonType IN ('VC', 'GC', 'SC')
     ) AS CTE ON S.BusinessEntityID = CTE.BusinessEntityID
     AND CTE.PersonType = 'SC'
     INNER JOIN [AdventureWorks2014].[Sales].[CreditCard] T ON S.CreditCardID = T.CreditCardID
