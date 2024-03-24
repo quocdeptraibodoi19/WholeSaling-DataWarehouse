@@ -16,5 +16,6 @@ dbt_wholesaleDW/.user.yml
 /logs
 
 test.ipynb
+different_tables.py
 
 local-env.sh

@@ -1,4 +1,4 @@
-USE Ecomerce;
+Use HumanResourceSystem;
 
 GO
     DROP TABLE IF EXISTS dbo.SalesTerritory;

@@ -5,9 +5,9 @@
 Use HumanResourceSystem;
 
 GO
-    DROP TABLE IF EXISTS dbo.StakeHolder;
+    DROP TABLE IF EXISTS dbo.Stakeholder;
 
-CREATE TABLE [dbo].[StakeHolder] (
+CREATE TABLE [dbo].[Stakeholder] (
     StackHolderID INT PRIMARY KEY,
     PersonType NVARCHAR(2),
     NameStyle BIT,
@@ -23,7 +23,7 @@ CREATE TABLE [dbo].[StakeHolder] (
     ModifiedDate DATETIME
 )
 INSERT INTO
-    [dbo].[StakeHolder] (
+    [dbo].[Stakeholder] (
         StackHolderID,
         PersonType,
         NameStyle,
