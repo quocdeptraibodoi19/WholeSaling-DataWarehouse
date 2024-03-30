@@ -41,17 +41,12 @@ FROM
             MiddleName,
             LastName,
             Suffix,
-            S.ContactTypeID as PositionTypeID,
             EmailPromotion,
             AdditionalContactInfo,
             Demographics,
-            CASE
-                WHEN T.ModifiedDate > S.ModifiedDate THEN T.ModifiedDate
-                ELSE S.ModifiedDate
-            END AS ModifiedDate
+            ModifiedDate
         FROM
             [AdventureWorks2014].[Person].[Person] T
-            LEFT JOIN [AdventureWorks2014].[Person].[BusinessEntityContact] S ON T.BusinessEntityID = S.PersonID
         WHERE
             PersonType IN ('VC', 'GC', 'SC')
     ) t ON t.BusinessEntityID = s.BusinessEntityID

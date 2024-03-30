@@ -6,7 +6,9 @@ select
     countryregioncode,
     `group`,
     salesytd,
+    saleslastyear,
     costlastyear,
+    costytd,
     modifieddate,
     is_deleted,
     date_partition

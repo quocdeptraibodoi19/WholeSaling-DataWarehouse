@@ -35,3 +35,11 @@ sources:
     - name: ecomerce_specialoffer
     - name: ecomerce_specialofferproduct
     - name: ecomerce_useraddress
+    - name: ecomerce_currency
+    - name: ecomerce_countryregion
+    - name: ecomerce_currencyrate
+    - name: ecomerce_salesorderdetail
+    - name: ecomerce_transactionaddress
+    - name: ecomerce_salesterritory
+    - name: ecomerce_userpassword
+    - name: ecomerce_useremailaddress

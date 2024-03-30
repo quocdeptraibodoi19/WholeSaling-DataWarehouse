@@ -16,3 +16,9 @@ sources:
     - name: wholesale_system_store
     - name: wholesale_system_storecustomer
     - name: wholesale_system_storerepcreditcard
+    - name: wholesale_system_currencyrate
+    - name: wholesale_system_countryregioncurrency
+    - name: wholesale_system_currency
+    - name: wholesale_system_salesterritory
+    - name: wholesale_system_transactioncreditcard
+    - name: wholesale_system_transactionaddress

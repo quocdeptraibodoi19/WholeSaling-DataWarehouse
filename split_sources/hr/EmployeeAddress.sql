@@ -70,6 +70,7 @@ FROM
             S.VacationHours,
             S.SickLeaveHours,
             S.CurrentFlag,
+            T.PersonType,
             T.NameStyle,
             T.Title,
             T.FirstName,

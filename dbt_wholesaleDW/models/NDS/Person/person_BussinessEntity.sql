@@ -12,12 +12,12 @@ with CTE as (
     from {{ source("ecomerce", "ecomerce_user") }}
     union all
     select 
-        customerid as external_id, 
+        stackholderid as external_id, 
         modifieddate, 
         is_deleted, 
         date_partition,
-        "storecustomer" as source
-    from {{ source("wholesale", "wholesale_system_storecustomer") }}
+        "stakeholder" as source
+    from {{ source("wholesale", "hr_system_stakeholder") }}
     union all
     select 
         storeid as external_id, 
@@ -26,14 +26,6 @@ with CTE as (
         date_partition,
         "store" as source
     from {{ source("wholesale", "wholesale_system_store") }}
-    union all
-    select  
-        storerepid as external_id, 
-        modifieddate, 
-        is_deleted, 
-        date_partition,
-        "store_rep" as source
-    from {{ source("wholesale", "wholesale_system_storecustomer") }} where storerepid != ""
     union all
     select 
         employeeid as external_id, 

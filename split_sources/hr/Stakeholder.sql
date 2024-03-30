@@ -16,7 +16,6 @@ CREATE TABLE [dbo].[Stakeholder] (
     MiddleName NVARCHAR(50),
     LastName NVARCHAR(50),
     Suffix NVARCHAR(10),
-    PositionTypeID INT,
     EmailPromotion INT,
     AdditionalContactInfo XML,
     Demographics XML,
@@ -32,7 +31,6 @@ INSERT INTO
         MiddleName,
         LastName,
         Suffix,
-        PositionTypeID,
         EmailPromotion,
         AdditionalContactInfo,
         Demographics,
@@ -53,16 +51,11 @@ SELECT
     MiddleName,
     LastName,
     Suffix,
-    S.ContactTypeID as PositionTypeID,
     EmailPromotion,
     AdditionalContactInfo,
     Demographics,
-    CASE
-        WHEN T.ModifiedDate > S.ModifiedDate THEN T.ModifiedDate
-        ELSE S.ModifiedDate
-    END AS ModifiedDate
+    ModifiedDate
 FROM
     [AdventureWorks2014].[Person].[Person] T
-    LEFT JOIN [AdventureWorks2014].[Person].[BusinessEntityContact] S ON T.BusinessEntityID = S.PersonID
 WHERE
     PersonType IN ('VC', 'GC', 'SC');

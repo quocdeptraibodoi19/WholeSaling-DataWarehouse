@@ -6,7 +6,7 @@ with CTE as(
         bussinessentityid,
         external_id
     from {{ ref("person_BussinessEntity") }} 
-    where source = "hr_system_employee"
+    where source = "employee"
 )
 select
     CTE.bussinessentityid,
