@@ -1,8 +1,5 @@
 ---
 full_load:
-  - table: StackholderPosition
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
   - table: Department
     custom_casts:
       ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)

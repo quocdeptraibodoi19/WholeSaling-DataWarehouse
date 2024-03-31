@@ -69,4 +69,5 @@ def split_source(source: str):
 
 sources = ["Ecomerce", "HumanResourceSystem", "Product", "WholeSaling"]
 for source in sources:
+    print(f"-------------------------- {source} ---------------------------------- \n")
     split_source(source=source)

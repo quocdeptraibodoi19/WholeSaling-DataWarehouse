@@ -16,49 +16,6 @@ CREATE TABLE dbo.SalesOrderDetail (
     ModifiedDate DATETIME,
 );
 
-WITH CTE AS (
-    SELECT
-        [BillToAddressID],
-        [ShipToAddressID]
-    FROM
-        [AdventureWorks2014].[Sales].[SalesOrderHeader]
-    WHERE
-        [OnlineOrderFlag] = 0
-),
-TransactionAddress AS (
-    SELECT
-        ROW_NUMBER() OVER (
-            ORDER BY
-                (
-                    SELECT
-                        NULL
-                )
-        ) AS AddressID,
-        [AddressID] AS OldAddressID,
-        [AddressLine1],
-        [AddressLine2],
-        [City],
-        [StateProvinceID],
-        [PostalCode],
-        [SpatialLocation],
-        [rowguid],
-        [ModifiedDate]
-    FROM
-        [AdventureWorks2014].[Person].[Address]
-    WHERE
-        [AddressID] IN (
-            SELECT
-                [BillToAddressID]
-            FROM
-                CTE
-        )
-        OR [AddressID] IN (
-            SELECT
-                [ShipToAddressID]
-            FROM
-                CTE
-        )
-)
 INSERT INTO
     dbo.SalesOrderDetail (
         SalesOrderID,
@@ -142,8 +99,8 @@ FROM
             CTE.[CustomerID],
             K.NationalIDNumber as SaleEmployeeNationalNumberID,
             S.[TerritoryID],
-            T1.AddressID AS BillToAddressID,
-            T2.AddressID AS ShipToAddressID,
+            BillToAddressID,
+            ShipToAddressID,
             S.[ShipMethodID],
             S.[CreditCardID],
             S.[CreditCardApprovalCode],
@@ -220,8 +177,6 @@ FROM
                     S.StoreID is Not NULL
             ) AS CTE ON S.CustomerID = CTE.oldCustomerID
             INNER JOIN [AdventureWorks2014].[HumanResources].[Employee] K ON K.BusinessEntityID = S.SalesPersonID
-            INNER JOIN TransactionAddress T1 ON T1.OldAddressID = S.BillToAddressID
-            INNER JOIN TransactionAddress T2 ON T2.OldAddressID = S.ShipToAddressID
         WHERE
             S.[OnlineOrderFlag] = 0
     ) AS CTE1 ON CTE1.OldSalesOrderID = S.SalesOrderID

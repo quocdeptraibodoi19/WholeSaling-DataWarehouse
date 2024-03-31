@@ -14,6 +14,7 @@ sources:
     - name: wholesale_system_specialofferproduct
     - name: wholesale_system_stateprovince
     - name: wholesale_system_store
+    - name: wholesale_system_contacttype
     - name: wholesale_system_storecustomer
     - name: wholesale_system_storerepcreditcard
     - name: wholesale_system_currencyrate
@@ -22,3 +23,5 @@ sources:
     - name: wholesale_system_salesterritory
     - name: wholesale_system_transactioncreditcard
     - name: wholesale_system_transactionaddress
+    - name: wholesale_system_storecontact
+    - name: wholesale_system_storeaddress

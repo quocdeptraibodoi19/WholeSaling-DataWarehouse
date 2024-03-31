@@ -1,9 +1,9 @@
 {{ config(materialized='incremental') }}
 
 select
-    positiontypeid as contacttypeid,
-    positionname,
+    contacttypeid,
+    `name`,
     modifieddate,
     is_deleted,
     date_partition
-from {{ source("hr_system", "hr_system_stackholderposition") }}
+from {{ source("wholesale", "wholesale_system_contacttype") }}
