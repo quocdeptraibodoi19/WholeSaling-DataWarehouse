@@ -43,3 +43,4 @@ sources:
     - name: ecomerce_salesterritory
     - name: ecomerce_userpassword
     - name: ecomerce_useremailaddress
+    - name: ecomerce_userphonecontact
