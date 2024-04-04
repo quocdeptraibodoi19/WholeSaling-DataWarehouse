@@ -44,3 +44,5 @@ sources:
     - name: ecomerce_userpassword
     - name: ecomerce_useremailaddress
     - name: ecomerce_userphonecontact
+    - name: ecomerce_salesorderheader
+    - name: ecomerce_salesorderheadersalesreason
