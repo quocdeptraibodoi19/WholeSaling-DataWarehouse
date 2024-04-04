@@ -1,4 +1,4 @@
-{{ config(materialized='incremental') }}
+{{ config(materialized='view') }}
 
 select
     contacttypeid,
