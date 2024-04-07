@@ -11,10 +11,17 @@ sources:
     - name: hr_system_phonenumbertype
     - name: hr_system_salesterritory
     - name: hr_system_saleterritoryrephistory
+    - name: hr_system_employeepayhistory
+    - name: hr_system_employeedepartmenthistory
     - name: hr_system_shift
-    - name: hr_system_stackholderposition
+    - name: hr_system_stakeholder
     - name: hr_system_stateprovince
     - name: hr_system_employee
     - name: hr_system_salepersons
     - name: hr_system_salespersonquotahistory
     - name: hr_system_employeeaddress
+    - name: hr_system_email
+    - name: hr_system_stackholderpassword
+    - name: hr_system_stackholderphonecontact
+    - name: hr_system_employeephonecontact
+    - name: hr_system_jobcandidate

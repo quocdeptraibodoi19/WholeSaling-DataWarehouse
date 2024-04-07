@@ -1,12 +1,14 @@
 USE Ecomerce;
 
 GO
-    CREATE TABLE dbo.SalesReason (
-        SalesReasonID INT PRIMARY KEY,
-        Name NVARCHAR(255),
-        ReasonType NVARCHAR(50),
-        ModifiedDate DATETIME
-    );
+    DROP TABLE IF EXISTS dbo.SalesReason;
+
+CREATE TABLE dbo.SalesReason (
+    SalesReasonID INT PRIMARY KEY,
+    Name NVARCHAR(255),
+    ReasonType NVARCHAR(50),
+    ModifiedDate DATETIME
+);
 
 INSERT INTO
     dbo.SalesReason (

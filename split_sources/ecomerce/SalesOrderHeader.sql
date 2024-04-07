@@ -31,49 +31,6 @@ CREATE TABLE dbo.SalesOrderHeader (
     ModifiedDate DATETIME
 );
 
-WITH CTE AS (
-    SELECT
-        [BillToAddressID],
-        [ShipToAddressID]
-    FROM
-        [AdventureWorks2014].[Sales].[SalesOrderHeader]
-    WHERE
-        [OnlineOrderFlag] = 1
-),
-TransactionAddress AS (
-    SELECT
-        ROW_NUMBER() OVER (
-            ORDER BY
-                (
-                    SELECT
-                        NULL
-                )
-        ) AS AddressID,
-        [AddressID] AS OldAddressID,
-        [AddressLine1],
-        [AddressLine2],
-        [City],
-        [StateProvinceID],
-        [PostalCode],
-        [SpatialLocation],
-        [rowguid],
-        [ModifiedDate]
-    FROM
-        [AdventureWorks2014].[Person].[Address]
-    WHERE
-        [AddressID] IN (
-            SELECT
-                [BillToAddressID]
-            FROM
-                CTE
-        )
-        OR [AddressID] IN (
-            SELECT
-                [ShipToAddressID]
-            FROM
-                CTE
-        )
-)
 INSERT INTO
     dbo.SalesOrderHeader (
         [SalesOrderID],
@@ -113,8 +70,8 @@ SELECT
     S.[AccountNumber],
     CTE.UserID,
     S.[TerritoryID],
-    T.AddressID AS [BillToAddressID],
-    C.AddressID AS [ShipToAddressID],
+    [BillToAddressID],
+    [ShipToAddressID],
     [ShipMethodID],
     Q.CardNumber,
     Q.CardType,
@@ -161,8 +118,6 @@ FROM
         WHERE
             S.StoreID IS NULL
     ) AS CTE ON CTE.OldCustomerID = S.CustomerID
-    LEFT JOIN TransactionAddress T ON T.OldAddressID = S.BillToAddressID
-    LEFT JOIN TransactionAddress C ON C.OldAddressID = S.ShipToAddressID
     LEFT JOIN [AdventureWorks2014].[Sales].[CreditCard] Q ON Q.CreditCardID = S.CreditCardID
 WHERE
     OnlineOrderFlag = 1;

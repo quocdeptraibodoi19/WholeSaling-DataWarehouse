@@ -1,12 +1,14 @@
 USE Ecomerce;
 
 GO
-    CREATE TABLE dbo.SalesOrderHeaderSalesReason (
-        SalesOrderID INT,
-        SalesReasonID INT,
-        ModifiedDate DATETIME,
-        PRIMARY KEY (SalesOrderID, SalesReasonID)
-    );
+    DROP TABLE IF EXISTS dbo.SalesOrderHeaderSalesReason;
+
+CREATE TABLE dbo.SalesOrderHeaderSalesReason (
+    SalesOrderID INT,
+    SalesReasonID INT,
+    ModifiedDate DATETIME,
+    PRIMARY KEY (SalesOrderID, SalesReasonID)
+);
 
 INSERT INTO
     dbo.SalesOrderHeaderSalesReason (

@@ -33,6 +33,30 @@ full_load:
   - table: SpecialOfferProduct
     custom_casts:
       ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: CurrencyRate
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: CountryRegionCurrency
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: Currency
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: SalesTerritory
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: TransactionCreditCard
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: StoreAddress
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: ContactType
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: StoreContact
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
 
 delta_load:
 

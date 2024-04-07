@@ -34,5 +34,9 @@ sources:
     - name: product_management_platform_vendoraddress
     - name: product_management_platform_workorder
     - name: product_management_platform_workorderrouting
+    - name: product_management_platform_scrapreason
+    - name: product_management_platform_vendorcontact
+    - name: product_management_platform_transactionhistory
+    - name: product_management_platform_transactionhistoryarchive
 
 

@@ -1,8 +1,5 @@
 ---
 full_load:
-  - table: StackholderPosition
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
   - table: Department
     custom_casts:
       ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
@@ -48,10 +45,13 @@ full_load:
   - table: EmployeeAddress
     custom_casts:
       ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: StackHolderEmail
+  - table: Email
     custom_casts:
       ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: EmployeeEmail
+  - table: StackholderPassword
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: StackholderPhoneContact
     custom_casts:
       ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
   - table: SalePersons

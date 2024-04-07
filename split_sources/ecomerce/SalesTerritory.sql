@@ -1,4 +1,4 @@
-USE WholeSaling;
+USE Ecomerce;
 
 GO
     DROP TABLE IF EXISTS dbo.SalesTerritory;

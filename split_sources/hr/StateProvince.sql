@@ -1,7 +1,7 @@
-Use HumanResourceSystem;
+USE HumanResourceSystem;
 
-Go
-    DROP TABLE IF EXISTS dbo.StackholderPhoneContact;
+GO
+    DROP TABLE IF EXISTS dbo.StateProvince;
 
 CREATE TABLE dbo.StateProvince (
     StateProvinceID INT PRIMARY KEY,

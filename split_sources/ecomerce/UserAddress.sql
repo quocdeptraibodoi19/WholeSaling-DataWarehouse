@@ -4,21 +4,24 @@ GO
     DROP TABLE IF EXISTS dbo.UserAddress;
 
 CREATE TABLE dbo.UserAddress (
-    AddressID INT PRIMARY KEY,
+    AddressID INT,
     UserID INT,
+    AddressTypeID INT,
     AddressLine1 NVARCHAR(255),
     AddressLine2 NVARCHAR(255),
     City NVARCHAR(255),
     StateProvinceID INT,
     PostalCode NVARCHAR(15),
-    SpatialLocation NVARCHAR(MAX),
-    ModifiedDate DATETIME
+    SpatialLocation GEOGRAPHY,
+    ModifiedDate DATETIME,
+    PRIMARY KEY(AddressID, UserID)
 );
 
 INSERT INTO
     dbo.UserAddress (
         AddressID,
         UserID,
+        AddressTypeID,
         AddressLine1,
         AddressLine2,
         City,
@@ -30,12 +33,13 @@ INSERT INTO
 SELECT
     S.AddressID,
     CTE.UserID,
+    T.AddressTypeID,
     S.AddressLine1,
     S.AddressLine2,
     S.City,
     S.StateProvinceID,
     S.PostalCode,
-    CONVERT(NVARCHAR(MAX), S.SpatialLocation) AS SpatialLocation,
+    S.SpatialLocation,
     CASE
         WHEN S.ModifiedDate > T.ModifiedDate THEN S.ModifiedDate
         ELSE T.ModifiedDate

@@ -5,17 +5,19 @@ GO
 
 CREATE TABLE dbo.StoreRepCreditCard (
     StoreRepID INT,
+    CreditCardID INT,
     CardNumber NVARCHAR(255),
     CardType NVARCHAR(50),
     ExpMonth INT,
     ExpYear INT,
     ModifiedDate DATETIME,
-    PRIMARY KEY (StoreRepID, CardNumber)
+    PRIMARY KEY (StoreRepID, CreditCardID)
 );
 
 INSERT INTO
     dbo.StoreRepCreditCard (
         StoreRepID,
+        CreditCardID,
         CardNumber,
         CardType,
         ExpMonth,
@@ -24,6 +26,7 @@ INSERT INTO
     )
 SELECT
     CTE.StackHolderID AS StoreRepID,
+    S.CreditCardID,
     T.CardNumber,
     T.CardType,
     T.ExpMonth,
@@ -51,19 +54,14 @@ FROM
             MiddleName,
             LastName,
             Suffix,
-            S.ContactTypeID as PositionTypeID,
             EmailPromotion,
             AdditionalContactInfo,
             Demographics,
-            CASE
-                WHEN T.ModifiedDate > S.ModifiedDate THEN T.ModifiedDate
-                ELSE S.ModifiedDate
-            END AS ModifiedDate
+            ModifiedDate
         FROM
             [AdventureWorks2014].[Person].[Person] T
-            LEFT JOIN [AdventureWorks2014].[Person].[BusinessEntityContact] S ON T.BusinessEntityID = S.PersonID
         WHERE
-            PersonType IN ('SP', 'VC', 'GC', "SC")
+            PersonType IN ('VC', 'GC', 'SC')
     ) AS CTE ON S.BusinessEntityID = CTE.BusinessEntityID
     AND CTE.PersonType = 'SC'
     INNER JOIN [AdventureWorks2014].[Sales].[CreditCard] T ON S.CreditCardID = T.CreditCardID

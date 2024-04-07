@@ -1,4 +1,4 @@
-{{ config(materialized='view') }}
+{{ config(materialized='table') }}
 
 -- Using mapping to map to the BussinessEntityId
 with CTE as(
@@ -6,7 +6,7 @@ with CTE as(
         bussinessentityid,
         external_id
     from {{ ref("person_BussinessEntity") }} 
-    where source = "hr_system_employee"
+    where source = "employee"
 )
 select
     CTE.bussinessentityid,

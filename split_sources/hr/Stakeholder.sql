@@ -5,9 +5,9 @@
 Use HumanResourceSystem;
 
 GO
-    DROP TABLE IF EXISTS dbo.StakeHolder;
+    DROP TABLE IF EXISTS dbo.Stakeholder;
 
-CREATE TABLE [dbo].[StakeHolder] (
+CREATE TABLE [dbo].[Stakeholder] (
     StackHolderID INT PRIMARY KEY,
     PersonType NVARCHAR(2),
     NameStyle BIT,
@@ -16,14 +16,13 @@ CREATE TABLE [dbo].[StakeHolder] (
     MiddleName NVARCHAR(50),
     LastName NVARCHAR(50),
     Suffix NVARCHAR(10),
-    PositionTypeID INT,
     EmailPromotion INT,
     AdditionalContactInfo XML,
     Demographics XML,
     ModifiedDate DATETIME
 )
 INSERT INTO
-    [dbo].[StakeHolder] (
+    [dbo].[Stakeholder] (
         StackHolderID,
         PersonType,
         NameStyle,
@@ -32,7 +31,6 @@ INSERT INTO
         MiddleName,
         LastName,
         Suffix,
-        PositionTypeID,
         EmailPromotion,
         AdditionalContactInfo,
         Demographics,
@@ -53,16 +51,11 @@ SELECT
     MiddleName,
     LastName,
     Suffix,
-    S.ContactTypeID as PositionTypeID,
     EmailPromotion,
     AdditionalContactInfo,
     Demographics,
-    CASE
-        WHEN T.ModifiedDate > S.ModifiedDate THEN T.ModifiedDate
-        ELSE S.ModifiedDate
-    END AS ModifiedDate
+    ModifiedDate
 FROM
     [AdventureWorks2014].[Person].[Person] T
-    LEFT JOIN [AdventureWorks2014].[Person].[BusinessEntityContact] S ON T.BusinessEntityID = S.PersonID
 WHERE
     PersonType IN ('VC', 'GC', 'SC');

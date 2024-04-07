@@ -1,6 +1,6 @@
 USE Product;
 
-Go
+GO
     DROP TABLE IF EXISTS dbo.Location;
 
 CREATE TABLE dbo.Location (
