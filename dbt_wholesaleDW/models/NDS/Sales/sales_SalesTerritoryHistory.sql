@@ -6,7 +6,7 @@ with employee_mapping_cte as (
         s.territoryid,
         s.startdate,
         s.enddate,
-        s.modifieddate
+        s.modifieddate,
         s.is_deleted,
         s.date_partition
     from {{ source("hr_system", "hr_system_saleterritoryrephistory") }} s

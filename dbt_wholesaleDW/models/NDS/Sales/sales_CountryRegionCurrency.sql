@@ -6,4 +6,4 @@ select
     modifieddate,
     is_deleted,
     date_partition
-from {{"wholesale", "wholesale_system_countryregioncurrency"}}
+from {{ source("wholesale", "wholesale_system_countryregioncurrency") }}

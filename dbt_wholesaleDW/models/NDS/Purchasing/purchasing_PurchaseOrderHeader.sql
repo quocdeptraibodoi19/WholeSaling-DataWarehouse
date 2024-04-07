@@ -2,21 +2,21 @@
 
 with purchase_order_header as (
     select
-        purchaseorderid,
-        revisionnumber,
-        `status`,
+        s.purchaseorderid,
+        s.revisionnumber,
+        s.`status`,
         k.bussinessentityid as employeeid,
-        vendorid,
-        shipmethodid,
-        orderdate,
-        shipdate,
-        subtotal,
-        taxamt,
-        freight,
-        totaldue,
-        modifieddate,
-        is_deleted,
-        date_partition
+        s.vendorid,
+        s.shipmethodid,
+        s.orderdate,
+        s.shipdate,
+        s.subtotal,
+        s.taxamt,
+        s.freight,
+        s.totaldue,
+        s.modifieddate,
+        s.is_deleted,
+        s.date_partition
     from {{ source("production", "product_management_platform_purchaseorderheader") }} s
     inner join {{ ref("person_BussinessEntity") }} t
     on s.vendorid = t.external_id and t.source = 'vendor'

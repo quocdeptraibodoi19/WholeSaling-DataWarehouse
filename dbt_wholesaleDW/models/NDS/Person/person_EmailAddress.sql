@@ -39,7 +39,7 @@ email_address as (
     select * from stakeholder_email_address
     union all
     select * from employee_email_address
-),
+)
 select 
     row_number() over(order by emailaddress) as emailaddressid,
     s.*

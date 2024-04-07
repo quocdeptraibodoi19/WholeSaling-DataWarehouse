@@ -17,7 +17,7 @@ with CTE as (
         is_deleted, 
         date_partition,
         "stakeholder" as source
-    from {{ source("wholesale", "hr_system_stakeholder") }}
+    from {{ source("hr_system", "hr_system_stakeholder") }}
     union all
     select 
         storeid as external_id, 

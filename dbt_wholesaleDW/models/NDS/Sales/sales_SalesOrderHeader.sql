@@ -4,13 +4,13 @@ with cte as (
     select 
         *,
         "ecom_user" as source
-    from ref("sales_user_SaleOderHeader")
+    from {{ ref("sales_user_SaleOderHeader") }}
     union all
     select 
         *,
         "wholesale" as source
-    from ref("sales_wholesale_SaleOrderHeader")
-),
+    from {{ ref("sales_wholesale_SaleOrderHeader") }}
+)
 select 
     row_number() over (order by salesorderid, source) as salesorderid,
     s.salesorderid as old_salesorderid,
@@ -41,5 +41,5 @@ select
     s.modifieddate,
     s.is_deleted,
     s.date_partition
-from cte
+from cte s
 

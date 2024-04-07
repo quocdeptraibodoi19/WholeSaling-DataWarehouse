@@ -7,7 +7,7 @@ with cte as(
         s.modifieddate,
         s.is_deleted,
         s.date_partition
-    {{ source("wholesale", "wholesale_system_countryregion") }} s
+    from {{ source("wholesale", "wholesale_system_countryregion") }} s
     inner join {{ ref("countrycode_mapping") }} t
     on s.countryregioncode = t.Wholesaling
 ),

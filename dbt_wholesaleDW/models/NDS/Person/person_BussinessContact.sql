@@ -5,7 +5,7 @@ with vendor_contact as (
         t.bussinessentityid,
         k.bussinessentityid as personid,
         s.contacttypeid,
-        s.modifieddate
+        s.modifieddate,
         s.is_deleted,
         s.date_partition
     from {{ source("production", "product_management_platform_vendorcontact") }} s
@@ -19,7 +19,7 @@ store_contact as (
         t.bussinessentityid,
         k.bussinessentityid as personid,
         s.contacttypeid,
-        s.modifieddate
+        s.modifieddate,
         s.is_deleted,
         s.date_partition
     from {{ source("wholesale", "wholesale_system_storecontact") }} s

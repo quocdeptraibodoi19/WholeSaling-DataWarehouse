@@ -1,9 +1,9 @@
-{{ config(materialized='view') }}
+{{ config(materialized='table') }}
 
 with billtoaddress_cte as (
     select 
         s.*,
-        t.addressid as new_billtoaddressid,
+        t.addressid as new_billtoaddressid
     from {{ source("wholesale", "wholesale_system_salesorderheader") }} s
     inner join {{ ref("person_Address") }} t
     on s.billtoaddressid = t.old_addressid and t.source = "store"
@@ -11,7 +11,7 @@ with billtoaddress_cte as (
 shiptoaddress_cte as (
     select 
         s.*,
-        t.addressid as new_shiptoaddressid,
+        t.addressid as new_shiptoaddressid
     from billtoaddress_cte s
     inner join {{ ref("person_Address") }} t
     on s.shiptoaddressid = t.old_addressid and t.source = "store"
@@ -28,7 +28,7 @@ customer_mapping as (
 customer_cte as (
     select
         s.*,
-        t.customerid as new_customerid,
+        t.customerid as new_customerid
     from shiptoaddress_cte s
     inner join customer_mapping t
     on s.personid = t.old_storerepid and s.storeid = t.old_storeid
@@ -73,7 +73,7 @@ select
     s.taxamt,
     s.freight,
     s.totaldue,
-    s.comment,
+    CAST(NULL AS STRING) AS comment,
     s.modifieddate,
     s.is_deleted,
     s.date_partition

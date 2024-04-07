@@ -2,6 +2,7 @@
 
 with online_user_password as (
     select
+        t.bussinessentityid,
         s.passwordhash,
         s.passwordsalt,
         s.modifieddate,

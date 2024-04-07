@@ -1,9 +1,9 @@
-{{ config(materialized='view') }}
+{{ config(materialized='table') }}
 
 with billtoaddress_cte as (
     select 
         s.*,
-        t.addressid as new_billtoaddressid,
+        t.addressid as new_billtoaddressid
     from {{ source("ecomerce", "ecomerce_salesorderheader") }} s
     inner join {{ ref("person_Address") }} t
     on s.billtoaddressid = t.old_addressid and t.source = "ecom_user"
@@ -12,7 +12,7 @@ with billtoaddress_cte as (
 shiptoaddress_cte as (
     select 
         s.*,
-        t.addressid as new_shiptoaddressid,
+        t.addressid as new_shiptoaddressid
     from billtoaddress_cte s
     inner join {{ ref("person_Address") }} t
     on s.shiptoaddressid = t.old_addressid and t.source = "ecom_user"
@@ -53,10 +53,10 @@ select
     s.`status`,
     "1" as onlineorderflag,
     s.salesordernumber,
-    null as purchaseordernumber,
+    CAST(NULL AS STRING) AS purchaseordernumber,
     s.accountnumber,
     s.new_customerid as customerid,
-    null as salespersonid,
+    CAST(NULL AS STRING) AS salespersonid,
     s.territoryid,
     s.new_billtoaddressid as billtoaddressid,
     s.new_shiptoaddressid as shiptoaddressid,

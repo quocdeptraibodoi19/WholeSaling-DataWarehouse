@@ -5,17 +5,19 @@ GO
 
 CREATE TABLE dbo.StoreRepCreditCard (
     StoreRepID INT,
+    CreditCardID INT,
     CardNumber NVARCHAR(255),
     CardType NVARCHAR(50),
     ExpMonth INT,
     ExpYear INT,
     ModifiedDate DATETIME,
-    PRIMARY KEY (StoreRepID, CardNumber)
+    PRIMARY KEY (StoreRepID, CreditCardID)
 );
 
 INSERT INTO
     dbo.StoreRepCreditCard (
         StoreRepID,
+        CreditCardID,
         CardNumber,
         CardType,
         ExpMonth,
@@ -24,6 +26,7 @@ INSERT INTO
     )
 SELECT
     CTE.StackHolderID AS StoreRepID,
+    S.CreditCardID,
     T.CardNumber,
     T.CardType,
     T.ExpMonth,

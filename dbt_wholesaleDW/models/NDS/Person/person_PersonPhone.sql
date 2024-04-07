@@ -22,7 +22,7 @@ employee_phonecontact as (
         s.date_partition
     from {{ source("hr_system", "hr_system_employeephonecontact") }} s
     inner join {{ ref("person_BussinessEntity") }} t
-    on s.userid = t.external_id and t.source = "employee"
+    on s.employeeid = t.external_id and t.source = "employee"
 ),
 stackholder_phonecontact as (
 select
@@ -34,7 +34,7 @@ select
         s.date_partition
     from {{ source("hr_system", "hr_system_stackholderphonecontact") }} s
     inner join {{ ref("person_BussinessEntity") }} t
-    on s.userid = t.external_id and t.source = "stakeholder"
+    on s.stackholderid = t.external_id and t.source = "stakeholder"
 ),
 person_phone as (
     select * from user_phonecontact

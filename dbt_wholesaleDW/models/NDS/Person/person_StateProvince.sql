@@ -10,4 +10,4 @@ select
     modifieddate,
     is_deleted,
     date_partition
-from {{"wholesale", "wholesale_system_stateprovince"}}
+from {{ source("wholesale", "wholesale_system_stateprovince") }}
