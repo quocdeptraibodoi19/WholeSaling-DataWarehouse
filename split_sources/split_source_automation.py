@@ -8,7 +8,7 @@ import pyodbc
 
 from airflow.common.helpers import ConstantsProvider
 
-base_dir = "/root/WholeSaling-DataWarehouse/split_sources/"
+base_dir =  os.getcwd()
 
 def get_credential(source: str):
     if source == "Ecomerce":
