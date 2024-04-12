@@ -14,7 +14,7 @@ from datetime import datetime
 
 import logging
 
-from .system_data_hooks import HDFSDataHook, PrestoDataHook, HiveDataHook, SparkSQLDataHook
+from .system_data_hooks import HDFSDataHook, HiveDataHook, SparkSQLDataHook
 
 
 class DataIngestionStrategy:
@@ -71,82 +71,6 @@ class HDFSLandingZoneIngestionStrategy(DataIngestionStrategy):
             self.data_hook.disconnect()
 
 
-class PrestoHiveStagingIngestionStrategy(DataIngestionStrategy):
-    def __init__(self) -> None:
-        super().__init__()
-        self.data_hook = PrestoDataHook()
-
-    def move_data(
-        self,
-        table_name: str,
-        source_system: str,
-        table_columns: List[str] = None,
-        *args,
-        **kwargs,
-    ):
-        try:
-            self.data_hook.connect()
-
-            hdfs_config = ConstantsProvider.hdfs_config()
-
-            if not self.data_hook.check_external_table_existence(
-                hive_table_name=table_name
-            ):
-                self.logger.info(
-                    f"{ConstantsProvider.get_staging_table(source_system, table_name)} hasn't existed on Hive yet..."
-                )
-
-                table_schema = list(
-                    map(lambda column: column + " NVARCHAR(MAX)", table_columns)
-                )
-                presto_sql = f"""CREATE TABLE {ConstantsProvider.get_staging_table(source_system, table_name)} 
-                        ( {", ".join(table_schema)} )
-                        WITH (
-                                format = 'CSV',
-                                external_location = 'hdfs://{hdfs_config.get("host")}:{hdfs_config.get("port")}/{ConstantsProvider.HDFS_LandingZone_base_dir(source_system, table_name)}',
-                                partitioned_by = ARRAY['{ConstantsProvider.ingested_meta_field()}']
-                        )
-                        """
-            else:
-                # TODO: There is an error regarding the fact that we can not manipulate the external data hive directly from PrestoDB due to the lack of the awareness about the metadata in Presto.
-                # TODO: Maybe everytime ingestion happens, create the external table on Hive as a temp file and then insert it into the internal table on PrestoDB (which is stored on Hive but still managed by Presto)
-                # => This may incur the data redunancy, which costs us a lot if the amount of data is huge.
-                self.logger.info(
-                    f"{ConstantsProvider.get_staging_table(source_system, table_name)} has already existed on Hive..."
-                )
-                self.logger.info(
-                    f"Adding new partition into external table {ConstantsProvider.get_staging_table(source_system, table_name)}..."
-                )
-
-                presto_sql = f"""CALL system.create_empty_partition(
-                        schema_name => '{self.creds.get("schema")}',
-                        table_name => '{ConstantsProvider.get_staging_table(source_system, table_name)}',
-                        partition_columns => ARRAY['{ConstantsProvider.ingested_meta_field()}'],
-                        partition_values => ARRAY['{datetime.now().strftime("%Y-%m-%d")}'])
-                    """
-
-            self.logger.info(
-                f"Creating external table on Hive and update it with partitions via PrestoDB with presto query: {presto_sql}"
-            )
-
-            try:
-                cursor = self.data_hook.connection.cursor()
-                cursor.execute(presto_sql)
-                # Because the above presto sql just exists on the metadata of PrestoDB => need to flush into Hive Metastore for it to aware of that
-                flush_query = f"""CALL system.sync_partition_metadata(schema_name=> '{self.creds.get("schema")}', table_name=> '{ConstantsProvider.get_staging_table(source_system, table_name)}', mode=> 'FULL')"""
-                self.logger.info(
-                    f"Making Hive Metastore aware of metadata with the SQL on Presto: {flush_query}"
-                )
-                cursor.execute(flush_query)
-            finally:
-                cursor.close()
-        except Exception as e:
-            self.logger.error(f"An error occurred: {e}")
-            raise
-        finally:
-            self.data_hook.disconnect()
-
-
 class HiveStagingIntestionStrategy(DataIngestionStrategy):
     def __init__(self) -> None:
         super().__init__()
@@ -187,7 +111,7 @@ class HiveStagingIntestionStrategy(DataIngestionStrategy):
                         not in ConstantsProvider.get_HR_date_fields_for_standardization()
                         else "`" + column + "`" + " TIMESTAMP"
                     ),
-                    table_columns
+                    table_columns,
                 )
             )
             hive_ddl = f"""CREATE EXTERNAL TABLE IF NOT EXISTS {hive_table_name} 
@@ -211,6 +135,7 @@ class HiveStagingIntestionStrategy(DataIngestionStrategy):
             raise
         finally:
             self.data_hook.disconnect()
+
 
 class HiveStagingDeltaKeyIngestionStrategy(DataIngestionStrategy):
     def __init__(self) -> None:
