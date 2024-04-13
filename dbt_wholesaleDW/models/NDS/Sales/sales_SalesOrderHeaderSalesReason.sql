@@ -16,6 +16,6 @@ mapping_saleorderreasons_cte as (
         s.date_partition
     from {{ source("ecomerce", "ecomerce_salesorderheadersalesreason") }} s
     inner join id_saleorderheader_cte t
-    s.salesorderid = t.old_salesorderid
+    on s.salesorderid = t.old_salesorderid
 )
 select * from mapping_saleorderreasons_cte
