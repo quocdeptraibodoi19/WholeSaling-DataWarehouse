@@ -1,4 +1,4 @@
-{{ config(materialized='table') }}
+{{ config(materialized='view') }}
 
 -- Using mapping to map to the BussinessEntityId
 with CTE as(

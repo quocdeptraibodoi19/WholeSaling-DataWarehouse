@@ -1,4 +1,4 @@
-{{ config(materialized='table') }}
+{{ config(materialized='incremental') }}
 
 with ecom_saleorderheader_cte as (
     select 
@@ -56,7 +56,15 @@ salesorderdetail as (
     select * from ecomerce_salesorderdetail
     union all
     select * from wholesale_salesorderdetail
+),
+CTE_1 as (
+    select *,
+        row_number() over (order by salesorderid, old_salesorderdetailid, source) as salesorderdetailid
+    from salesorderdetail
 )
-select *,
-    row_number() over (order by salesorderid, old_salesorderdetailid, source) as salesorderdetailid
-from salesorderdetail
+select * from CTE_1
+{% if is_incremental() %}
+
+    where modifieddate >= ( select max(modifieddate) from {{ this }} )
+
+{% endif %}
