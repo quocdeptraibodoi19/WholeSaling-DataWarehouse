@@ -8,7 +8,7 @@ import pyodbc
 
 from airflow.common.helpers import ConstantsProvider
 
-base_dir = "/root/WholeSaling-DataWarehouse/split_sources/"
+base_dir = os.getcwd()
 
 def get_credential(source: str):
     if source == "Ecomerce":
@@ -52,7 +52,7 @@ def split_source(source: str):
     
     cursor = server_conn.cursor()
 
-    sql_dir = base_dir + source_sql_folder(source)
+    sql_dir = base_dir + "/" + source_sql_folder(source)
     sql_files = [f for f in os.listdir(sql_dir) if f.endswith(".sql")]
 
     for file in sql_files:

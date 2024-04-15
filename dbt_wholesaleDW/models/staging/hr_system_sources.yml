@@ -6,22 +6,62 @@ sources:
    schema: staging
    tables:
     - name: hr_system_addresstype
+      tests:
+        - is_not_empty_table
     - name: hr_system_countryregion
+      tests:
+        - is_not_empty_table
     - name: hr_system_department
+      tests:
+        - is_not_empty_table
     - name: hr_system_phonenumbertype
+      tests:
+        - is_not_empty_table
     - name: hr_system_salesterritory
+      tests:
+        - is_not_empty_table
     - name: hr_system_saleterritoryrephistory
+      tests:
+        - is_not_empty_table
     - name: hr_system_employeepayhistory
+      tests:
+        - is_not_empty_table
     - name: hr_system_employeedepartmenthistory
+      tests:
+        - is_not_empty_table
     - name: hr_system_shift
+      tests:
+        - is_not_empty_table
     - name: hr_system_stakeholder
+      tests:
+        - is_not_empty_table
     - name: hr_system_stateprovince
+      tests:
+        - is_not_empty_table
     - name: hr_system_employee
+      tests:
+        - is_not_empty_table
     - name: hr_system_salepersons
+      tests:
+        - is_not_empty_table
     - name: hr_system_salespersonquotahistory
+      tests:
+        - is_not_empty_table
     - name: hr_system_employeeaddress
+      tests:
+        - is_not_empty_table
     - name: hr_system_email
+      tests:
+        - is_not_empty_table
     - name: hr_system_stackholderpassword
+      tests:
+        - is_not_empty_table
     - name: hr_system_stackholderphonecontact
+      tests:
+        - is_not_empty_table
     - name: hr_system_employeephonecontact
+      tests:
+        - is_not_empty_table
     - name: hr_system_jobcandidate
+      tests:
+        - is_not_empty_table

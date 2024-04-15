@@ -6,6 +6,8 @@ sources:
    description: Source tables replicated from Ecomerce System.
    tables: 
     - name: ecomerce_salesreason
+      tests:
+        - is_not_empty_table
       description: Reason for saling a product online.
       columns:
         - name: salesreasonid
@@ -26,22 +28,59 @@ sources:
           description: Date of ingestion (which can help hive to form a partition from the source).
 
     - name: ecomerce_countryregion
+      tests:
+        - is_not_empty_table
     - name: ecomerce_salestaxrate
+      tests:
+        - is_not_empty_table
     - name: ecomerce_shipmethod
+      tests:
+        - is_not_empty_table
     - name: ecomerce_stateprovince
+      tests:
+        - is_not_empty_table
     - name: ecomerce_usercreditcard
+      tests:
+        - is_not_empty_table
     - name: ecomerce_shoppingcartitem
+      tests:
+        - is_not_empty_table
     - name: ecomerce_user
+      tests:
+        - is_not_empty_table
     - name: ecomerce_specialoffer
+      tests:
+        - is_not_empty_table
     - name: ecomerce_specialofferproduct
+      tests:
+        - is_not_empty_table
     - name: ecomerce_useraddress
+      tests:
+        - is_not_empty_table
     - name: ecomerce_currency
+      tests:
+        - is_not_empty_table
     - name: ecomerce_currencyrate
+      tests:
+        - is_not_empty_table
     - name: ecomerce_salesorderdetail
-    - name: ecomerce_transactionaddress
+      tests:
+        - is_not_empty_table
     - name: ecomerce_salesterritory
+      tests:
+        - is_not_empty_table
     - name: ecomerce_userpassword
+      tests:
+        - is_not_empty_table
     - name: ecomerce_useremailaddress
+      tests:
+        - is_not_empty_table
     - name: ecomerce_userphonecontact
+      tests:
+        - is_not_empty_table
     - name: ecomerce_salesorderheader
+      tests:
+        - is_not_empty_table
     - name: ecomerce_salesorderheadersalesreason
+      tests:
+        - is_not_empty_table

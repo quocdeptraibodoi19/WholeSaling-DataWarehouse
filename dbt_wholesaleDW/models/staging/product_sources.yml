@@ -6,37 +6,103 @@ sources:
    schema: staging
    tables:
     - name: product_management_platform_billofmaterials
+      tests:
+        - is_not_empty_table
     - name: product_management_platform_culture
+      tests:
+        - is_not_empty_table
     - name: product_management_platform_document
+      tests:
+        - is_not_empty_table
     - name: product_management_platform_illustration
+      tests:
+        - is_not_empty_table
     - name: product_management_platform_location
+      tests:
+        - is_not_empty_table
     - name: product_management_platform_product
+      tests:
+        - is_not_empty_table
     - name: product_management_platform_productcategory
+      tests:
+        - is_not_empty_table
     - name: product_management_platform_productcosthistory
+      tests:
+        - is_not_empty_table
     - name: product_management_platform_productdescription
+      tests:
+        - is_not_empty_table
     - name: product_management_platform_productdocument
+      tests:
+        - is_not_empty_table
     - name: product_management_platform_productinventory
+      tests:
+        - is_not_empty_table
     - name: product_management_platform_productlistpricehistory
+      tests:
+        - is_not_empty_table
     - name: product_management_platform_productmodel
+      tests:
+        - is_not_empty_table
     - name: product_management_platform_productmodelillustration
+      tests:
+        - is_not_empty_table
     - name: product_management_platform_productmodelproductdescriptionculture
+      tests:
+        - is_not_empty_table
     - name: product_management_platform_productphoto
+      tests:
+        - is_not_empty_table
     - name: product_management_platform_productproductphoto
+      tests:
+        - is_not_empty_table
     - name: product_management_platform_productreview
+      tests:
+        - is_not_empty_table
     - name: product_management_platform_productsubcategory
+      tests:
+        - is_not_empty_table
     - name: product_management_platform_productvendor
+      tests:
+        - is_not_empty_table
     - name: product_management_platform_purchaseorderdetail
+      tests:
+        - is_not_empty_table
     - name: product_management_platform_purchaseorderheader
+      tests:
+        - is_not_empty_table
     - name: product_management_platform_shipmethod
+      tests:
+        - is_not_empty_table
     - name: product_management_platform_stateprovincecountry
+      tests:
+        - is_not_empty_table
     - name: product_management_platform_unitmeasure
+      tests:
+        - is_not_empty_table
     - name: product_management_platform_vendor
+      tests:
+        - is_not_empty_table
     - name: product_management_platform_vendoraddress
+      tests:
+        - is_not_empty_table
     - name: product_management_platform_workorder
+      tests:
+        - is_not_empty_table
     - name: product_management_platform_workorderrouting
+      tests:
+        - is_not_empty_table
     - name: product_management_platform_scrapreason
+      tests:
+        - is_not_empty_table
     - name: product_management_platform_vendorcontact
+      tests:
+        - is_not_empty_table
     - name: product_management_platform_transactionhistory
+      tests:
+        - is_not_empty_table
     - name: product_management_platform_transactionhistoryarchive
+      tests:
+        - is_not_empty_table
 
 

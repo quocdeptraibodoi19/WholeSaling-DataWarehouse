@@ -11,7 +11,7 @@ import pyodbc
 import pandas as pd
 
 from hdfs import InsecureClient
-import prestodb
+
 from pyhive import hive
 from pyspark.sql import SparkSession
 
@@ -230,63 +230,6 @@ class HDFSDataHook(SysDataHook):
             df = pd.read_csv(file, nrows=1, sep="|")
 
         return list(df.columns)
-
-
-"""
-    This is for the interaction between the ELT and Presto but it seems like prestoDB is used for ad-hoc query ...
-    so there are many features regarding DDL in Hive that presto does not support for
-    => Using it for the ELT seems to not be the good idea
-    => Hive: For the ETL/ELT layer.
-    => PrestoDB: For the ad-hoc query serving layer, or for the BI tools for the better performance.
-"""
-
-
-class PrestoDataHook(SysDataHook):
-    def connect(self, catalog: str = None, schema: str = None, *args, **kwargs):
-        self.logger.info("Connecting to Hive Metastore via Presto SQl Engine...")
-        self.creds = ConstantsProvider.Presto_Staging_Hive_creds()
-
-        if schema is not None:
-            self.creds["schema"] = schema
-
-        if catalog is not None:
-            self.creds["catalog"] = catalog
-
-        self._connection = prestodb.dbapi.connect(**self.creds)
-
-    def disconnect(self, *args, **kwargs):
-        self.logger.info("Disconnecting from Presto SQL Engine...")
-        self.connection.close()
-
-    def execute(
-        self,
-        query: str,
-        chunksize: int = None,
-        *args,
-        **kwargs,
-    ):
-        self.logger.info(f"Getting data from query: {query}")
-        return pd.read_sql(query, self.connection, chunksize=chunksize)
-
-    def check_external_table_existence(self, hive_table_name: str):
-        """
-        Method to check if a specific table has existed on Hive or not
-        """
-
-        self.logger.info(
-            f"Checking for the existence of {hive_table_name.lower()} on Hive..."
-        )
-        checking_query = f"SHOW TABLES LIKE '{hive_table_name.lower()}'"
-
-        try:
-            cursor = self.connection.cursor()
-            cursor.execute(checking_query)
-            result = cursor.fetchall()
-        finally:
-            cursor.close()
-
-        return len(result) != 0
-
 
 class HiveDataHook(SysDataHook):
     def connect(self, database: str = None, *args, **kwargs):

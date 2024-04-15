@@ -1,8 +1,11 @@
 AdventureWork:
   outputs:
    dev:
-    type: hive
-    host: hadoop-master
+    type: spark
+    method: thrift
+    host: node01
     port: 10000
+    user: hive
     schema: "{{ 'dw_' + env_var('USER') if env_var('ENV') == 'local' else 'dw' }}"
+    threads: 4
   target: dev

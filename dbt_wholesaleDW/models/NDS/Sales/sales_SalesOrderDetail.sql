@@ -50,7 +50,7 @@ wholesale_salesorderdetail as (
         s.date_partition
     from {{ source("wholesale", "wholesale_system_salesorderdetail") }} s
     inner join wholesale_saleorderheader_cte t
-    on s.salesorderid = t.old_salesorderids
+    on s.salesorderid = t.old_salesorderid
 ),
 salesorderdetail as (
     select * from ecomerce_salesorderdetail
@@ -58,5 +58,5 @@ salesorderdetail as (
     select * from wholesale_salesorderdetail
 )
 select *,
-    row_number() over (order by salesorderid, old_salesorderdetailid, source) as salesorderdetailid,
+    row_number() over (order by salesorderid, old_salesorderdetailid, source) as salesorderdetailid
 from salesorderdetail

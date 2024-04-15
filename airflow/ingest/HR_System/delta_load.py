@@ -15,7 +15,6 @@ from common.ingestion_strategies import (
     HiveStagingIntestionStrategy,
 )
 from common.system_data_hooks import (
-    PrestoDataHook,
     HRSystemDataHook,
     HDFSDataHook,
     HiveDataHook,
@@ -36,16 +35,16 @@ def delta_HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
     delta_keys = table_config.get("delta_keys")
 
     hr_sys = HRSystemDataHook()
-    presto_sys = PrestoDataHook()
+    hive_sys = HiveDataHook()
 
     try:
         hr_sys.connect()
-        presto_sys.connect()
+        hive_sys.connect()
 
         delta_keys_query = f"""SELECT delta_keys FROM {ConstantsProvider.get_delta_key_table()} 
                 WHERE "schema" = '{ConstantsProvider.get_staging_DW_name()}' AND "table" = '{ConstantsProvider.get_staging_table(source, table)}'"""
 
-        delta_keys_df = presto_sys.execute(query=delta_keys_query)
+        delta_keys_df = hive_sys.execute(query=delta_keys_query)
         delta_keys = ast.literal_eval(delta_keys_df.to_dict("records")[0]["delta_keys"])
         logger.info(
             f"The latest delta keys of the table {table} with the source {source} are: {delta_keys}"
@@ -141,7 +140,7 @@ def delta_HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
         raise
     finally:
         hr_sys.disconnect()
-        presto_sys.disconnect()
+        hive_sys.disconnect()
 
 
 def delta_HDFS_LandingZone_to_Hive_Staging(
@@ -181,15 +180,15 @@ def delete_detection_HR_HDFS(logger: logging.Logger, table_config: dict, source:
     table = table_config.get("table")
     primary_keys = table_config.get("primary_keys")
 
-    presto_sys = PrestoDataHook()
+    hive_sys = HiveDataHook()
     try:
-        presto_sys.connect()
+        hive_sys.connect()
 
         existed_data_query = f"""SELECT {",".join(primary_keys)} 
             FROM {ConstantsProvider.get_staging_table(source=source, table=table)} 
             WHERE {ConstantsProvider.soft_delete_meta_field()} = 'False'"""
 
-        data_collection = presto_sys.execute(
+        data_collection = hive_sys.execute(
             query=existed_data_query,
             chunksize=ConstantsProvider.Presto_query_chunksize(),
         )
@@ -224,7 +223,7 @@ def delete_detection_HR_HDFS(logger: logging.Logger, table_config: dict, source:
         logger.error(f"An error occurred: {e}")
         raise
     finally:
-        presto_sys.disconnect()
+        hive_sys.disconnect()
 
 
 def delete_detection_HDFS_LandingZone_to_Hive_Staging(
@@ -343,8 +342,8 @@ def update_delta_keys(logger: logging.Logger, table_config: dict, source: str):
     custom_deltakey_load_hql = table_config.get("custom_deltakey_load_hql")
     delta_keys = table_config.get("delta_keys")
 
-    presto_sys = PrestoDataHook()
-    presto_sys.connect()
+    hive_sys = HiveDataHook()
+    hive_sys.connect()
     try:
         if custom_deltakey_load_hql is None:
             logger.info(
@@ -362,7 +361,7 @@ def update_delta_keys(logger: logging.Logger, table_config: dict, source: str):
             f"Getting the latest delta key with the hiveQL: {delta_key_load_hql}"
         )
 
-        delta_keys_df = presto_sys.execute(query=delta_key_load_hql)
+        delta_keys_df = hive_sys.execute(query=delta_key_load_hql)
 
         delta_keys_dict = delta_keys_df.to_dict("records")[-1]
         logger.info(
@@ -383,14 +382,14 @@ def update_delta_keys(logger: logging.Logger, table_config: dict, source: str):
         logger.error(f"An error occurred: {e}")
         raise
     finally:
-        presto_sys.disconnect()
+        hive_sys.disconnect()
 
 
 def check_full_load_yet(logger: logging.Logger, table: str, source: str):
-    presto_sys = PrestoDataHook()
+    hive_sys = HiveDataHook()
 
     try:
-        presto_sys.connect()
+        hive_sys.connect()
 
         check_if_delta_key_exist_query = f"""SELECT * FROM information_schema.tables WHERE table_schema = '{ConstantsProvider.get_staging_DW_name()}' AND table_name = '{ConstantsProvider.get_delta_key_table()}'"""
 
@@ -398,7 +397,7 @@ def check_full_load_yet(logger: logging.Logger, table: str, source: str):
             f"Checking the existence of delta_keys table with: {check_if_delta_key_exist_query}"
         )
 
-        checking_df = presto_sys.execute(query=check_if_delta_key_exist_query)
+        checking_df = hive_sys.execute(query=check_if_delta_key_exist_query)
 
         if checking_df.empty:
             return False
@@ -410,7 +409,7 @@ def check_full_load_yet(logger: logging.Logger, table: str, source: str):
             f"Check for table {table} from the source {source} has full loaded yet with query: {query}"
         )
 
-        data_df = presto_sys.execute(query=query)
+        data_df = hive_sys.execute(query=query)
 
         return data_df.empty is False
 
@@ -418,4 +417,4 @@ def check_full_load_yet(logger: logging.Logger, table: str, source: str):
         logger.error(f"An error occurred: {e}")
         raise
     finally:
-        presto_sys.disconnect()
+        hive_sys.disconnect()

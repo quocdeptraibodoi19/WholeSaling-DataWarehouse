@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: purchasing_ShipMethod
+    tests:
+      - is_not_empty_table
+  - name: purchasing_PurchaseOrderDetail
+    tests:
+      - is_not_empty_table
+  - name: purchasing_Vendor
+    tests:
+      - is_not_empty_table
+  - name: purchasing_PurchaseOrderHeader
+    tests:
+      - is_not_empty_table
+  - name: purchasing_ProductVendor
+    tests:
+      - is_not_empty_table
