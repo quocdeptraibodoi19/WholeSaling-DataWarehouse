@@ -1,0 +1,24 @@
+version: 2
+
+models:
+  - name: hr_JobCandidate
+    tests:
+      - is_not_empty_table
+  - name: hr_EmployeePayHistory
+    tests:
+      - is_not_empty_table
+  - name: hr_EmployeeDepartmentHistory
+    tests:
+      - is_not_empty_table
+  - name: hr_SalesTerritoryHistory
+    tests:
+      - is_not_empty_table
+  - name: hr_Department
+    tests:
+      - is_not_empty_table
+  - name: hr_Shift
+    tests:
+      - is_not_empty_table
+  - name: hr_Employee
+    tests:
+      - is_not_empty_table

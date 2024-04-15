@@ -1,0 +1,42 @@
+version: 2
+
+models:
+  - name: person_BussinessEntity
+    tests:
+      - is_not_empty_table
+  - name: person_BussinessContact
+    tests:
+      - is_not_empty_table
+  - name: person_CountryRegion
+    tests:
+      - is_not_empty_table
+  - name: person_Person
+    tests:
+      - is_not_empty_table
+  - name: person_PersonPhone
+    tests:
+      - is_not_empty_table
+  - name: person_EmailAddress
+    tests:
+      - is_not_empty_table
+  - name: person_StateProvince
+    tests:
+      - is_not_empty_table
+  - name: person_AddressType
+    tests:
+      - is_not_empty_table
+  - name: person_ContactType
+    tests:
+      - is_not_empty_table
+  - name: person_Password
+    tests:
+      - is_not_empty_table
+  - name: person_PhoneNumberType
+    tests:
+      - is_not_empty_table
+  - name: person_Address
+    tests:
+      - is_not_empty_table
+  - name: person_BusinessEntityAddress
+    tests:
+      - is_not_empty_table

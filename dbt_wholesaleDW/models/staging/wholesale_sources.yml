@@ -6,22 +6,59 @@ sources:
    description: Source tables replicated from WholeSaling System.
    tables:
     - name: wholesale_system_countryregion
+      tests:
+        - is_not_empty_table
     - name: wholesale_system_salesorderdetail
+      tests:
+        - is_not_empty_table
     - name: wholesale_system_salesorderheader
+      tests:
+        - is_not_empty_table
     - name: wholesale_system_salestaxrate
+      tests:
+        - is_not_empty_table
     - name: wholesale_system_shipmethod
+      tests:
+        - is_not_empty_table
     - name: wholesale_system_specialoffer
+      tests:
+        - is_not_empty_table
     - name: wholesale_system_specialofferproduct
+      tests:
+        - is_not_empty_table
     - name: wholesale_system_stateprovince
+      tests:
+        - is_not_empty_table
     - name: wholesale_system_store
+      tests:
+        - is_not_empty_table
     - name: wholesale_system_contacttype
+      tests:
+        - is_not_empty_table
     - name: wholesale_system_storecustomer
+      tests:
+        - is_not_empty_table
     - name: wholesale_system_storerepcreditcard
+      tests:
+        - is_not_empty_table
     - name: wholesale_system_currencyrate
+      tests:
+        - is_not_empty_table
     - name: wholesale_system_countryregioncurrency
+      tests:
+        - is_not_empty_table
     - name: wholesale_system_currency
+      tests:
+        - is_not_empty_table
     - name: wholesale_system_salesterritory
+      tests:
+        - is_not_empty_table
     - name: wholesale_system_transactioncreditcard
-    - name: wholesale_system_transactionaddress
+      tests:
+        - is_not_empty_table
     - name: wholesale_system_storecontact
+      tests:
+        - is_not_empty_table
     - name: wholesale_system_storeaddress
+      tests:
+        - is_not_empty_table

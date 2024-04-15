@@ -1,0 +1,72 @@
+version: 2
+
+models:
+  - name: sales_SpecialOffer
+    tests:
+      - is_not_empty_table
+  - name: sales_ShoppingCardItem
+    tests:
+      - is_not_empty_table
+  - name: sales_SalesReason
+    tests:
+      - is_not_empty_table
+  - name: sales_wholesale_SaleOrderHeader
+    tests:
+      - is_not_empty_table
+  - name: sales_SalesPerson
+    tests:
+      - is_not_empty_table
+  - name: sales_SpecialProduct
+    tests:
+      - is_not_empty_table
+  - name: sales_CountryRegionCurrency
+    tests:
+      - is_not_empty_table
+  - name: sales_SalesTaxRate
+    tests:
+      - is_not_empty_table
+  - name: sales_SalesTerritory
+    tests:
+      - is_not_empty_table
+  - name: sales_CreditCard
+    tests:
+      - is_not_empty_table
+  - name: sales_Store
+    tests:
+      - is_not_empty_table
+  - name: sales_user_SaleOderHeader
+    tests:
+      - is_not_empty_table
+  - name: sales_CustomerStoreUser
+    tests:
+      - is_not_empty_table
+  - name: sales_SalesOrderHeader
+    tests:
+      - is_not_empty_table
+  - name: sales_SalesOrderDetail
+    tests:
+      - is_not_empty_table
+  - name: sales_SalesPersonQuotaHistory
+    tests:
+      - is_not_empty_table
+  - name: sales_Currency
+    tests:
+      - is_not_empty_table
+  - name: sales_SalesTerritoryHistory
+    tests:
+      - is_not_empty_table
+  - name: sales_CustomerOnlineUser
+    tests:
+      - is_not_empty_table
+  - name: sales_Customer
+    tests:
+      - is_not_empty_table
+  - name: sales_SalesOrderHeaderSalesReason
+    tests:
+      - is_not_empty_table
+  - name: sales_PersonCreditCard
+    tests:
+      - is_not_empty_table
+  - name: sales_CurrencyRate
+    tests:
+      - is_not_empty_table

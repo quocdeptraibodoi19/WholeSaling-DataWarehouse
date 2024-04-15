@@ -1,0 +1,78 @@
+version: 2
+
+models:
+  - name: production_WorkOrder
+    tests:
+      - is_not_empty_table
+  - name: production_ProductInventory
+    tests:
+      - is_not_empty_table
+  - name: production_ProductModelProductDescriptionCulture
+    tests:
+      - is_not_empty_table
+  - name: production_ProductProductPhoto
+    tests:
+      - is_not_empty_table
+  - name: production_Billofmaterials
+    tests:
+      - is_not_empty_table
+  - name: production_ProductPhoto
+    tests:
+      - is_not_empty_table
+  - name: production_TransactionHistoryArchive
+    tests:
+      - is_not_empty_table
+  - name: production_Culture
+    tests:
+      - is_not_empty_table
+  - name: production_TransactionHistory
+    tests:
+      - is_not_empty_table
+  - name: production_ProductReview
+    tests:
+      - is_not_empty_table
+  - name: production_Document
+    tests:
+      - is_not_empty_table
+  - name: production_WorkOrderRouting
+    tests:
+      - is_not_empty_table
+  - name: production_Product
+    tests:
+      - is_not_empty_table
+  - name: production_ScrapReason
+    tests:
+      - is_not_empty_table
+  - name: production_ProductSubcategory
+    tests:
+      - is_not_empty_table
+  - name: production_ProductCostHistory
+    tests:
+      - is_not_empty_table
+  - name: production_ProductModel
+    tests:
+      - is_not_empty_table
+  - name: production_Illustration
+    tests:
+      - is_not_empty_table
+  - name: production_ProductModelIllustration
+    tests:
+      - is_not_empty_table
+  - name: production_ProductDocument
+    tests:
+      - is_not_empty_table
+  - name: production_ProductDescription
+    tests:
+      - is_not_empty_table
+  - name: production_Location
+    tests:
+      - is_not_empty_table
+  - name: production_UnitMeasure
+    tests:
+      - is_not_empty_table
+  - name: production_ProductCategory
+    tests:
+      - is_not_empty_table
+  - name: production_ProductListPriceHistory
+    tests:
+      - is_not_empty_table
