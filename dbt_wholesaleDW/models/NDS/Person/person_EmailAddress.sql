@@ -1,4 +1,4 @@
-{{ config(materialized='table') }}
+{{ config(materialized='incremental') }}
 
 with online_user_email_adress as (
     select
@@ -44,3 +44,8 @@ select
     row_number() over(order by emailaddress) as emailaddressid,
     s.*
 from email_address s
+{% if is_incremental() %}
+
+    where modifieddate >= ( select max(modifieddate) from {{ this }} )
+
+{% endif %}

@@ -1,4 +1,4 @@
-{{ config(materialized='table') }}
+{{ config(materialized='incremental') }}
 
 with CTE as ( 
     select
@@ -18,8 +18,16 @@ with CTE as (
         is_deleted,
         date_partition
     from {{ ref("sales_CustomerStoreUser") }}
+),
+CTE_1 as (
+    select 
+        row_number() over (order by personid, storeid, accountnumber) as customerid,
+        CTE.*
+    from CTE
 )
-select 
-    row_number() over (order by personid, storeid, accountnumber) as customerid,
-    CTE.*
-from CTE
+select * from CTE_1
+{% if is_incremental() %}
+
+    where modifieddate >= ( select max(modifieddate) from {{ this }} )
+
+{% endif %}

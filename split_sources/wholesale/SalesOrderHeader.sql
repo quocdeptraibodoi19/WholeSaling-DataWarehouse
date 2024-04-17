@@ -13,8 +13,7 @@ CREATE TABLE dbo.SalesOrderHeader (
     SalesOrderNumber NVARCHAR(50),
     PurchaseOrderNumber NVARCHAR(50),
     AccountNumber NVARCHAR(15),
-    PersonID INT,
-    StoreID INT,
+    CustomerID INT,
     SaleEmployeeNationalNumberID NVARCHAR(15),
     TerritoryID INT,
     BillToAddressID INT,
@@ -41,8 +40,7 @@ INSERT INTO
         [SalesOrderNumber],
         [PurchaseOrderNumber],
         [AccountNumber],
-        [PersonID],
-        [StoreID],
+        [CustomerID],
         [SaleEmployeeNationalNumberID],
         [TerritoryID],
         [BillToAddressID],
@@ -73,8 +71,7 @@ SELECT
     S.[SalesOrderNumber],
     S.[PurchaseOrderNumber],
     S.[AccountNumber],
-    CTE.[StoreRepID] as PersonID,
-    CTE.[StoreID] as StoreID,
+    CTE.[CustomerID],
     K.NationalIDNumber as SaleEmployeeNationalNumberID,
     S.[TerritoryID],
     BillToAddressID,
@@ -91,6 +88,23 @@ SELECT
 FROM
     [AdventureWorks2014].[Sales].[SalesOrderHeader] S
     INNER JOIN (
+SELECT
+    ROW_NUMBER() OVER (
+        ORDER BY
+            (
+                SELECT
+                    NULL
+            )
+    ) AS CustomerID,
+    S.CustomerID AS oldCustomerID,
+    CTE2.StackHolderID AS StoreRepID,
+    CTE.[StoreID],
+    [TerritoryID],
+    [AccountNumber],
+    S.[ModifiedDate]
+FROM
+    [AdventureWorks2014].[Sales].[Customer] S
+    INNER JOIN (
         SELECT
             ROW_NUMBER() OVER (
                 ORDER BY
@@ -98,61 +112,44 @@ FROM
                         SELECT
                             NULL
                     )
-            ) AS CustomerID,
-            S.CustomerID AS oldCustomerID,
-            CTE2.StackHolderID AS StoreRepID,
-            CTE.[StoreID],
-            [TerritoryID],
-            [AccountNumber],
+            ) AS StoreID,
+            S.BusinessEntityID,
+            [Name],
+            T.NationalIDNumber AS EmployeeNationalIDNumber,
+            CONVERT(NVARCHAR(MAX), [Demographics]) AS Demographics,
             S.[ModifiedDate]
         FROM
-            [AdventureWorks2014].[Sales].[Customer] S
-            INNER JOIN (
-                SELECT
-                    ROW_NUMBER() OVER (
-                        ORDER BY
-                            (
-                                SELECT
-                                    NULL
-                            )
-                    ) AS StoreID,
-                    S.BusinessEntityID,
-                    [Name],
-                    T.NationalIDNumber AS EmployeeNationalIDNumber,
-                    CONVERT(NVARCHAR(MAX), [Demographics]) AS Demographics,
-                    S.[ModifiedDate]
-                FROM
-                    [AdventureWorks2014].[Sales].[Store] S
-                    INNER JOIN [AdventureWorks2014].[HumanResources].[Employee] T ON S.SalesPersonID = T.BusinessEntityID
-            ) AS CTE ON CTE.BusinessEntityID = S.StoreID
-            LEFT JOIN (
-                SELECT
-                    ROW_NUMBER() OVER (
-                        ORDER BY
-                            (
-                                SELECT
-                                    NULL
-                            )
-                    ) AS StackHolderID,
-                    T.BusinessEntityID,
-                    PersonType,
-                    NameStyle,
-                    Title,
-                    FirstName,
-                    MiddleName,
-                    LastName,
-                    Suffix,
-                    EmailPromotion,
-                    AdditionalContactInfo,
-                    Demographics,
-                    ModifiedDate
-                FROM
-                    [AdventureWorks2014].[Person].[Person] T
-                WHERE
-                    PersonType IN ('VC', 'GC', 'SC')
-            ) AS CTE2 ON S.PersonID = CTE2.BusinessEntityID
+            [AdventureWorks2014].[Sales].[Store] S
+            INNER JOIN [AdventureWorks2014].[HumanResources].[Employee] T ON S.SalesPersonID = T.BusinessEntityID
+    ) AS CTE ON CTE.BusinessEntityID = S.StoreID
+    LEFT JOIN (
+        SELECT
+            ROW_NUMBER() OVER (
+                ORDER BY
+                    (
+                        SELECT
+                            NULL
+                    )
+            ) AS StackHolderID,
+            T.BusinessEntityID,
+            PersonType,
+            NameStyle,
+            Title,
+            FirstName,
+            MiddleName,
+            LastName,
+            Suffix,
+            EmailPromotion,
+            AdditionalContactInfo,
+            Demographics,
+            ModifiedDate
+        FROM
+            [AdventureWorks2014].[Person].[Person] T
         WHERE
-            S.StoreID is Not NULL
+            PersonType IN  ('VC', 'GC', 'SC')
+    ) AS CTE2 ON S.PersonID = CTE2.BusinessEntityID
+WHERE
+    S.StoreID is Not NULL
     ) AS CTE ON S.CustomerID = CTE.oldCustomerID
     INNER JOIN [AdventureWorks2014].[HumanResources].[Employee] K ON K.BusinessEntityID = S.SalesPersonID
 WHERE

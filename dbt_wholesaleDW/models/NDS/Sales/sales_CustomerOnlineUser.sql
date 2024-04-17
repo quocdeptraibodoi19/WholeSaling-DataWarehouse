@@ -5,7 +5,7 @@ with CTE as (
         bussinessentityid,
         external_id
     from {{ ref("person_BussinessEntity") }} 
-    where source = "ecomerce_user"
+    where source = "ecom_user"
 )
 select
     CTE.bussinessentityid as userid,
