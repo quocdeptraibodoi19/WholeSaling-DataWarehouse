@@ -13,8 +13,8 @@ with mapping_countryregion_cte as (
         s.modifieddate,
         s.is_deleted,
         s.date_partition
-    from {{ source("hr_system", "hr_system_salesterritory") }} s
+    from {{ source("ecomerce", "ecomerce_salesterritory") }} s
     inner join {{ ref("countrycode_mapping") }} t
-    on s.countryregioncode = t.HR 
+    on s.countryregioncode = t.Ecommerce 
 )
 select * from mapping_countryregion_cte

@@ -16,28 +16,11 @@ shiptoaddress_cte as (
     inner join {{ ref("person_Address") }} t
     on s.shiptoaddressid = t.old_addressid and t.source = "store"
 ),
-customer_mapping as (
-    select
-        s.customerid,
-        t.old_storerepid,
-        t.old_storeid
-    from {{ ref("sales_Customer") }} s
-    inner join {{ ref("sales_CustomerStoreUser") }} t
-    on s.personid = t.storerepid and s.storeid = t.storeid
-),
-customer_cte as (
-    select
-        s.*,
-        t.customerid as new_customerid
-    from shiptoaddress_cte s
-    inner join customer_mapping t
-    on s.personid = t.old_storerepid and s.storeid = t.old_storeid
-),
 employee_cte as (
     select
         s.*,
         t.bussinessentityid as new_salespersonid
-    from customer_cte s
+    from shiptoaddress_cte s
     inner join {{ ref("hr_Employee") }} t
     on t.nationalidnumber = s.saleemployeenationalnumberid
 ),
@@ -61,7 +44,7 @@ CTE_1 as (
         s.salesordernumber,
         s.purchaseordernumber,
         s.accountnumber,
-        s.new_customerid as customerid,
+        s.customerid,
         s.new_salespersonid as salespersonid,
         s.territoryid,
         s.new_billtoaddressid as billtoaddressid,
