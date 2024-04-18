@@ -114,19 +114,18 @@ class HiveStagingIntestionStrategy(DataIngestionStrategy):
                     table_columns,
                 )
             )
-            hive_ddl = f"""CREATE EXTERNAL TABLE IF NOT EXISTS {hive_table_name} 
-                        ( {", ".join(table_schema)} )
-                        ROW FORMAT DELIMITED
-                        FIELDS TERMINATED BY '|'
-                        STORED AS TEXTFILE
-                        LOCATION '{HDFS_table_location_dir}'
-                        TBLPROPERTIES ("skip.header.line.count"="1")
+
+            schema_str = ', '.join(table_schema)
+
+            hive_ddl = f"""CREATE TABLE {hive_table_name} ({schema_str})
+                        USING CSV
+                        OPTIONS (
+                        path "{HDFS_table_location_dir}",
+                        delimiter "|",
+                        header "true"
+                        )  
                     """
-
-            self.logger.info(
-                f"Creating the external table {hive_table_name} on Hive with the query: {hive_ddl}"
-            )
-
+            
             with self.data_hook.connection.cursor() as cursor:
                 cursor.execute(hive_ddl)
 
