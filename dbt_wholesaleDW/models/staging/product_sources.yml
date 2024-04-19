@@ -2,8 +2,7 @@ version: 2
 
 sources:
  - name: production
-   database: staging
-   schema: staging
+   schema: "{{ env_var('DW_SCHEMA')  + '_staging' }}" 
    tables:
     - name: product_management_platform_billofmaterials
       tests:

@@ -192,7 +192,7 @@ class ConstantsProvider:
 
     @staticmethod
     def get_staging_DW_name():
-        return "staging"
+        return os.getenv("hive_database")
 
     @staticmethod
     def get_delta_key_table():

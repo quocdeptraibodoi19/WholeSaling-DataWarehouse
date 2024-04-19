@@ -35,10 +35,9 @@ clean-targets:         # directories to be removed by `dbt clean`
 models:
   dbt_wholesaleDW:
     # Config indicated by + and applies to all files under models/example/
-    example:
-      +materialized: view
-      +schema: example 
-
     NDS:
       +materialized: view
       +schema: nds
+    
+    DDS:
+      +schema: dds

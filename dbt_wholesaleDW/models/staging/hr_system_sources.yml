@@ -2,8 +2,7 @@ version: 2
 
 sources:
  - name: hr_system
-   database: staging
-   schema: staging
+   schema: "{{ env_var('DW_SCHEMA')  + '_staging' }}" 
    tables:
     - name: hr_system_addresstype
       tests:
