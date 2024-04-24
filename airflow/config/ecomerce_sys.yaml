@@ -74,71 +74,71 @@ delta_load:
    custom_delta_load_sql: ~
    custom_deltakey_load_hql: ~
 
- - table: UserAddress
-   primary_keys:
-    - AddressID
-   delta_keys:
-    - ModifiedDate
-   custom_casts:
-    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~
+#  - table: UserAddress
+#    primary_keys:
+#     - AddressID
+#    delta_keys:
+#     - ModifiedDate
+#    custom_casts:
+#     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+#    custom_full_load_sql: ~
+#    custom_delta_load_sql: ~
+#    custom_deltakey_load_hql: ~
 
- - table: UserCreditCard
-   primary_keys:
-    - UserID
-    - CreditCardID
-   delta_keys:
-    - ModifiedDate
-   custom_casts:
-    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~
+#  - table: UserCreditCard
+#    primary_keys:
+#     - UserID
+#     - CreditCardID
+#    delta_keys:
+#     - ModifiedDate
+#    custom_casts:
+#     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+#    custom_full_load_sql: ~
+#    custom_delta_load_sql: ~
+#    custom_deltakey_load_hql: ~
 
- - table: SalesOrderHeader
-   primary_keys:
-    - SalesOrderID
-   delta_keys:
-    - ModifiedDate
-   custom_casts:
-    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~
+#  - table: SalesOrderHeader
+#    primary_keys:
+#     - SalesOrderID
+#    delta_keys:
+#     - ModifiedDate
+#    custom_casts:
+#     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+#    custom_full_load_sql: ~
+#    custom_delta_load_sql: ~
+#    custom_deltakey_load_hql: ~
 
- - table: SalesOrderHeaderSalesReason
-   primary_keys:
-    - SalesOrderID
-    - SalesReasonID
-   delta_keys:
-    - ModifiedDate
-   custom_casts:
-    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~
+#  - table: SalesOrderHeaderSalesReason
+#    primary_keys:
+#     - SalesOrderID
+#     - SalesReasonID
+#    delta_keys:
+#     - ModifiedDate
+#    custom_casts:
+#     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+#    custom_full_load_sql: ~
+#    custom_delta_load_sql: ~
+#    custom_deltakey_load_hql: ~
 
- - table: SpecialOfferProduct
-   primary_keys:
-    - SpecialOfferID
-    - ProductID
-   delta_keys:
-    - ModifiedDate
-   custom_casts:
-    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~
+#  - table: SpecialOfferProduct
+#    primary_keys:
+#     - SpecialOfferID
+#     - ProductID
+#    delta_keys:
+#     - ModifiedDate
+#    custom_casts:
+#     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+#    custom_full_load_sql: ~
+#    custom_delta_load_sql: ~
+#    custom_deltakey_load_hql: ~
 
- - table: ShoppingCartItem
-   primary_keys:
-    - ShoppingCartItemID
-   delta_keys:
-    - ModifiedDate
-   custom_casts:
-    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~
+#  - table: ShoppingCartItem
+#    primary_keys:
+#     - ShoppingCartItemID
+#    delta_keys:
+#     - ModifiedDate
+#    custom_casts:
+#     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+#    custom_full_load_sql: ~
+#    custom_delta_load_sql: ~
+#    custom_deltakey_load_hql: ~

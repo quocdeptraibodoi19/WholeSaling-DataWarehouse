@@ -42,7 +42,7 @@ def delta_HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
         hive_sys.connect()
 
         delta_keys_query = f"""SELECT delta_keys FROM {ConstantsProvider.get_delta_key_table()} 
-                WHERE "schema" = '{ConstantsProvider.get_staging_DW_name()}' AND "table" = '{ConstantsProvider.get_staging_table(source, table)}'"""
+                WHERE schema = '{ConstantsProvider.get_staging_DW_name()}' AND table = '{ConstantsProvider.get_staging_table(source, table)}'"""
 
         delta_keys_df = hive_sys.execute(query=delta_keys_query)
         delta_keys = ast.literal_eval(delta_keys_df.to_dict("records")[0]["delta_keys"])
@@ -91,8 +91,15 @@ def delta_HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
                 columns_data,
             )
 
-            delta_conditions = map(
-                lambda key: f"([{key}] > " + "'{" + f"{key.lower()}" + "}')", delta_keys
+            delta_conditions = list(
+                map(
+                    lambda key: f"(DATEPART(MILLISECOND, [{key}]) > "
+                    + "(DATEPART(MILLISECOND, CONVERT(DATETIME2, "
+                    + "'{"
+                    + f"{key.lower()}"
+                    + "}', 126))))",
+                    delta_keys,
+                )
             )
 
             delta_load_sql = f"""SELECT {",".join(columns_selects)} FROM [{table}] WHERE {" AND ".join(delta_conditions)}"""
@@ -301,7 +308,7 @@ def reconciling_delta_delete_Hive_Staging(
                     )
                 """
 
-        reconcile_DDL_hql = f"""CREATE VIEW IF NOT EXISTS {ConstantsProvider.get_delta_reconcile_delete_temp_view_table(source, table)} AS 
+        reconcile_DDL_hql = f"""CREATE TABLE IF NOT EXISTS {ConstantsProvider.get_delta_reconcile_delete_temp_view_table(source, table)} AS 
                 SELECT {",".join(map(lambda col: "t4." + "`" + col + "`", table_schema))} FROM 
                 (
                     SELECT *, ROW_NUMBER() OVER (PARTITION BY {",".join(map(lambda key: f"`{key}`", primary_keys))} ORDER BY {",".join(map(lambda key: f"`{key}`", delta_keys))} DESC) rn
@@ -322,7 +329,7 @@ def reconciling_delta_delete_Hive_Staging(
         reconcile_hql = f"""INSERT OVERWRITE TABLE {ConstantsProvider.get_staging_table(source, table)} 
                     SELECT * FROM {ConstantsProvider.get_delta_reconcile_delete_temp_view_table(source, table)}"""
 
-        drop_reconcile_DDL_hql = f"DROP VIEW {ConstantsProvider.get_delta_reconcile_delete_temp_view_table(source, table)}"
+        drop_reconcile_DDL_hql = f"DROP TABLE {ConstantsProvider.get_delta_reconcile_delete_temp_view_table(source, table)}"
 
         with hive_sys.connection.cursor() as cursor:
             cursor.execute(reconcile_DDL_hql)
@@ -391,7 +398,7 @@ def check_full_load_yet(logger: logging.Logger, table: str, source: str):
     try:
         hive_sys.connect()
 
-        check_if_delta_key_exist_query = f"""SELECT * FROM information_schema.tables WHERE table_schema = '{ConstantsProvider.get_staging_DW_name()}' AND table_name = '{ConstantsProvider.get_delta_key_table()}'"""
+        check_if_delta_key_exist_query = f"""SHOW TABLES IN {ConstantsProvider.get_staging_DW_name()} LIKE '{ConstantsProvider.get_delta_key_table()}'"""
 
         logger.info(
             f"Checking the existence of delta_keys table with: {check_if_delta_key_exist_query}"
@@ -403,7 +410,7 @@ def check_full_load_yet(logger: logging.Logger, table: str, source: str):
             return False
 
         query = f"""SELECT delta_keys FROM {ConstantsProvider.get_delta_key_table()} 
-                WHERE "schema" = '{ConstantsProvider.get_staging_DW_name()}' AND "table" = '{ConstantsProvider.get_staging_table(source, table)}'"""
+                WHERE schema = '{ConstantsProvider.get_staging_DW_name()}' AND table = '{ConstantsProvider.get_staging_table(source, table)}'"""
 
         logger.info(
             f"Check for table {table} from the source {source} has full loaded yet with query: {query}"
