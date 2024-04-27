@@ -66,13 +66,8 @@ delta_load:
  - table: User
    primary_keys:
     - UserID
-   delta_keys:
-    - ModifiedDate
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~
 
 #  - table: UserAddress
 #    primary_keys:

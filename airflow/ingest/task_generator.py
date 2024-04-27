@@ -39,6 +39,8 @@ class PythonAirflowOperatorFactory(AirflowOperatorFactory):
             python_callable=python_callable,
             op_kwargs=op_kwargs,
             dag=dag,
+            *args,
+            **kwargs,
         )
 
 
@@ -57,6 +59,8 @@ class PythonBranchAirflowOperatorFactory(AirflowOperatorFactory):
             python_callable=python_callable,
             op_kwargs=op_kwargs,
             dag=dag,
+            *args,
+            **kwargs,
         )
 
 
@@ -65,7 +69,13 @@ class BashAirflowOperatorFactory(AirflowOperatorFactory):
     def create_airflow_operator(
         self, task_id: str, bash_command: str, dag: DAG, *args, **kwargs
     ):
-        return BashOperator(task_id=task_id, bash_command=bash_command, dag=dag)
+        return BashOperator(
+            task_id=task_id,
+            bash_command=bash_command,
+            dag=dag,
+            *args,
+            **kwargs,
+        )
 
 
 class TaskGenerator(ABC):
@@ -229,19 +239,6 @@ class DeltaLoadTaskGenerator(TaskGenerator):
                         },
                         dag=self.dag,
                     ),
-                    self._create_airflow_run_task(
-                        airflow_operator_factory=PythonAirflowOperatorFactory(),
-                        task_id=f"""update_detla_key_table_{self.source}_{table_config.get("table")}_Hive""",
-                        python_callable=self.airflow_task_funcs.get(
-                            "update_delta_keys"
-                        ),
-                        op_kwargs={
-                            "table_config": table_config,
-                            "source": self.source,
-                            "logger": self.logger,
-                        },
-                        dag=self.dag,
-                    ),
                 ],
                 "delta_load": [
                     self._create_airflow_run_task(
@@ -319,6 +316,18 @@ class DeltaLoadTaskGenerator(TaskGenerator):
                     },
                     dag=self.dag,
                 ),
+                "update_LSET_task": self._create_airflow_run_task(
+                    airflow_operator_factory=PythonAirflowOperatorFactory(),
+                    task_id=f"""update_LSET_{self.source}_{table_config.get("table")}_Hive""",
+                    python_callable=self.airflow_task_funcs.get("update_LSET"),
+                    op_kwargs={
+                        "table_config": table_config,
+                        "source": self.source,
+                        "logger": self.logger,
+                    },
+                    dag=self.dag,
+                    trigger_rule="none_failed",
+                ),
             }
             for table_config in tables_configs
         }
@@ -354,8 +363,10 @@ class DeltaLoadTaskGenerator(TaskGenerator):
         self.logger.info("Building the dependency for airflow tasks ... ")
 
         for table in airflow_tasks:
-            airflow_tasks[table]["full_load"][0] >> airflow_tasks[table]["full_load"][1]
-            airflow_tasks[table]["full_load"][1] >> airflow_tasks[table]["full_load"][2]
+            (
+                airflow_tasks[table]["full_load"][0]
+                >> airflow_tasks[table]["full_load"][1]
+            )
             (
                 airflow_tasks[table]["delta_load"][0]
                 >> airflow_tasks[table]["delta_load"][1]
@@ -375,4 +386,8 @@ class DeltaLoadTaskGenerator(TaskGenerator):
             airflow_tasks[table]["branch_detector"] >> [
                 airflow_tasks[table]["full_load"][0],
                 airflow_tasks[table]["delta_load"][0],
+            ]
+            airflow_tasks[table]["update_LSET_task"] << [
+                airflow_tasks[table]["full_load"][1],
+                airflow_tasks[table]["delta_load"][4],
             ]

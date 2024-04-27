@@ -12,7 +12,7 @@ from common.helpers import ConstantsProvider
 
 from ingest.Ecommerce_System.full_load import HR_to_HDFS, HDFS_LandingZone_to_Hive_Staging
 from ingest.Ecommerce_System.delta_load import (
-    update_delta_keys,
+    update_LSET,
     delta_HR_to_HDFS,
     delta_HDFS_LandingZone_to_Hive_Staging,
     delete_detection_HR_HDFS,
@@ -37,7 +37,7 @@ with DAG(
         airflow_task_funcs={
             "HR_to_HDFS": HR_to_HDFS,
             "HDFS_LandingZone_to_Hive_Staging": HDFS_LandingZone_to_Hive_Staging,
-            "update_delta_keys": update_delta_keys,
+            "update_LSET": update_LSET,
             "delta_HR_to_HDFS": delta_HR_to_HDFS,
             "delta_HDFS_LandingZone_to_Hive_Staging": delta_HDFS_LandingZone_to_Hive_Staging,
             "delete_detection_HR_HDFS": delete_detection_HR_HDFS,

@@ -8,6 +8,8 @@ from .helpers import ConstantsProvider
 
 
 import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
 
 from typing import Iterable, List
 from datetime import datetime
@@ -28,7 +30,7 @@ class DataIngestionStrategy:
 class HDFSLandingZoneIngestionStrategy(DataIngestionStrategy):
     def __init__(self) -> None:
         super().__init__()
-        self.data_hook = HDFSDataHook()
+        self.data_hook = HDFSDataHook().get_pyarrow_hdfs_connection
 
     def move_data(
         self,
@@ -37,33 +39,35 @@ class HDFSLandingZoneIngestionStrategy(DataIngestionStrategy):
         data_collection: Iterable[pd.DataFrame],
         ingested_file_name: str,
         HDFS_location_dir: str = None,
+        is_full_load: bool = True,
         *args,
         **kwargs,
     ):
         try:
-            self.data_hook.connect()
             i = 0
             for data in data_collection:
 
                 self.logger.info(f"Moving data: {data}")
+                adf = pa.Table.from_pandas(data)
 
                 base_dir = (
                     HDFS_location_dir
                     if HDFS_location_dir is not None
                     else ConstantsProvider.HDFS_LandingZone_base_dir(
-                        source_system, table_name, datetime.now().strftime("%Y-%m-%d")
+                        source_system, table_name, datetime.now().strftime("%Y-%m-%d"), is_full_load
                     )
                 )
 
                 hdfs_data_path = base_dir + ingested_file_name.format(i)
                 self.logger.info(f"Destination: {hdfs_data_path}")
 
-                with self.data_hook.connection.write(
-                    hdfs_path=hdfs_data_path, overwrite=True
+                with self.data_hook.open(
+                    hdfs_data_path, "wb", overwrite=True
                 ) as writer:
-                    data.to_csv(writer, index=False, sep="|")
+                    pq.write_table(adf, writer)
 
                 i += 1
+
         except Exception as e:
             self.logger.error(f"An error occurred: {e}")
             raise
@@ -83,6 +87,7 @@ class HiveStagingIntestionStrategy(DataIngestionStrategy):
         hive_table_name: str,
         table_columns: List[str] = None,
         HDFS_table_location_dir: str = None,
+        is_full_load: bool = True,
         *args,
         **kwargs,
     ):
@@ -91,7 +96,7 @@ class HiveStagingIntestionStrategy(DataIngestionStrategy):
 
             if HDFS_table_location_dir is None:
                 HDFS_table_location_dir = ConstantsProvider.HDFS_LandingZone_base_dir(
-                    source_system, table_name, datetime.now().strftime("%Y-%m-%d")
+                    source_system, table_name, datetime.now().strftime("%Y-%m-%d"), is_full_load
                 )
 
             drop_ddl = f"""DROP TABLE IF EXISTS {hive_table_name}"""
@@ -145,7 +150,7 @@ class HiveStagingDeltaKeyIngestionStrategy(DataIngestionStrategy):
         self,
         source: str,
         table: str,
-        delta_keys_dict: dict,
+        LSET: str,
         *args,
         **kwargs,
     ):
@@ -156,7 +161,7 @@ class HiveStagingDeltaKeyIngestionStrategy(DataIngestionStrategy):
                 ( 
                     `schema` STRING,
                     `table` STRING,
-                    `delta_keys` STRING,
+                    `LSET` STRING,
                     {ConstantsProvider.ingested_meta_field()} TIMESTAMP
                 )
                 STORED AS ORC
@@ -165,7 +170,7 @@ class HiveStagingDeltaKeyIngestionStrategy(DataIngestionStrategy):
             delta_key_config = {
                 "schema": f"{ConstantsProvider.get_staging_DW_name()}",
                 "table": ConstantsProvider.get_staging_table(source, table),
-                "delta_keys": str(delta_keys_dict),
+                "LSET": LSET,
                 ConstantsProvider.ingested_meta_field(): str(
                     datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 ),

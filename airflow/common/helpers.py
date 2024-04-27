@@ -126,10 +126,10 @@ class ConstantsProvider:
 
     @staticmethod
     def HDFS_LandingZone_base_dir(
-        source_system: str = None, table_name: str = None, date_str: str = None
+        source_system: str = None, table_name: str = None, date_str: str = None, is_full_load=True
     ):
         # This is the path convention for the Hive partitions in HDFS.
-        base_path = "/staging/"
+        base_path = "/staging/" if is_full_load else "/staging/delta_load/"
         if source_system:
             base_path += f"{source_system}/"
 
@@ -160,7 +160,7 @@ class ConstantsProvider:
 
     @staticmethod
     def ingested_meta_field():
-        return "date_partition"
+        return "extract_date"
 
     @staticmethod
     def soft_delete_meta_field():
@@ -196,11 +196,11 @@ class ConstantsProvider:
 
     @staticmethod
     def get_delta_key_table():
-        return "delta_keys"
+        return "extraction_metadata"
 
     @staticmethod
     def get_temp_delta_key_table():
-        return "temp_delta_keys"
+        return "temp_extraction_metadata"
 
     @staticmethod
     def get_staging_table(source: str, table: str):

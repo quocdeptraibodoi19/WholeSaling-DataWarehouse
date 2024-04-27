@@ -14,6 +14,7 @@ from hdfs import InsecureClient
 
 from pyhive import hive
 from pyspark.sql import SparkSession
+import pyarrow as pa
 
 import logging
 
@@ -196,6 +197,13 @@ class HDFSDataHook(SysDataHook):
             user=self.creds.get("user"),
         )
 
+    def get_pyarrow_hdfs_connection(self):
+        return pa.hdfs.connect(
+            host=self.creds.get("host"),
+            port=self.creds.get("port"),
+            user=self.creds.get("user"),
+        )
+
     def disconnect(self, *args, **kwargs):
         """
         hdfs lib automatically handle the process of closing connection since the connection itself is wrapped inside the context manager.
@@ -218,18 +226,20 @@ class HDFSDataHook(SysDataHook):
         file_name: str,
         date_str: str = datetime.now().strftime("%Y-%m-%d"),
         base_dir: str = None,
+        is_full_load: bool = True,
     ):
         if base_dir is None:
             base_dir = ConstantsProvider.HDFS_LandingZone_base_dir(
-                source_name, table_name, date_str
+                source_name, table_name, date_str, is_full_load
             )
         with self.connection.read(
             base_dir + file_name.format(0),
             encoding="utf-8",
         ) as file:
-            df = pd.read_csv(file, nrows=1, sep="|")
+            df = pd.read_csv(file, nrows=0, sep="|")
 
         return list(df.columns)
+
 
 class HiveDataHook(SysDataHook):
     def connect(self, database: str = None, *args, **kwargs):
