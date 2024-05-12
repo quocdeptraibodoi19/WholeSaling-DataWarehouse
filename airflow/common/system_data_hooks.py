@@ -14,7 +14,10 @@ from hdfs import InsecureClient
 
 from pyhive import hive
 from pyspark.sql import SparkSession
+
 import pyarrow as pa
+import pyarrow.parquet as pq
+from pyarrow import fs
 
 import logging
 
@@ -189,6 +192,12 @@ class EcommerceSystemDataHook(SysDataHook):
 
 
 class HDFSDataHook(SysDataHook):
+    def __init__(self):
+        super().__init__()
+        self.creds = ConstantsProvider.Hadoop_creds()
+        self.hdfs_creds = ConstantsProvider.HDFS_creds()
+        self._pyarrow_hdfs_conn = None
+
     def connect(self, *args, **kwargs):
         self.logger.info("Connecting to HDFS Landing Zone...")
         self.creds = ConstantsProvider.Hadoop_creds()
@@ -196,14 +205,7 @@ class HDFSDataHook(SysDataHook):
             f'http://{self.creds.get("host")}:{self.creds.get("port")}',
             user=self.creds.get("user"),
         )
-
-    def get_pyarrow_hdfs_connection(self):
-        return pa.hdfs.connect(
-            host=self.creds.get("host"),
-            port=self.creds.get("port"),
-            user=self.creds.get("user"),
-        )
-
+        
     def disconnect(self, *args, **kwargs):
         """
         hdfs lib automatically handle the process of closing connection since the connection itself is wrapped inside the context manager.
@@ -218,12 +220,14 @@ class HDFSDataHook(SysDataHook):
         """
         if command == "data_schema":
             return self._get_data_schema
+        if command == "create_parquet_file":
+            return self._create_parquet_file
 
     def _get_data_schema(
         self,
-        table_name: str,
-        source_name: str,
-        file_name: str,
+        table_name: str = None,
+        source_name: str = None,
+        file_name: str = None,
         date_str: str = datetime.now().strftime("%Y-%m-%d"),
         base_dir: str = None,
         is_full_load: bool = True,
@@ -232,14 +236,26 @@ class HDFSDataHook(SysDataHook):
             base_dir = ConstantsProvider.HDFS_LandingZone_base_dir(
                 source_name, table_name, date_str, is_full_load
             )
-        with self.connection.read(
-            base_dir + file_name.format(0),
-            encoding="utf-8",
-        ) as file:
-            df = pd.read_csv(file, nrows=0, sep="|")
+        hdfs = fs.HadoopFileSystem(
+            host=self.hdfs_creds.get("host"),
+            port=int(self.hdfs_creds.get("port")),
+            user=self.hdfs_creds.get("user"),
+        )
+        schema = pq.read_schema(base_dir + file_name.format(0), filesystem=hdfs)
+        return [col.name for col in schema]
 
-        return list(df.columns)
-
+    def _create_parquet_file(
+        self,
+        pyarrow_df,
+        hdfs_data_path,
+    ):
+        hdfs_conn = pa.hdfs.connect(
+            host=self.hdfs_creds.get("host"),
+            port=int(self.hdfs_creds.get("port")),
+            user=self.hdfs_creds.get("user"),
+        )
+        with hdfs_conn.open(hdfs_data_path, "wb") as writer:
+            pq.write_table(pyarrow_df, writer)
 
 class HiveDataHook(SysDataHook):
     def connect(self, database: str = None, *args, **kwargs):
@@ -305,3 +321,13 @@ class SparkSQLDataHook(SysDataHook):
     ):
         self.logger.info(f"Getting data from query: {query}")
         return self.connection.sql(query)
+    
+def get_system_datahook(source: str):
+    if ConstantsProvider.get_HR_source() == source:
+        return HRSystemDataHook()
+    elif ConstantsProvider.get_Ecomerce_source() == source:
+        return EcommerceSystemDataHook()
+    elif ConstantsProvider.get_WholeSaling_source() == source:
+        return WholeSaleSystemDataHook()
+    elif ConstantsProvider.get_Product_source() == source:
+        return ProductSystemDataHook()

@@ -2,64 +2,64 @@
 full_load:
   - table: SalesReason
     custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: StateProvince
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: CountryRegion
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: SalesTaxRate
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: ShipMethod
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: SpecialOffer
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: User
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: UserAddress
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: UserCreditCard
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: SalesOrderHeader
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: SalesOrderHeaderSalesReason
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: SpecialOfferProduct
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: ShoppingCartItem
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: Currency
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: UserEmailAddress
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: CurrencyRate
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: SalesOrderDetail
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: SalesTerritory
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: UserPassword
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: UserPhoneContact
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+      ModifiedDate: CONVERT(DATETIME2, ModifiedDate, 121)
+  # - table: StateProvince
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: CountryRegion
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: SalesTaxRate
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: ShipMethod
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: SpecialOffer
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: User
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: UserAddress
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: UserCreditCard
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: SalesOrderHeader
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: SalesOrderHeaderSalesReason
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: SpecialOfferProduct
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: ShoppingCartItem
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: Currency
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: UserEmailAddress
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: CurrencyRate
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: SalesOrderDetail
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: SalesTerritory
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: UserPassword
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: UserPhoneContact
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
 
 delta_load:
 

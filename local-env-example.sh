@@ -1,4 +1,6 @@
 export AIRFLOW_HOME=$(pwd)/airflow
+export AIRFLOW__CORE__LOAD_EXAMPLES=False
+export AIRFLOW__WEBSERVER__WEB_SERVER_PORT=8084
 
 export ENV=local
 

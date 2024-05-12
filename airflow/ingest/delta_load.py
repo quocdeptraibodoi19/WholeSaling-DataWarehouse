@@ -15,7 +15,7 @@ from common.ingestion_strategies import (
     HiveStagingIntestionStrategy,
 )
 from common.system_data_hooks import (
-    EcommerceSystemDataHook,
+    get_system_datahook,
     HDFSDataHook,
     HiveDataHook,
 )
@@ -27,26 +27,24 @@ from datetime import datetime
 from itertools import chain
 
 
-def delta_HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
+def delta_source_to_HDFS(
+    logger: logging.Logger, table_config: dict, source: str
+):
     table = table_config.get("table")
 
-    ecom_sys = EcommerceSystemDataHook()
+    source_sys = get_system_datahook(source=source)
     hive_sys = HiveDataHook()
     try:
-        ecom_sys.connect()
+        source_sys.connect()
         hive_sys.connect()
 
         LSET_query = f"""SELECT LSET FROM {ConstantsProvider.get_delta_key_table()} 
-                WHERE schema = '{ConstantsProvider.get_staging_DW_name()}' AND table = '{ConstantsProvider.get_staging_table(source, table)}'"""
+                WHERE source = '{source.lower()}' AND table = '{table.lower()}' AND is_log = '0'"""
 
         LSET_df = hive_sys.execute(query=LSET_query)
         LSET = str(LSET_df.to_dict("records")[0]["LSET"])
         logger.info(
             f"The latest LSET of the table {table} with the source {source} are: {LSET}"
-        )
-
-        logger.info(
-            f"Custom load SQL is not specified ... Gonna construct the load SQL for table {table} from source {source}"
         )
 
         metadata_query = f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table}'"
@@ -60,7 +58,7 @@ def delta_HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
                     lambda data_col: list(map(lambda data: data[0], data_col)),
                     map(
                         lambda data: data.itertuples(index=False, name=None),
-                        ecom_sys.execute(
+                        source_sys.execute(
                             query=metadata_query,
                             chunksize=ConstantsProvider.HR_query_chunksize(),
                         ),
@@ -85,13 +83,13 @@ def delta_HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
             columns_data,
         )
 
-        delta_load_sql = f"""SELECT {",".join(columns_selects)} FROM [{table}] WHERE (DATEPART(MILLISECOND, [ModifiedDate])) > (DATEPART(MILLISECOND, CONVERT(DATETIME2, '{LSET}', 126)))"""
+        delta_load_sql = f"""SELECT {",".join(columns_selects)} FROM [{table}] WHERE CONVERT(DATETIME2, {custom_casts['ModifiedDate']}) > CONVERT(DATETIME2, '{LSET}', 126)"""
 
         logger.info(
             f"The query to retrieve the latest incremental data from table {table} and source {source} is: {delta_load_sql}"
         )
 
-        data_collection = ecom_sys.execute(
+        data_collection = source_sys.execute(
             query=delta_load_sql, chunksize=ConstantsProvider.HR_query_chunksize()
         )
 
@@ -101,6 +99,12 @@ def delta_HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
 
         data_collection = (
             data_manipulator.transform(
+                DataManipulatingManager.standardlize_date_format(
+                    column=ConstantsProvider.get_update_key(),
+                    datetime_format="%Y-%m-%d %H:%M:%S"
+                )
+            )
+            .transform(
                 DataManipulatingManager.add_new_column_data_collection(
                     column=ConstantsProvider.soft_delete_meta_field(), val=False
                 )
@@ -127,7 +131,7 @@ def delta_HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
         logger.error(f"An error occurred: {e}")
         raise
     finally:
-        ecom_sys.disconnect()
+        source_sys.disconnect()
         hive_sys.disconnect()
 
 
@@ -157,7 +161,8 @@ def delta_HDFS_LandingZone_to_Hive_Staging(
             source_system=source,
             table_columns=table_schema,
             hive_table_name=ConstantsProvider.get_delta_table(source, table),
-            is_full_load=False
+            is_full_load=False,
+            is_log=True,
         )
     except Exception as e:
         logger.error(f"An error occurred: {e}")
@@ -166,31 +171,107 @@ def delta_HDFS_LandingZone_to_Hive_Staging(
         hdfs_sys.disconnect()
 
 
-def delete_detection_HR_HDFS(logger: logging.Logger, table_config: dict, source: str):
+def delete_source_to_HDFS(
+        logger: logging.Logger, table_config: dict, source: str
+):
     table = table_config.get("table")
-    primary_keys = table_config.get("primary_keys")
+    delete_log_table = ConstantsProvider.delete_log_table_name(table)
 
-    ecom_sys = EcommerceSystemDataHook()
+    source_sys = get_system_datahook(source=source)
+    hive_sys = HiveDataHook()
     try:
-        ecom_sys.connect()
+        source_sys.connect()
+        hive_sys.connect()
 
-        existed_data_query = f"""SELECT {",".join(primary_keys)} FROM [{table}]"""
+        LSET_query = f"""SELECT LSET FROM {ConstantsProvider.get_delta_key_table()} 
+                WHERE source = '{source.lower()}' AND table = '{table.lower()}' AND is_log = '1'"""
+        LSET_df = hive_sys.execute(query=LSET_query)
 
-        data_collection = ecom_sys.execute(
-            query=existed_data_query,
-            chunksize=ConstantsProvider.HR_query_chunksize(),
+        metadata_query = f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{delete_log_table}'"
+
+        logger.info(
+            f"Getting columns of the table {delete_log_table} with query: {metadata_query}"
+        )
+        columns_data = list(
+            chain.from_iterable(
+                map(
+                    lambda data_col: list(map(lambda data: data[0], data_col)),
+                    map(
+                        lambda data: data.itertuples(index=False, name=None),
+                        source_sys.execute(
+                            query=metadata_query,
+                            chunksize=ConstantsProvider.HR_query_chunksize()
+                        ),
+                    ),
+                )
+            )
+        )
+
+        logger.info(f"The columns of {delete_log_table} are: {columns_data}")
+
+        custom_casts = table_config.get("custom_casts")
+        custom_casts[ConstantsProvider.delete_date_custom_cast_delete_log()[0]] = ConstantsProvider.delete_date_custom_cast_delete_log()[1]
+
+        custom_casts_fields = (
+            list(custom_casts.keys()) if custom_casts is not None else []
+        )
+
+        columns_selects = map(
+            lambda col: (
+                custom_casts[col] + " AS " + "[" + col + "]"
+                if col in custom_casts_fields
+                else f"CONVERT(NVARCHAR(MAX), [{col}]) AS [{col}]"
+            ),
+            columns_data,
+        )
+
+        if LSET_df.empty:
+            delete_load_sql = f"""SELECT {",".join(columns_selects)} FROM [{delete_log_table}]"""
+        else:
+            LSET = str(LSET_df.to_dict("records")[0]["LSET"])
+            if LSET == 'None':
+                delete_load_sql = f"""SELECT {",".join(columns_selects)} FROM [{delete_log_table}]"""
+            else:
+                delete_load_sql = f"""SELECT {",".join(columns_selects)} FROM [{delete_log_table}] WHERE CONVERT(DATETIME2, {ConstantsProvider.delete_date_custom_cast_delete_log()[1]}) > CONVERT(DATETIME2, '{LSET}', 126)"""
+
+        logger.info(
+            f"The query to retrieve the latest incremental data from table {delete_log_table} and source {source} is: {delete_load_sql}"
+        )
+        
+        data_collection = source_sys.execute(
+            query=delete_load_sql, chunksize=ConstantsProvider.HR_query_chunksize()
         )
 
         data_manipulator = DataManipulator(
             data_collection=data_collection, logger=logger
         )
 
-        data_collection = data_manipulator.transform(
-            DataManipulatingManager.add_new_column_data_collection(
-                column=ConstantsProvider.ingested_meta_field(),
-                val=pd.to_datetime(datetime.now().strftime("%Y-%m-%d")),
+        data_collection = (
+            data_manipulator.transform(
+                DataManipulatingManager.standardlize_date_format(
+                    column=ConstantsProvider.get_update_key(),
+                    datetime_format="%Y-%m-%d %H:%M:%S.%f"
+                )
             )
-        ).execute()
+            .transform(
+                DataManipulatingManager.standardlize_date_format(
+                    column=ConstantsProvider.delete_date_custom_cast_delete_log()[0],
+                    datetime_format="%Y-%m-%d %H:%M:%S.%f"
+                )
+            )
+            .transform(
+                DataManipulatingManager.add_new_column_data_collection(
+                    column=ConstantsProvider.soft_delete_meta_field(), val=True
+                )
+            )
+            .transform(
+                DataManipulatingManager.add_new_column_data_collection(
+                    column=ConstantsProvider.ingested_meta_field(),
+                    val=pd.to_datetime(datetime.now().strftime("%Y-%m-%d")),
+                )
+            )
+            .execute()
+        )
 
         logger.info(f"Moving data into HDFS...")
         hdfs_ingester = DataIngester(HDFSLandingZoneIngestionStrategy())
@@ -207,35 +288,54 @@ def delete_detection_HR_HDFS(logger: logging.Logger, table_config: dict, source:
         logger.error(f"An error occurred: {e}")
         raise
     finally:
-        ecom_sys.disconnect()
+        source_sys.disconnect()
 
 
-def delete_detection_HDFS_LandingZone_to_Hive_Staging(
+def delete_HDFS_LandingZone_to_Hive_Staging(
     logger: logging.Logger, table_config: dict, source: str
 ):
     table = table_config.get("table")
-    primary_keys = table_config.get("primary_keys")
 
     hdfs_sys = HDFSDataHook()
+    hive_sys = HiveDataHook()
     try:
         hdfs_sys.connect()
+        hive_sys.connect()
+
+        table_schema = hdfs_sys.execute(command="data_schema")(
+            base_dir=ConstantsProvider.HDFS_LandingZone_delete_reconcile_base_dir(
+                source, table, datetime.now().strftime("%Y-%m-%d")
+            ),
+            file_name=ConstantsProvider.get_data_key_ingest_file(),
+        )
 
         logger.info(
-            f"Creating the external table for data key from table {table} and source {source} with the columns {primary_keys}"
+            f"Creating the external table for delete load ingested data from table {table} and source {source} with the columns {table_schema}"
         )
 
         hive_ingester = DataIngester(HiveStagingIntestionStrategy())
         hive_ingester.ingest(
             table_name=table,
             source_system=source,
-            table_columns=primary_keys,
+            table_columns=table_schema,
             hive_table_name=ConstantsProvider.get_reconcile_delete_table(source, table),
             HDFS_table_location_dir=(
                 ConstantsProvider.HDFS_LandingZone_delete_reconcile_base_dir(
                     source, table, datetime.now().strftime("%Y-%m-%d")
                 )
             ),
+            is_log=True,
         )
+        
+        delete_date_field = ConstantsProvider.delete_date_custom_cast_delete_log()[0]
+        LSET_load_hql = f"""SELECT MAX({delete_date_field}) AS {delete_date_field} FROM {ConstantsProvider.get_reconcile_delete_table(source, table)}"""
+        logger.info(f"Getting the latest delete key with the hiveQL: {LSET_load_hql}")
+        LSET_df = hive_sys.execute(query=LSET_load_hql)
+        if not LSET_df.empty:
+            LSET = str(LSET_df.to_dict("records")[-1][delete_date_field])
+            delta_hive_ingester = DataIngester(HiveStagingDeltaKeyIngestionStrategy())
+            delta_hive_ingester.ingest(source=source, table=table, LSET=LSET, is_log="1")
+
     except Exception as e:
         logger.error(f"An error occurred: {e}")
         raise
@@ -247,8 +347,6 @@ def reconciling_delta_delete_Hive_Staging(
     logger: logging.Logger, table_config: dict, source: str
 ):
     table = table_config.get("table")
-    delta_keys = table_config.get("delta_keys")
-    primary_keys = table_config.get("primary_keys")
 
     hive_sys = HiveDataHook()
     hdfs_sys = HDFSDataHook()
@@ -256,68 +354,23 @@ def reconciling_delta_delete_Hive_Staging(
         hive_sys.connect()
         hdfs_sys.connect()
 
-        # TODO: Instead of gettint data schema from HDFS like this, getting from Hive DW because staging is insecure.
-        table_schema = hdfs_sys.execute(command="data_schema")(
-            table_name=table,
-            source_name=source,
-            file_name=ConstantsProvider.get_deltaload_ingest_file(),
-            is_full_load=False
-        )
-
-        selected_cols = map(
-            lambda col: (
-                f"t1.`{col}`"
-                if col != ConstantsProvider.soft_delete_meta_field()
-                else (
-                    "'TRUE' AS " + ConstantsProvider.soft_delete_meta_field()
-                    if col != ConstantsProvider.ingested_meta_field()
-                    else datetime.now().strftime("%Y-%m-%d")
-                    + " AS "
-                    + ConstantsProvider.ingested_meta_field()
-                )
+        delete_table_schema = hdfs_sys.execute(command="data_schema")(
+            base_dir=ConstantsProvider.HDFS_LandingZone_delete_reconcile_base_dir(
+                source, table, datetime.now().strftime("%Y-%m-%d")
             ),
-            table_schema,
+            file_name=ConstantsProvider.get_data_key_ingest_file(),
         )
+        filter_delete_table_schema = list(filter(lambda col: col != ConstantsProvider.delete_date_custom_cast_delete_log()[0], delete_table_schema))
 
-        delete_detection_hql = f"""SELECT {",".join(selected_cols)} 
-                    FROM {ConstantsProvider.get_staging_table(source, table)} t1
-                    WHERE NOT EXISTS (
-                        SELECT * FROM {ConstantsProvider.get_reconcile_delete_table(source, table)} t2
-                        WHERE {" AND ".join(map(lambda key: f"t1.`{key}` = t2.`{key}`", primary_keys))}
-                    )
-                """
+        delta_upsert_hql = f"""INSERT INTO {ConstantsProvider.get_staging_table(source, table)}
+                        SELECT * FROM {ConstantsProvider.get_delta_table(source, table)}""" 
 
-        reconcile_DDL_hql = f"""CREATE TABLE IF NOT EXISTS {ConstantsProvider.get_delta_reconcile_delete_temp_view_table(source, table)} AS 
-                SELECT {",".join(map(lambda col: "t4." + "`" + col + "`", table_schema))} FROM 
-                (
-                    SELECT *, ROW_NUMBER() OVER (PARTITION BY {",".join(map(lambda key: f"`{key}`", primary_keys))} ORDER BY ModifiedDate DESC) rn
-                    FROM (
-                        SELECT * FROM {ConstantsProvider.get_staging_table(source, table)}
-                        UNION ALL
-                        SELECT * FROM {ConstantsProvider.get_delta_table(source, table)}
-                        UNION ALL
-                        SELECT * FROM ( {delete_detection_hql} ) subquery
-                    ) t3
-                ) t4 WHERE t4.rn = 1
-            """
-        logger.info(
-            f"reconcile_DDL_hql : {reconcile_DDL_hql}"
-        )
-        logger.info(
-            f"Creating the view to reconcile the data with query: {reconcile_DDL_hql}"
-        )
-
-        reconcile_hql = f"""INSERT OVERWRITE TABLE {ConstantsProvider.get_staging_table(source, table)} 
-                    SELECT * FROM {ConstantsProvider.get_delta_reconcile_delete_temp_view_table(source, table)}"""
-
-        drop_reconcile_DDL_hql = f"DROP TABLE {ConstantsProvider.get_delta_reconcile_delete_temp_view_table(source, table)}"
-        drop_delta_table_DDL_hql = f"DROP TABLE {ConstantsProvider.get_delta_table(source, table)}"
+        delete_upsert_hql = f"""INSERT INTO {ConstantsProvider.get_staging_table(source, table)}
+                        SELECT {", ".join(filter_delete_table_schema)} FROM {ConstantsProvider.get_reconcile_delete_table(source, table)}""" 
 
         with hive_sys.connection.cursor() as cursor:
-            cursor.execute(reconcile_DDL_hql)
-            cursor.execute(reconcile_hql)
-            cursor.execute(drop_reconcile_DDL_hql)
-            cursor.execute(drop_delta_table_DDL_hql)
+            cursor.execute(delete_upsert_hql)
+            cursor.execute(delta_upsert_hql)
 
     except Exception as e:
         logger.error(f"An error occurred: {e}")
@@ -334,10 +387,6 @@ def update_LSET(logger: logging.Logger, table_config: dict, source: str):
     hive_sys.connect()
     try:
 
-        logger.info(
-            f"Custom delta key load HQL is not specified ... Gonna construct the delta key load HQL for table {table} from source {source}"
-        )
-
         LSET_load_hql = f"""SELECT MAX(ModifiedDate) AS modifieddate FROM {ConstantsProvider.get_staging_table(source, table)}"""
 
         logger.info(f"Getting the latest delta key with the hiveQL: {LSET_load_hql}")
@@ -345,9 +394,20 @@ def update_LSET(logger: logging.Logger, table_config: dict, source: str):
         LSET_df = hive_sys.execute(query=LSET_load_hql)
 
         LSET = str(LSET_df.to_dict("records")[-1]['modifieddate'])
-        logger.info(
-            f"""The latest LSET from table '{ConstantsProvider.get_staging_table(source, table)}' and schema '{ConstantsProvider.get_staging_DW_name()}': {LSET}"""
-        )
+        
+        LSET_meta_table_ddl = f"""CREATE TABLE IF NOT EXISTS `{ConstantsProvider.get_delta_key_table()}` 
+                                    ( 
+                                        `source` STRING,
+                                        `table` STRING,
+                                        `is_log` STRING,
+                                        `LSET` STRING,
+                                        {ConstantsProvider.ingested_meta_field()} STRING
+                                    )
+                                    STORED AS PARQUET
+                                """
+        with hive_sys.connection.cursor() as cursor:
+            logger.info(f"Creating Meta LSET table with ddl: {LSET_meta_table_ddl}")
+            cursor.execute(LSET_meta_table_ddl)
 
         delta_hive_ingester = DataIngester(HiveStagingDeltaKeyIngestionStrategy())
         delta_hive_ingester.ingest(source=source, table=table, LSET=LSET)
@@ -377,7 +437,7 @@ def check_full_load_yet(logger: logging.Logger, table: str, source: str):
             return False
 
         query = f"""SELECT LSET FROM {ConstantsProvider.get_delta_key_table()} 
-                WHERE schema = '{ConstantsProvider.get_staging_DW_name()}' AND table = '{ConstantsProvider.get_staging_table(source, table)}'"""
+                WHERE source = '{source.lower()}' AND table = '{table.lower()}' AND is_log = '0'"""
 
         logger.info(
             f"Check for table {table} from the source {source} has full loaded yet with query: {query}"
