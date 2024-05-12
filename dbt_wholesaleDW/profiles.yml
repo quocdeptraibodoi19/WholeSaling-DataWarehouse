@@ -6,6 +6,6 @@ AdventureWork:
     host: node01
     port: 10000
     user: hive
-    schema: "{{ 'dw_' + env_var('USER') if env_var('ENV') == 'local' else 'dw' }}"
+    schema: "{{ env_var('DW_SCHEMA') }}" 
     threads: 4
   target: dev

@@ -1,11 +1,14 @@
 export AIRFLOW_HOME=$(pwd)/airflow
+export AIRFLOW__CORE__LOAD_EXAMPLES=False
+export AIRFLOW__WEBSERVER__WEB_SERVER_PORT=8084
 
 export ENV=local
 
 export DBT_PROJECT_DIR=$(pwd)/dbt_wholesaleDW
 export DBT_PROFILES_DIR=$(pwd)/dbt_wholesaleDW
 
-export USER=quok
+export USER=
+export DW_SCHEMA=dw_$USER
 
 export hr_server=sql1
 export hr_database=HumanResourceSystem
@@ -37,4 +40,4 @@ export hdfs_port=9001
 export hive_host=$hadoop_host
 export hive_port=10000
 export hive_user=hive
-export hive_database=staging
+export hive_database=${DW_SCHEMA}_staging

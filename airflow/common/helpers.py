@@ -1,6 +1,5 @@
 import os
 from datetime import timedelta
-from datetime import datetime
 
 from typing import Iterator, Callable
 
@@ -8,6 +7,7 @@ import pandas as pd
 
 import logging
 
+import yaml
 
 class ConstantsProvider:
     @staticmethod
@@ -79,9 +79,9 @@ class ConstantsProvider:
             }
 
     @staticmethod
-    def hdfs_config():
+    def HDFS_creds():
         if ConstantsProvider.get_environment() == "local":
-            return {"host": os.getenv("hdfs_host"), "port": os.getenv("hdfs_port")}
+            return {"host": os.getenv("hdfs_host"), "port": os.getenv("hdfs_port"), "user": os.getenv("hadoop_user")}
 
     @staticmethod
     def Presto_Staging_Hive_creds():
@@ -125,11 +125,23 @@ class ConstantsProvider:
         return 10**6
 
     @staticmethod
+    def delete_trigger_name(table):
+        return f"trg_{table}_delete"
+    
+    @staticmethod
+    def delete_log_table_name(table):
+        return f"delete_{table}_log"
+
+    @staticmethod
+    def delete_date_custom_cast_delete_log():
+        return "deleted_time", 'CONVERT(NVARCHAR(MAX), deleted_time, 121)'
+    
+    @staticmethod
     def HDFS_LandingZone_base_dir(
-        source_system: str = None, table_name: str = None, date_str: str = None
+        source_system: str = None, table_name: str = None, date_str: str = None, is_full_load=True
     ):
         # This is the path convention for the Hive partitions in HDFS.
-        base_path = "/staging/"
+        base_path = "/staging/" if is_full_load else "/staging/delta_load/"
         if source_system:
             base_path += f"{source_system}/"
 
@@ -160,7 +172,7 @@ class ConstantsProvider:
 
     @staticmethod
     def ingested_meta_field():
-        return "date_partition"
+        return "extract_date"
 
     @staticmethod
     def soft_delete_meta_field():
@@ -183,8 +195,8 @@ class ConstantsProvider:
         return "Ecomerce"
 
     @staticmethod
-    def get_HR_date_fields_for_standardization():
-        return ["ModifiedDate"]
+    def get_update_key():
+        return 'ModifiedDate'
 
     @staticmethod
     def get_sources_datetime_format_standardization():
@@ -192,15 +204,15 @@ class ConstantsProvider:
 
     @staticmethod
     def get_staging_DW_name():
-        return "staging"
+        return os.getenv("hive_database")
 
     @staticmethod
     def get_delta_key_table():
-        return "delta_keys"
+        return "extraction_metadata"
 
     @staticmethod
     def get_temp_delta_key_table():
-        return "temp_delta_keys"
+        return "temp_extraction_metadata"
 
     @staticmethod
     def get_staging_table(source: str, table: str):
@@ -228,11 +240,11 @@ class ConstantsProvider:
 
     @staticmethod
     def get_fullload_ingest_file():
-        return "ingested_data_{}.csv"
+        return "ingested_data_{}.parquet"
 
     @staticmethod
     def get_deltaload_ingest_file():
-        return "delta_ingested_data_{}.csv"
+        return "delta_ingested_data_{}.parquet"
 
     @staticmethod
     def get_data_key_ingest_file():
@@ -306,9 +318,32 @@ class DataManipulatingManager:
     @staticmethod
     def add_new_column_data_collection(column: str, val):
         def transform(data: pd.DataFrame, logger: logging.Logger):
-            data[column] = val
+            data[column] = str(val)
             logger.info(f"Adding new column {column} with value {val} ...")
             logger.info(f"Tunning the dataframe: {data[column]}")
             return data
 
         return transform
+
+class SourceConfigHandler():
+    def __init__(self, source: str, is_fullload: bool) -> None:
+        self.full_load = is_fullload
+        self.source = source
+        with open(
+                ConstantsProvider.config_file_path(source=self.source),
+                "r",
+            ) as file:
+            self.tables_configs = yaml.load(file, yaml.Loader).get("full_load" if self.full_load else "delta_load")
+
+    def get_source(self):
+        return self.source
+    
+    def get_tables_configs(self):
+        return self.tables_configs
+    
+    def is_full_load(self):
+        return self.full_load
+    
+    def get_list_tables(self):
+        return [table_config.get("table") for table_config in self.tables_configs]
+           

@@ -9,7 +9,7 @@ import logging
 from datetime import datetime
 
 from common.system_data_hooks import (
-    WholeSaleSystemDataHook,
+    get_system_datahook,
     HDFSDataHook,
 )
 from common.ingestion_strategies import (
@@ -24,14 +24,13 @@ import pandas as pd
 from itertools import chain
 
 
-def HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
+def full_source_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
     table = table_config.get("table")
     custom_full_load_sql = table_config.get("custom_full_load_sql")
 
-    wholesale_sys = WholeSaleSystemDataHook()
-
+    source_sys = get_system_datahook(source=source)
     try:
-        wholesale_sys.connect()
+        source_sys.connect()
 
         if custom_full_load_sql is None:
             logger.info(
@@ -49,7 +48,7 @@ def HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
                         lambda data_col: list(map(lambda data: data[0], data_col)),
                         map(
                             lambda data: data.itertuples(index=False, name=None),
-                            wholesale_sys.execute(
+                            source_sys.execute(
                                 query=metadata_query,
                                 chunksize=ConstantsProvider.HR_query_chunksize(),
                             ),
@@ -80,7 +79,7 @@ def HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
 
         logger.info(f"Getting data from {table} in {source} with query: {query}")
 
-        data_collection = wholesale_sys.execute(
+        data_collection = source_sys.execute(
             query=query, chunksize=ConstantsProvider.HR_query_chunksize()
         )
 
@@ -90,6 +89,12 @@ def HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
 
         data_collection = (
             data_manipulator.transform(
+                DataManipulatingManager.standardlize_date_format(
+                    column=ConstantsProvider.get_update_key(),
+                    datetime_format="%Y-%m-%d %H:%M:%S.%f"
+                )
+            )
+            .transform(
                 DataManipulatingManager.add_new_column_data_collection(
                     column=ConstantsProvider.soft_delete_meta_field(), val=False
                 )
@@ -115,14 +120,12 @@ def HR_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
         logger.error(f"An error occurred: {e}")
         raise
     finally:
-        wholesale_sys.disconnect()
+        source_sys.disconnect()
 
 
 def HDFS_LandingZone_to_Hive_Staging(logger: logging.Logger, table: str, source: str):
     hdfs_sys = HDFSDataHook()
     try:
-        hdfs_sys.connect()
-
         table_schema = hdfs_sys.execute(command="data_schema")(
             table_name=table,
             source_name=source,
@@ -143,5 +146,3 @@ def HDFS_LandingZone_to_Hive_Staging(logger: logging.Logger, table: str, source:
     except Exception as e:
         logger.error(f"An error occurred: {e}")
         raise
-    finally:
-        hdfs_sys.disconnect()
