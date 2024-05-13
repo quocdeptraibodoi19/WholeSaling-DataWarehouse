@@ -2,25 +2,25 @@
 full_load:
   - table: SalesReason
     custom_casts:
-      ModifiedDate: CONVERT(DATETIME2, ModifiedDate, 121)
-  # - table: StateProvince
-  #   custom_casts:
-  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  # - table: CountryRegion
-  #   custom_casts:
-  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  # - table: SalesTaxRate
-  #   custom_casts:
-  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  # - table: ShipMethod
-  #   custom_casts:
-  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  # - table: SpecialOffer
-  #   custom_casts:
-  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  # - table: User
-  #   custom_casts:
-  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: StateProvince
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: CountryRegion
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: SalesTaxRate
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: ShipMethod
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: SpecialOffer
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  - table: User
+    custom_casts:
+      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
   # - table: UserAddress
   #   custom_casts:
   #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
@@ -69,71 +69,53 @@ delta_load:
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
 
-#  - table: UserAddress
-#    primary_keys:
-#     - AddressID
-#    delta_keys:
-#     - ModifiedDate
-#    custom_casts:
-#     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-#    custom_full_load_sql: ~
-#    custom_delta_load_sql: ~
-#    custom_deltakey_load_hql: ~
+ - table: UserAddress
+   primary_keys:
+    - AddressID
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
 
-#  - table: UserCreditCard
-#    primary_keys:
-#     - UserID
-#     - CreditCardID
-#    delta_keys:
-#     - ModifiedDate
-#    custom_casts:
-#     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-#    custom_full_load_sql: ~
-#    custom_delta_load_sql: ~
-#    custom_deltakey_load_hql: ~
+ - table: UserCreditCard
+   primary_keys:
+    - UserID
+    - CreditCardID
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
 
-#  - table: SalesOrderHeader
-#    primary_keys:
-#     - SalesOrderID
-#    delta_keys:
-#     - ModifiedDate
-#    custom_casts:
-#     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-#    custom_full_load_sql: ~
-#    custom_delta_load_sql: ~
-#    custom_deltakey_load_hql: ~
+ - table: SalesOrderHeader
+   primary_keys:
+    - SalesOrderID
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
 
-#  - table: SalesOrderHeaderSalesReason
-#    primary_keys:
-#     - SalesOrderID
-#     - SalesReasonID
-#    delta_keys:
-#     - ModifiedDate
-#    custom_casts:
-#     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-#    custom_full_load_sql: ~
-#    custom_delta_load_sql: ~
-#    custom_deltakey_load_hql: ~
+ - table: SalesOrderHeaderSalesReason
+   primary_keys:
+    - SalesOrderID
+    - SalesReasonID
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
 
-#  - table: SpecialOfferProduct
-#    primary_keys:
-#     - SpecialOfferID
-#     - ProductID
-#    delta_keys:
-#     - ModifiedDate
-#    custom_casts:
-#     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-#    custom_full_load_sql: ~
-#    custom_delta_load_sql: ~
-#    custom_deltakey_load_hql: ~
+ - table: SpecialOfferProduct
+   primary_keys:
+    - SpecialOfferID
+    - ProductID
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
 
-#  - table: ShoppingCartItem
-#    primary_keys:
-#     - ShoppingCartItemID
-#    delta_keys:
-#     - ModifiedDate
-#    custom_casts:
-#     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-#    custom_full_load_sql: ~
-#    custom_delta_load_sql: ~
-#    custom_deltakey_load_hql: ~
+ - table: ShoppingCartItem
+   primary_keys:
+    - ShoppingCartItemID
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)

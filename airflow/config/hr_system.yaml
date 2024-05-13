@@ -19,47 +19,46 @@ full_load:
     custom_casts:
       ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
   - table: CountryRegion
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+    custom_casts: ~
   - table: StateProvince
     custom_casts:
       ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: Stakeholder
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: Employee
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: EmployeeDepartmentHistory
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: EmployeePayHistory
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: EmployeePhoneContact
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: JobCandidate
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: EmployeeAddress
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: Email
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: StackholderPassword
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: StackholderPhoneContact
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: SalePersons
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: SalesPersonQuotaHistory
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: Stakeholder
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: Employee
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: EmployeeDepartmentHistory
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: EmployeePayHistory
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: EmployeePhoneContact
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: JobCandidate
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: EmployeeAddress
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: Email
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: StackholderPassword
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: StackholderPhoneContact
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: SalePersons
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: SalesPersonQuotaHistory
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
 
 delta_load:
 
@@ -70,9 +69,6 @@ delta_load:
     - ModifiedDate
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~
 
  - table: Employee
    primary_keys:
@@ -81,9 +77,6 @@ delta_load:
     - ModifiedDate
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~
 
  - table: EmployeeDepartmentHistory
    primary_keys:
@@ -95,9 +88,6 @@ delta_load:
     - ModifiedDate
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~
 
  - table: EmployeePayHistory
    primary_keys:
@@ -107,9 +97,6 @@ delta_load:
     - ModifiedDate
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~
 
  - table: EmployeePhoneContact
    primary_keys:
@@ -118,9 +105,6 @@ delta_load:
     - ModifiedDate
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~
         
  - table: JobCandidate
    primary_keys:
@@ -129,9 +113,6 @@ delta_load:
     - ModifiedDate
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~
 
  - table: EmployeeAddress
    primary_keys:
@@ -141,9 +122,6 @@ delta_load:
     - ModifiedDate
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~
 
  - table: StackHolderEmail
    primary_keys:
@@ -152,9 +130,6 @@ delta_load:
     - ModifiedDate
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~
 
  - table: EmployeeEmail
    primary_keys:
@@ -163,9 +138,6 @@ delta_load:
     - ModifiedDate
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~
 
  - table: SalePersons
    primary_keys:
@@ -174,9 +146,6 @@ delta_load:
     - ModifiedDate
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~
 
  - table: SalesPersonQuotaHistory
    primary_keys:
@@ -185,6 +154,3 @@ delta_load:
     - ModifiedDate
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~

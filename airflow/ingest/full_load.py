@@ -87,26 +87,33 @@ def full_source_to_HDFS(logger: logging.Logger, table_config: dict, source: str)
             data_collection=data_collection, logger=logger
         )
 
-        data_collection = (
-            data_manipulator.transform(
-                DataManipulatingManager.standardlize_date_format(
-                    column=ConstantsProvider.get_update_key(),
-                    datetime_format="%Y-%m-%d %H:%M:%S.%f"
+        if custom_casts is not None and custom_casts.get('ModifiedDate') is not None:
+            print(f"CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCc {custom_casts.get('ModifiedDate')}")
+            data_collection = (
+                data_manipulator.transform(
+                    DataManipulatingManager.standardlize_date_format(
+                        column=ConstantsProvider.get_update_key(),
+                        datetime_format="%Y-%m-%d %H:%M:%S.%f"
+                    )
                 )
-            )
-            .transform(
-                DataManipulatingManager.add_new_column_data_collection(
-                    column=ConstantsProvider.soft_delete_meta_field(), val=False
+                .transform(
+                    DataManipulatingManager.add_new_column_data_collection(
+                        column=ConstantsProvider.ingested_meta_field(),
+                        val=pd.to_datetime(datetime.now().strftime("%Y-%m-%d")),
+                    )
                 )
+                .execute()
             )
-            .transform(
-                DataManipulatingManager.add_new_column_data_collection(
-                    column=ConstantsProvider.ingested_meta_field(),
-                    val=pd.to_datetime(datetime.now().strftime("%Y-%m-%d")),
+        else:
+            data_collection = (
+                data_manipulator.transform(
+                    DataManipulatingManager.add_new_column_data_collection(
+                        column=ConstantsProvider.ingested_meta_field(),
+                        val=pd.to_datetime(datetime.now().strftime("%Y-%m-%d")),
+                    )
                 )
+                .execute()
             )
-            .execute()
-        )
 
         logger.info(f"Moving data into HDFS...")
         hdfs_ingester = DataIngester(HDFSLandingZoneIngestionStrategy())
