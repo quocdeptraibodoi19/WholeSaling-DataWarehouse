@@ -88,7 +88,6 @@ def full_source_to_HDFS(logger: logging.Logger, table_config: dict, source: str)
         )
 
         if custom_casts is not None and custom_casts.get('ModifiedDate') is not None:
-            print(f"CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCc {custom_casts.get('ModifiedDate')}")
             data_collection = (
                 data_manipulator.transform(
                     DataManipulatingManager.standardlize_date_format(
