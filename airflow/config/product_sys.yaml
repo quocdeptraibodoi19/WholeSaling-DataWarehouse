@@ -37,74 +37,74 @@ full_load:
   - table: Location
     custom_casts:
       ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: Product
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: ProductCostHistory
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: ProductDescription
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: ProductInventory
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: ProductListPriceHistory
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: ProductModelProductDescriptionCulture
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: ProductPhoto
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-      ThumbNailPhoto: CONVERT(NVARCHAR(MAX), [ThumbNailPhoto], 1)
-      LargePhoto: CONVERT(NVARCHAR(MAX), [LargePhoto], 1)
-  - table: ProductProductPhoto
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: ProductVendor
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: ProductReview
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: Vendor
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: VendorAddress
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: WorkOrder
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: WorkOrderRouting
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: BillOfMaterials
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: PurchaseOrderHeader
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: PurchaseOrderDetail
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: ContactType
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: VendorContact
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: ScrapReason
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: TransactionHistory
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: TransactionHistoryArchive
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: Product
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: ProductCostHistory
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: ProductDescription
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: ProductInventory
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: ProductListPriceHistory
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: ProductModelProductDescriptionCulture
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: ProductPhoto
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  #     ThumbNailPhoto: CONVERT(NVARCHAR(MAX), [ThumbNailPhoto], 1)
+  #     LargePhoto: CONVERT(NVARCHAR(MAX), [LargePhoto], 1)
+  # - table: ProductProductPhoto
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: ProductVendor
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: ProductReview
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: Vendor
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: VendorAddress
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: WorkOrder
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: WorkOrderRouting
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: BillOfMaterials
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: PurchaseOrderHeader
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: PurchaseOrderDetail
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: ContactType
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: VendorContact
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: ScrapReason
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: TransactionHistory
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  # - table: TransactionHistoryArchive
+  #   custom_casts:
+  #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
 
 delta_load:
 
@@ -115,9 +115,6 @@ delta_load:
     - ModifiedDate
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~
 
  - table: ProductCostHistory
    primary_keys:
@@ -127,9 +124,6 @@ delta_load:
     - ModifiedDate
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~
 
  - table: ProductDescription
    primary_keys:
@@ -138,9 +132,6 @@ delta_load:
     - ModifiedDate
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~
 
  - table: ProductInventory
    primary_keys:
@@ -150,9 +141,6 @@ delta_load:
     - ModifiedDate
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~
 
  - table: ProductListPriceHistory
    primary_keys:
@@ -162,9 +150,6 @@ delta_load:
     - ModifiedDate
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~
 
  - table: ProductModelProductDescriptionCulture
    primary_keys:
@@ -175,9 +160,6 @@ delta_load:
     - ModifiedDate
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~
 
  - table: ProductPhoto
    primary_keys:
@@ -188,9 +170,6 @@ delta_load:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
     ThumbNailPhoto: CONVERT(NVARCHAR(MAX), [ThumbNailPhoto], 1)
     LargePhoto: CONVERT(NVARCHAR(MAX), [LargePhoto], 1)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~
 
  - table: ProductProductPhoto
    primary_keys:
@@ -200,9 +179,6 @@ delta_load:
     - ModifiedDate
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~
 
  - table: ProductVendor
    primary_keys:
@@ -212,9 +188,6 @@ delta_load:
     - ModifiedDate
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~
 
  - table: ProductReview
    primary_keys:
@@ -223,9 +196,6 @@ delta_load:
     - ModifiedDate
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~
 
  - table: Vendor
    primary_keys:
@@ -234,9 +204,6 @@ delta_load:
     - ModifiedDate
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~
 
  - table: VendorAddress
    primary_keys:
@@ -247,9 +214,6 @@ delta_load:
     - ModifiedDate
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~
 
  - table: WorkOrder
    primary_keys:
@@ -258,9 +222,6 @@ delta_load:
     - ModifiedDate
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~
 
  - table: WorkOrderRouting
    primary_keys:
@@ -271,9 +232,6 @@ delta_load:
     - ModifiedDate
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~
 
  - table: BillOfMaterials
    primary_keys:
@@ -282,9 +240,6 @@ delta_load:
     - ModifiedDate
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~
 
  - table: PurchaseOrderHeader
    primary_keys:
@@ -293,9 +248,6 @@ delta_load:
     - ModifiedDate
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~
 
  - table: PurchaseOrderDetail
    primary_keys:
@@ -305,6 +257,3 @@ delta_load:
     - ModifiedDate
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-   custom_full_load_sql: ~
-   custom_delta_load_sql: ~
-   custom_deltakey_load_hql: ~

@@ -34,10 +34,10 @@ class HDFSLandingZoneIngestionStrategy(DataIngestionStrategy):
 
     def move_data(
         self,
-        source_system: str,
-        table_name: str,
         data_collection: Iterable[pd.DataFrame],
         ingested_file_name: str,
+        source_system: str = None,
+        table_name: str = None,
         HDFS_location_dir: str = None,
         is_full_load: bool = True,
         *args,
@@ -82,9 +82,9 @@ class HiveStagingIntestionStrategy(DataIngestionStrategy):
 
     def move_data(
         self,
-        table_name: str,
-        source_system: str,
         hive_table_name: str,
+        table_name: str = None,
+        source_system: str = None,
         table_columns: List[str] = None,
         HDFS_table_location_dir: str = None,
         is_full_load: bool = True,

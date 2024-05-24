@@ -41,3 +41,11 @@ models:
     
     DDS:
       +schema: dds
+
+snapshots:
+  dbt_wholesaleDW:
+    +target_schema: "{{ env_var('DW_SCHEMA')  + '_staging' }}"
+    +file_format: delta
+    +strategy: timestamp
+    +updated_at: ModifiedDate
+    +invalidate_hard_deletes: true
