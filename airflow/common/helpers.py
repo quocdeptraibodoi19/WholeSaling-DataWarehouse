@@ -169,7 +169,11 @@ class ConstantsProvider:
             base_path += f"{ConstantsProvider.ingested_meta_field()}={date_str}/"
 
         return base_path
-
+    
+    @staticmethod
+    def HDFS_LandingZone_data_firewall_base_dir(date_str: str):
+        return f"/data_firewall/{ConstantsProvider.ingested_meta_field()}={date_str}/"
+    
     @staticmethod
     def ingested_meta_field():
         return "extract_date"
@@ -237,7 +241,15 @@ class ConstantsProvider:
     @staticmethod
     def get_delta_reconcile_delete_temp_view_table(source: str, table: str):
         return f"temp_delta_reconcile_delete_{ConstantsProvider.get_staging_table(source, table)}"
+    
+    @staticmethod
+    def get_DQ_table():
+        return "data_quality"
 
+    @staticmethod
+    def get_DQ_table_schema():
+        return ["id", "source", "mapping_id", "mapping_source"]
+    
     @staticmethod
     def get_fullload_ingest_file():
         return "ingested_data_{}.parquet"
@@ -249,6 +261,10 @@ class ConstantsProvider:
     @staticmethod
     def get_data_key_ingest_file():
         return "data_keys_{}.csv"
+
+    @staticmethod
+    def get_data_firewall_file():
+        return "data_firewall_{}.csv"
 
     @staticmethod
     def config_file_path(source: str):
