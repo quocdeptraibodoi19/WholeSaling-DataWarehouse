@@ -123,7 +123,16 @@ delta_load:
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
 
- - table: StackHolderEmail
+ - table: Email
+   primary_keys:
+    - ID
+    - Source
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+
+ - table: StackholderPassword
    primary_keys:
     - StackHolderID
    delta_keys:
@@ -131,9 +140,9 @@ delta_load:
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
 
- - table: EmployeeEmail
+ - table: StackholderPhoneContact
    primary_keys:
-    - EmployeeID
+    - StackHolderID
    delta_keys:
     - ModifiedDate
    custom_casts:

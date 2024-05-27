@@ -79,6 +79,7 @@ with DAG(
                 "table_config": table_config,
                 "source": source,
                 "logger": logger,
+                "is_delta_used": True,
             },
             dag=dag,
         )

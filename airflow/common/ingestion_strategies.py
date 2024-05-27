@@ -88,7 +88,6 @@ class HiveStagingIntestionStrategy(DataIngestionStrategy):
         table_columns: List[str] = None,
         HDFS_table_location_dir: str = None,
         is_full_load: bool = True,
-        is_log: bool = False,
         *args,
         **kwargs,
     ):
@@ -125,13 +124,8 @@ class HiveStagingIntestionStrategy(DataIngestionStrategy):
                         LOCATION '{HDFS_table_location_dir}'
                     """
             
-            if is_log:
-                delta_table_ddl = f"CONVERT TO DELTA {hive_table_name} NO STATISTICS"
-
             with self.data_hook.connection.cursor() as cursor:
                 cursor.execute(hive_ddl)
-                if is_log:
-                    cursor.execute(delta_table_ddl)
 
         except Exception as e:
             self.logger.error(f"An error occurred: {e}")

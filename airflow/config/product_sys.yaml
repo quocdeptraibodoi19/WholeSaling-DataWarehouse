@@ -257,3 +257,44 @@ delta_load:
     - ModifiedDate
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+
+ - table: ContactType
+   primary_keys:
+    - ContactTypeID
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+
+ - table: VendorContact
+   primary_keys:
+    - VendorID
+    - StackHolderID
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+
+ - table: ScrapReason
+   primary_keys:
+    - ScrapReasonID
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+
+ - table: TransactionHistory
+   primary_keys:
+    - TransactionID
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+  
+ - table: TransactionHistoryArchive
+   primary_keys:
+    - TransactionID
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
