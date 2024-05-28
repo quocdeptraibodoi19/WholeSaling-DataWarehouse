@@ -1,4 +1,4 @@
-{% snapshot history_salesreason %}
+{% snapshot ecomerce_salesreason_snapshot %}
 {{    
   config( unique_key='SalesReasonID' )  
 }}  
