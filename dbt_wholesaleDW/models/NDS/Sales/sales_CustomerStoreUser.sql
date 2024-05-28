@@ -23,7 +23,7 @@ select
     s.accountnumber,
     s.modifieddate,
     s.is_deleted,
-    s.date_partition
+    s.extract_date
 from {{ source("wholesale", "wholesale_system_storecustomer") }} s
 inner join CTE
 on CTE.external_id = s.storeid

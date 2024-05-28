@@ -26,7 +26,7 @@ select
     s.creditcardid,
     s.modifieddate,
     s.is_deleted,
-    s.date_partition
+    s.extract_date
 from CTE inner join {{ ref("sales_CreditCard") }} s
 on 
     cte.cardnumber = s.cardnumber 

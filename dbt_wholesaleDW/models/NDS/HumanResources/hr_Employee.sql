@@ -26,7 +26,7 @@ select
     currentflag,
     modifieddate,
     is_deleted,
-    date_partition
+    extract_date
 from {{ source("hr_system", "hr_system_employee") }}
 inner join CTE
 on CTE.external_id = employeeid

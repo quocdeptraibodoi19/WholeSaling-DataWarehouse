@@ -10,5 +10,5 @@ select
     comments,
     modifieddate,
     is_deleted,
-    date_partition
+    extract_date
 from {{ source("production", "product_management_platform_productreview") }}

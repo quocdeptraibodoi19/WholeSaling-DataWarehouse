@@ -8,5 +8,5 @@ select
     datecreated,
     modifieddate,
     is_deleted,
-    date_partition
+    extract_date
 from {{ source('ecomerce', 'ecomerce_shoppingcartitem') }}

@@ -12,8 +12,8 @@ with cte as (
     from {{ ref("sales_wholesale_SaleOrderHeader") }}
 ),
 CTE_1 as (
-    select 
-        row_number() over (order by salesorderid, source) as salesorderid,
+    select
+        {{ dbt_utils.generate_surrogate_key(['salesorderid', 'source']) }} as salesorderid,
         s.salesorderid as old_salesorderid,
         s.source,
         s.revisionnumber,
@@ -41,7 +41,7 @@ CTE_1 as (
         s.comment,
         s.modifieddate,
         s.is_deleted,
-        s.date_partition
+        s.extract_date
     from cte s
 )
 select * from CTE_1

@@ -13,7 +13,7 @@ select
     s.accountnumber,
     s.modifieddate,
     s.is_deleted,
-    s.date_partition
+    s.extract_date
 from {{ source("ecomerce", "ecomerce_user") }} s
 inner join CTE
 on CTE.external_id = s.userid

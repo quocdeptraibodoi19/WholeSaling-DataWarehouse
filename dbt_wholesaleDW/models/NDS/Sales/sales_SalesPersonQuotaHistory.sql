@@ -6,7 +6,7 @@ select
     s.salesquota,
     s.modifieddate,
     s.is_deleted,
-    s.date_partition
+    s.extract_date
 from {{ source("hr_system", "hr_system_salespersonquotahistory") }} s
 inner join {{ ref("hr_Employee") }} t
 on s.employeeid = t.old_employeeid

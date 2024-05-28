@@ -13,7 +13,7 @@ mapping_saleorderreasons_cte as (
         s.salesreasonid,
         s.modifieddate,
         s.is_deleted,
-        s.date_partition
+        s.extract_date
     from {{ source("ecomerce", "ecomerce_salesorderheadersalesreason") }} s
     inner join id_saleorderheader_cte t
     on s.salesorderid = t.old_salesorderid

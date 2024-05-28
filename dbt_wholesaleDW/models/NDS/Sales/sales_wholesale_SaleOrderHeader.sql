@@ -60,7 +60,7 @@ CTE_1 as (
         CAST(NULL AS STRING) AS comment,
         s.modifieddate,
         s.is_deleted,
-        s.date_partition
+        s.extract_date
     from creditcard_cte s
 )
 select * from CTE_1
