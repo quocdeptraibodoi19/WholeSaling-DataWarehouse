@@ -1,4 +1,4 @@
-{% snapshot historecomerce_useremailaddress_snapshoty_salesreason %}
+{% snapshot ecomerce_useremailaddress_snapshot %}
 {{    
   config( unique_key='UserID' )  
 }}  

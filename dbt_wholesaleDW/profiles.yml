@@ -7,5 +7,5 @@ AdventureWork:
     port: 10000
     user: hive
     schema: "{{ env_var('DW_SCHEMA') }}" 
-    threads: 4
+    threads: 1 # Execute sequentially once per time due to the limitation on resource
   target: dev

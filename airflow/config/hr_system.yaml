@@ -159,6 +159,7 @@ delta_load:
  - table: SalesPersonQuotaHistory
    primary_keys:
     - EmployeeID
+    - QuotaDate
    delta_keys:
     - ModifiedDate
    custom_casts:

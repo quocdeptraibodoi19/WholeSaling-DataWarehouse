@@ -18,9 +18,7 @@ full_load:
   - table: SpecialOffer
     custom_casts:
       ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: User
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+
   # - table: UserAddress
   #   custom_casts:
   #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
