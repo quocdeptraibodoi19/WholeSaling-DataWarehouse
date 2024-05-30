@@ -13,9 +13,20 @@ with online_user as (
         s.emailpromotion,
         s.additionalcontactinfo,
         s.demographics,
+        s.birthdate,
+        s.maritalstatus,
+        s.gender,
+        s.totalchildren,
+        s.numberchildrenathome,
+        s.houseownerflag,
+        s.numbercarsowned,
+        s.datefirstpurchase,
+        s.commutedistance,
+        s.education,
+        s.occupation,
         s.modifieddate,
         s.is_deleted,
-        s.date_partition
+        s.extract_date
     from {{ source("ecomerce", "ecomerce_user") }} s
     inner join {{ ref("person_BussinessEntity") }} t
     on s.userid = t.external_id and t.source = "ecom_user"
@@ -33,9 +44,20 @@ employee as (
         s.emailpromotion,
         s.additionalcontactinfo,
         s.demographics,
+        s.birthdate,
+        s.maritalstatus,
+        s.gender,
+        s.totalchildren,
+        s.numberchildrenathome,
+        s.houseownerflag,
+        s.numbercarsowned,
+        s.datefirstpurchase,
+        s.commutedistance,
+        s.education,
+        s.occupation,
         s.modifieddate,
         s.is_deleted,
-        s.date_partition
+        s.extract_date
     from {{ source("hr_system", "hr_system_employee") }} s
     inner join {{ ref("person_BussinessEntity") }} t
     on s.employeeid = t.external_id and t.source = "employee"
@@ -53,9 +75,20 @@ stackeholder as (
         s.emailpromotion,
         s.additionalcontactinfo,
         s.demographics,
+        s.birthdate,
+        s.maritalstatus,
+        s.gender,
+        s.totalchildren,
+        s.numberchildrenathome,
+        s.houseownerflag,
+        s.numbercarsowned,
+        s.datefirstpurchase,
+        s.commutedistance,
+        s.education,
+        s.occupation,
         s.modifieddate,
         s.is_deleted,
-        s.date_partition
+        s.extract_date
     from {{ source("hr_system", "hr_system_stakeholder") }} s
     inner join {{ ref("person_BussinessEntity") }} t
     on s.stackholderid = t.external_id and t.source = "stakeholder"

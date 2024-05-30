@@ -162,7 +162,6 @@ def delta_HDFS_LandingZone_to_Hive_Staging(
             table_columns=table_schema,
             hive_table_name=ConstantsProvider.get_delta_table(source, table),
             is_full_load=False,
-            is_log=True,
         )
     except Exception as e:
         logger.error(f"An error occurred: {e}")
@@ -324,7 +323,6 @@ def delete_HDFS_LandingZone_to_Hive_Staging(
                     source, table, datetime.now().strftime("%Y-%m-%d")
                 )
             ),
-            is_log=True,
         )
         
         delete_date_field = ConstantsProvider.delete_date_custom_cast_delete_log()[0]

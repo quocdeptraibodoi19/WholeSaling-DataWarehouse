@@ -54,7 +54,7 @@ with CTE as (
     from {{ source("wholesale", "wholesale_system_storeaddress") }}
 )
 select
-    row_number() over(order by old_addressid, source) as addressid,
+    {{ dbt_utils.generate_surrogate_key(['old_addressid', 'source']) }} as addressid,
     old_addressid,
     addresstypeid,
     addressline1,

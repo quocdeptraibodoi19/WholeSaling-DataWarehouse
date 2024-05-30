@@ -12,7 +12,7 @@ with mapping_countryregion_cte as (
         s.costytd,
         s.modifieddate,
         s.is_deleted,
-        s.date_partition
+        s.extract_date
     from {{ source("ecomerce", "ecomerce_salesterritory") }} s
     inner join {{ ref("countrycode_mapping") }} t
     on s.countryregioncode = t.Ecommerce 

@@ -8,7 +8,7 @@ with employee_mapping_cte as (
         s.enddate,
         s.modifieddate,
         s.is_deleted,
-        s.date_partition
+        s.extract_date
     from {{ source("hr_system", "hr_system_saleterritoryrephistory") }} s
     inner join {{ ref("person_BussinessEntity") }} t
     on s.employeeid = t.external_id and t.source = "employee"

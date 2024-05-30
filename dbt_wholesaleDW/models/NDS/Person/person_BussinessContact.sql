@@ -7,7 +7,7 @@ with vendor_contact as (
         s.contacttypeid,
         s.modifieddate,
         s.is_deleted,
-        s.date_partition
+        s.extract_date
     from {{ source("production", "product_management_platform_vendorcontact") }} s
     inner join {{ ref("person_BussinessEntity") }} t
     on s.vendorid = t.external_id and t.source = "vendor"
@@ -21,7 +21,7 @@ store_contact as (
         s.contacttypeid,
         s.modifieddate,
         s.is_deleted,
-        s.date_partition
+        s.extract_date
     from {{ source("wholesale", "wholesale_system_storecontact") }} s
     inner join {{ ref("person_BussinessEntity") }} t
     on s.storeid = t.external_id and t.source = "store"

@@ -24,7 +24,7 @@ import pandas as pd
 from itertools import chain
 
 
-def full_source_to_HDFS(logger: logging.Logger, table_config: dict, source: str):
+def full_source_to_HDFS(logger: logging.Logger, table_config: dict, source: str, is_delta_used: bool = False):
     table = table_config.get("table")
     custom_full_load_sql = table_config.get("custom_full_load_sql")
 
@@ -88,21 +88,43 @@ def full_source_to_HDFS(logger: logging.Logger, table_config: dict, source: str)
         )
 
         if custom_casts is not None and custom_casts.get('ModifiedDate') is not None:
-            data_collection = (
-                data_manipulator.transform(
-                    DataManipulatingManager.standardlize_date_format(
-                        column=ConstantsProvider.get_update_key(),
-                        datetime_format="%Y-%m-%d %H:%M:%S.%f"
+            if not is_delta_used:
+                data_collection = (
+                    data_manipulator.transform(
+                        DataManipulatingManager.standardlize_date_format(
+                            column=ConstantsProvider.get_update_key(),
+                            datetime_format="%Y-%m-%d %H:%M:%S.%f"
+                        )
                     )
-                )
-                .transform(
-                    DataManipulatingManager.add_new_column_data_collection(
-                        column=ConstantsProvider.ingested_meta_field(),
-                        val=pd.to_datetime(datetime.now().strftime("%Y-%m-%d")),
+                    .transform(
+                        DataManipulatingManager.add_new_column_data_collection(
+                            column=ConstantsProvider.ingested_meta_field(),
+                            val=pd.to_datetime(datetime.now().strftime("%Y-%m-%d")),
+                        )
                     )
+                    .execute()
                 )
-                .execute()
-            )
+            else:
+                data_collection = (
+                    data_manipulator.transform(
+                        DataManipulatingManager.standardlize_date_format(
+                            column=ConstantsProvider.get_update_key(),
+                            datetime_format="%Y-%m-%d %H:%M:%S.%f"
+                        )
+                    )
+                    .transform(
+                        DataManipulatingManager.add_new_column_data_collection(
+                            column=ConstantsProvider.soft_delete_meta_field(), val=False
+                        )
+                    )
+                    .transform(
+                        DataManipulatingManager.add_new_column_data_collection(
+                            column=ConstantsProvider.ingested_meta_field(),
+                            val=pd.to_datetime(datetime.now().strftime("%Y-%m-%d")),
+                        )
+                    )
+                    .execute()
+                )
         else:
             data_collection = (
                 data_manipulator.transform(

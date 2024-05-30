@@ -28,7 +28,7 @@ ecomerce_salesorderdetail as (
         s.linetotal,
         s.modifieddate,
         s.is_deleted,
-        s.date_partition
+        s.extract_date
     from {{ source("ecomerce", "ecomerce_salesorderdetail") }} s
     inner join ecom_saleorderheader_cte t
     on s.salesorderid = t.old_salesorderid
@@ -47,7 +47,7 @@ wholesale_salesorderdetail as (
         s.linetotal,
         s.modifieddate,
         s.is_deleted,
-        s.date_partition
+        s.extract_date
     from {{ source("wholesale", "wholesale_system_salesorderdetail") }} s
     inner join wholesale_saleorderheader_cte t
     on s.salesorderid = t.old_salesorderid
@@ -59,7 +59,7 @@ salesorderdetail as (
 ),
 CTE_1 as (
     select *,
-        row_number() over (order by salesorderid, old_salesorderdetailid, source) as salesorderdetailid
+        {{ dbt_utils.generate_surrogate_key(['salesorderid', 'old_salesorderdetailid', 'source']) }} as salesorderdetailid,
     from salesorderdetail
 )
 select * from CTE_1

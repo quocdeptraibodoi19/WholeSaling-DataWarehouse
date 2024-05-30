@@ -72,7 +72,7 @@ CTE_1 as (
         s.comment,
         s.modifieddate,
         s.is_deleted,
-        s.date_partition
+        s.extract_date
     from creditcard_cte s
 )
 select * from CTE_1

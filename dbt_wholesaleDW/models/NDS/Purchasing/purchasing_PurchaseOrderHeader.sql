@@ -16,7 +16,7 @@ with purchase_order_header as (
         s.totaldue,
         s.modifieddate,
         s.is_deleted,
-        s.date_partition
+        s.extract_date
     from {{ source("production", "product_management_platform_purchaseorderheader") }} s
     inner join {{ ref("person_BussinessEntity") }} t
     on s.vendorid = t.external_id and t.source = 'vendor'

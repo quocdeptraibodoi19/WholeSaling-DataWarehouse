@@ -109,3 +109,70 @@ delta_load:
     - ModifiedDate
    custom_casts:
     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+
+ - table: CurrencyRate
+   primary_keys:
+    - CurrencyRateID
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+
+ - table: CountryRegionCurrency
+   primary_keys:
+    - CountryRegionCode
+    - CurrencyCode
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+
+ - table: Currency
+   primary_keys:
+    - CurrencyCode
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+
+ - table: SalesTerritory
+   primary_keys:
+    - TerritoryID
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+
+ - table: TransactionCreditCard
+   primary_keys:
+    - CreditCardID
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+
+ - table: StoreAddress
+   primary_keys:
+    - AddressID
+    - StoreID
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+
+ - table: ContactType
+   primary_keys:
+    - ContactTypeID
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+
+ - table: StoreContact
+   primary_keys:
+    - StoreID
+    - StackHolderID
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)

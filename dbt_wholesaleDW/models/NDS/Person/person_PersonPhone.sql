@@ -7,7 +7,7 @@ with user_phonecontact as (
         s.phonenumbertypeid,
         s.modifieddate,
         s.is_deleted,
-        s.date_partition
+        s.extract_date
     from {{ source("ecomerce", "ecomerce_userphonecontact") }} s
     inner join {{ ref("person_BussinessEntity") }} t
     on s.userid = t.external_id and t.source = "ecom_user"
@@ -19,7 +19,7 @@ employee_phonecontact as (
         s.phonenumbertypeid,
         s.modifieddate,
         s.is_deleted,
-        s.date_partition
+        s.extract_date
     from {{ source("hr_system", "hr_system_employeephonecontact") }} s
     inner join {{ ref("person_BussinessEntity") }} t
     on s.employeeid = t.external_id and t.source = "employee"
@@ -31,7 +31,7 @@ select
         s.phonenumbertypeid,
         s.modifieddate,
         s.is_deleted,
-        s.date_partition
+        s.extract_date
     from {{ source("hr_system", "hr_system_stackholderphonecontact") }} s
     inner join {{ ref("person_BussinessEntity") }} t
     on s.stackholderid = t.external_id and t.source = "stakeholder"

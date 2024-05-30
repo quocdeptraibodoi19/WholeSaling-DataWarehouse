@@ -7,7 +7,7 @@ with CTE as (
         accountnumber,
         modifieddate,
         is_deleted,
-        date_partition
+        extract_date
     from {{ ref("sales_CustomerOnlineUser") }} 
     union all
     select 
@@ -16,12 +16,12 @@ with CTE as (
         accountnumber,
         modifieddate,
         is_deleted,
-        date_partition
+        extract_date
     from {{ ref("sales_CustomerStoreUser") }}
 ),
 CTE_1 as (
-    select 
-        row_number() over (order by personid, storeid, accountnumber) as customerid,
+    select
+        {{ dbt_utils.generate_surrogate_key(['personid', 'storeid', 'accountnumber']) }} as customerid,    
         CTE.*
     from CTE
 )

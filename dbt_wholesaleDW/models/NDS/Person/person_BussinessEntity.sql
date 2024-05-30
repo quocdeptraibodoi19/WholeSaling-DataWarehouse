@@ -7,7 +7,7 @@ with CTE as (
         userid as external_id, 
         modifieddate, 
         is_deleted, 
-        date_partition,
+        extract_date,
         "ecom_user" as source
     from {{ source("ecomerce", "ecomerce_user") }}
     union all
@@ -15,7 +15,7 @@ with CTE as (
         stackholderid as external_id, 
         modifieddate, 
         is_deleted, 
-        date_partition,
+        extract_date,
         "stakeholder" as source
     from {{ source("hr_system", "hr_system_stakeholder") }}
     union all
@@ -23,7 +23,7 @@ with CTE as (
         storeid as external_id, 
         modifieddate, 
         is_deleted, 
-        date_partition,
+        extract_date,
         "store" as source
     from {{ source("wholesale", "wholesale_system_store") }}
     union all
@@ -31,7 +31,7 @@ with CTE as (
         employeeid as external_id, 
         modifieddate, 
         is_deleted, 
-        date_partition,
+        extract_date,
         "employee" as source
     from {{ source("hr_system", "hr_system_employee") }}
     union all
@@ -39,15 +39,15 @@ with CTE as (
         vendorid as external_id, 
         modifieddate, 
         is_deleted, 
-        date_partition,
+        extract_date,
         "vendor" as source
     from {{ source("production", "product_management_platform_vendor") }}
 )
 select 
-    row_number() over(order by CTE.external_id, CTE.source) as bussinessentityid,
+    {{ dbt_utils.generate_surrogate_key(['external_id', 'source']) }} as bussinessentityid,
     modifieddate, 
     is_deleted, 
-    date_partition,
+    extract_date,
     external_id,
     source
 from CTE

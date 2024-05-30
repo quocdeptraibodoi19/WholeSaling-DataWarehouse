@@ -24,7 +24,7 @@ sources:
         - name: is_deleted
           description: Soft deletion flag.
 
-        - name: date_partition
+        - name: extract_date
           description: Date of ingestion (which can help hive to form a partition from the source).
 
     - name: ecomerce_countryregion

@@ -18,9 +18,7 @@ full_load:
   - table: SpecialOffer
     custom_casts:
       ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
-  - table: User
-    custom_casts:
-      ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+
   # - table: UserAddress
   #   custom_casts:
   #     ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
@@ -115,6 +113,62 @@ delta_load:
  - table: ShoppingCartItem
    primary_keys:
     - ShoppingCartItemID
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+
+ - table: Currency
+   primary_keys:
+    - CurrencyCode
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+
+ - table: UserEmailAddress
+   primary_keys:
+    - UserID
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+
+ - table: CurrencyRate
+   primary_keys:
+    - CurrencyRateID
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+    
+ - table: SalesOrderDetail
+   primary_keys:
+    - SalesOrderDetailID
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+
+ - table: SalesTerritory
+   primary_keys:
+    - TerritoryID
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+
+ - table: UserPassword
+   primary_keys:
+    - UserID
+   delta_keys:
+    - ModifiedDate
+   custom_casts:
+    ModifiedDate: CONVERT(NVARCHAR(MAX), ModifiedDate, 121)
+
+ - table: UserPhoneContact
+   primary_keys:
+    - UserID
    delta_keys:
     - ModifiedDate
    custom_casts:
