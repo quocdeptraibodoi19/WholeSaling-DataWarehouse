@@ -184,19 +184,19 @@ class ConstantsProvider:
 
     @staticmethod
     def get_HR_source():
-        return "HR_System"
+        return os.getenv("hr_source")
 
     @staticmethod
     def get_Product_source():
-        return "Product_Management_Platform"
+        return os.getenv("product_source")
 
     @staticmethod
     def get_WholeSaling_source():
-        return "WholeSale_System"
+        return os.getenv("wholesale_source")
 
     @staticmethod
     def get_Ecomerce_source():
-        return "Ecomerce"
+        return os.getenv("ecom_source")
 
     @staticmethod
     def get_update_key():

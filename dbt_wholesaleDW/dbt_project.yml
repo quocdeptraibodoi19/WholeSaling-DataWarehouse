@@ -35,6 +35,10 @@ clean-targets:         # directories to be removed by `dbt clean`
 models:
   dbt_wholesaleDW:
     # Config indicated by + and applies to all files under models/example/
+    staging:
+      +materialized: view
+      +schema: staging_scd
+
     NDS:
       +materialized: view
       +schema: nds
@@ -45,7 +49,7 @@ models:
 
 snapshots:
   dbt_wholesaleDW:
-    +target_schema: "{{ env_var('DW_SCHEMA')  + '_staging' }}"
+    +target_schema: "{{ env_var('DW_SCHEMA')  + '_staging_scd' }}"
     +file_format: delta
     +strategy: timestamp
     +updated_at: ModifiedDate
