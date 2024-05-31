@@ -9,7 +9,6 @@ select
     stateprovinceid,
     postalcode,
     spatiallocation,
-    modifieddate,
     employeeid,
     extract_date,
     dbt_valid_from as valid_from,

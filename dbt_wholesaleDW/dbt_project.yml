@@ -54,3 +54,7 @@ snapshots:
     +strategy: timestamp
     +updated_at: ModifiedDate
     +invalidate_hard_deletes: true
+  
+seeds:
+  dbt_wholesaleDW:
+    +schema: staging
