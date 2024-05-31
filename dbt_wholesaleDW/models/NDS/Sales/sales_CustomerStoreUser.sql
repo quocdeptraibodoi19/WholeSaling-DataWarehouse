@@ -2,30 +2,33 @@
 
 with CTE as(
     select 
-        bussinessentityid,
+        bussiness_entity_id,
         external_id
     from {{ ref("person_BussinessEntity") }} 
-    where source = "stakeholder"
+    where source = '{{ env_var("hr_source") }}_stakeholder'
 ),
 CTE2 as (
     select 
-        bussinessentityid,
+        bussiness_entity_id,
         external_id
     from {{ ref("person_BussinessEntity") }} 
-    where source = "store"
+    where source = '{{ env_var("wholesale_source") }}_store'
 )
 select
-    s.customerid as old_store_customerid,
-    CTE2.bussinessentityid as storerepid,
-    s.storerepid as old_storerepid,
-    CTE.bussinessentityid as storeid,
-    s.storeid as old_storeid,
-    s.accountnumber,
-    s.modifieddate,
+    s.customer_id as old_store_customer_id,
+    CTE2.bussiness_entity_id as store_rep_id,
+    s.store_rep_id as old_store_rep_id,
+    CTE.bussiness_entity_id as store_id,
+    s.store_id as old_store_id,
+    s.account_number,
+    s.extract_date,
+    s.updated_at,
+    s.valid_from,
+    s.valid_to,
     s.is_deleted,
-    s.extract_date
-from {{ source("wholesale", "wholesale_system_storecustomer") }} s
+    s.is_valid
+from {{ ref("stg__wholesale_system_storecustomer") }} s
 inner join CTE
-on CTE.external_id = s.storeid
+on CTE.external_id = s.store_id
 left join CTE2
-on CTE2.external_id = s.storerepid
+on CTE2.external_id = s.store_rep_id
