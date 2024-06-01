@@ -13,7 +13,7 @@ with cte as (
 ),
 CTE_1 as (
     select
-        {{ dbt_utils.generate_surrogate_key(['sales_order_id', 'source']) }} as salesorderid,
+        {{ dbt_utils.generate_surrogate_key(['sales_order_id', 'source']) }} as sales_order_id,
         s.sales_order_id as old_salesorderid,
         s.source,
         s.revision_number,
