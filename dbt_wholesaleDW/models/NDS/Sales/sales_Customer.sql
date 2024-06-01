@@ -1,4 +1,9 @@
-{{ config(materialized='incremental') }}
+{{ 
+    config(
+        materialized='incremental',
+        unique_key=['customer_id', 'updated_at']
+    ) 
+}}
 
 with CTE as ( 
     select

@@ -1,11 +1,15 @@
-{{ config(materialized='incremental') }}
+{{ config(materialized='view') }}
 
-with billtoaddress_cte as (
+with valid_address as (
+    select * from {{ ref("person_Address") }}
+    where is_valid = 1
+),
+billtoaddress_cte as (
     select 
         s.*,
         t.addressid as new_billtoaddressid
     from {{ source("wholesale", "wholesale_system_salesorderheader") }} s
-    inner join {{ ref("person_Address") }} t
+    inner join valid_address t
     on s.billtoaddressid = t.old_addressid and t.source = '{{ env_var("wholesale_source") }}_store'
 ),
 shiptoaddress_cte as (
@@ -13,7 +17,7 @@ shiptoaddress_cte as (
         s.*,
         t.addressid as new_shiptoaddressid
     from billtoaddress_cte s
-    inner join {{ ref("person_Address") }} t
+    inner join valid_address t
     on s.shiptoaddressid = t.old_addressid and t.source = '{{ env_var("wholesale_source") }}_store'
 ),
 employee_cte as (
@@ -23,6 +27,7 @@ employee_cte as (
     from shiptoaddress_cte s
     inner join {{ ref("hr_Employee") }} t
     on t.national_id_number = s.saleemployeenationalnumberid
+    where t.is_valid = 1
 ),
 creditcard_cte as (
     select
@@ -31,6 +36,7 @@ creditcard_cte as (
     from employee_cte s
     inner join {{ ref("sales_CreditCard") }} t
     on s.creditcardid = t.old_credit_card_id and t.source = '{{ env_var("wholesale_source") }}_store'
+    where t.is_valid = 1
 ),
 CTE_1 as (
     select 
@@ -63,8 +69,3 @@ CTE_1 as (
     from creditcard_cte s
 )
 select * from CTE_1
-{% if is_incremental() %}
-
-    where updated_at >= ( select max(updated_at) from {{ this }} )
-
-{% endif %}

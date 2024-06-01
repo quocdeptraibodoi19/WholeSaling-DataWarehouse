@@ -1,4 +1,9 @@
-{{ config(materialized='incremental') }}
+{{ 
+    config(
+        materialized='incremental',
+        unique_key='sales_order_detail_id'
+    ) 
+}}
 
 with ecom_saleorderheader_cte as (
     select 
@@ -29,7 +34,7 @@ ecomerce_salesorderdetail as (
         s.modifieddate as updated_at,
         s.extract_date
     from {{ source("ecomerce", "ecomerce_salesorderdetail") }} s
-    inner join ecom_saleorderheader_cte t
+    left join ecom_saleorderheader_cte t
     on s.salesorderid = t.old_salesorderid
 ),
 wholesale_salesorderdetail as (
@@ -47,7 +52,7 @@ wholesale_salesorderdetail as (
         s.modifieddate as updated_at,
         s.extract_date
     from {{ source("wholesale", "wholesale_system_salesorderdetail") }} s
-    inner join wholesale_saleorderheader_cte t
+    left join wholesale_saleorderheader_cte t
     on s.salesorderid = t.old_salesorderid
 ),
 salesorderdetail as (

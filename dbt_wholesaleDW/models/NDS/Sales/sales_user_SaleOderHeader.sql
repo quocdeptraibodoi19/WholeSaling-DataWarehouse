@@ -1,11 +1,16 @@
-{{ config(materialized='incremental') }}
+{{ config(materialized='view') }}
 
-with billtoaddress_cte as (
+
+with valid_address as (
+    select * from {{ ref("person_Address") }}
+    where is_valid = 1
+),
+billtoaddress_cte as (
     select 
         s.*,
         t.addressid as new_billtoaddressid
     from {{ source("ecomerce", "ecomerce_salesorderheader") }} s
-    inner join {{ ref("person_Address") }} t
+    inner join valid_address t
     on s.billtoaddressid = t.old_addressid and t.source = '{{ env_var("ecom_source") }}_user'
 
 ),
@@ -14,7 +19,7 @@ shiptoaddress_cte as (
         s.*,
         t.addressid as new_shiptoaddressid
     from billtoaddress_cte s
-    inner join {{ ref("person_Address") }} t
+    inner join valid_address t
     on s.shiptoaddressid = t.old_addressid and t.source = '{{ env_var("ecom_source") }}_user'
 ),
 customer_mapping as (
@@ -75,8 +80,3 @@ CTE_1 as (
     from creditcard_cte s
 )
 select * from CTE_1
-{% if is_incremental() %}
-
-    where updated_at >= ( select max(updated_at) from {{ this }} )
-
-{% endif %}

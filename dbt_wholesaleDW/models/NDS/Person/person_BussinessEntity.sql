@@ -1,7 +1,7 @@
 {{ 
     config(
         materialized='incremental',
-        unique_key='bussiness_entity_id'
+        unique_key=['bussiness_entity_id', 'updated_at']
     ) 
 }}
 

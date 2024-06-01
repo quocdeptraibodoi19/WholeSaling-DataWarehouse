@@ -1,9 +1,11 @@
 {{ config(materialized='view') }}
 
 select 
-    addresstypeid,
-    name,
-    modifieddate,
-    is_deleted,
-    extract_date
-from {{ source("hr_system", "hr_system_addresstype") }}
+    address_type_id,
+    address_type_name,
+    extract_date,
+    updated_at,
+    valid_from,
+    valid_to,
+    is_valid
+from {{ ref("stg__hr_system_addresstype") }}

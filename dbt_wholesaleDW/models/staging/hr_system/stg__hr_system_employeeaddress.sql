@@ -7,6 +7,7 @@ select
     addressline1,
     addressline2,
     stateprovinceid as state_province_id,
+    city,
     postalcode as postal_code,
     spatiallocation as spatial_location,
     employeeid as employee_id,

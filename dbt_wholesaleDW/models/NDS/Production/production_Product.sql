@@ -1,7 +1,8 @@
 {{ config(materialized='view') }}
 
-select 
-    product_id,
+select
+    {{ dbt_utils.generate_surrogate_key(['product_id']) }} as product_id,
+    product_id as old_product_id,
     product_name,
     product_number,
     make_flag,

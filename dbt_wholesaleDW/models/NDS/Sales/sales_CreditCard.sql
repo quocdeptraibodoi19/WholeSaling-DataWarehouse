@@ -1,4 +1,9 @@
-{{ config(materialized='incremental') }}
+{{ 
+    config(
+        materialized='incremental',
+        unique_key=['credit_card_id', 'updated_at']
+    ) 
+}}
 
 /*
     Basically, the creditcard now is the union between that in Wholesaling and Ecomerce (Simple Assumption). 
