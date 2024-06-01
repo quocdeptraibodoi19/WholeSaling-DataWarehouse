@@ -5,23 +5,9 @@
     ) 
 }}
 
-with ecom_saleorderheader_cte as (
-    select 
-        sales_order_id,
-        old_salesorderid
-    from {{ ref("sales_SalesOrderHeader") }} 
-    where source = '{{ env_var("ecom_source") }}_user'
-),
-wholesale_saleorderheader_cte as (
-    select 
-        sales_order_id,
-        old_salesorderid
-    from {{ ref("sales_SalesOrderHeader") }} 
-    where source = '{{ env_var("wholesale_source") }}_store'
-),
-ecomerce_salesorderdetail as (
+with ecomerce_salesorderdetail as (
     select
-        t.sales_order_id,
+        s.salesorderid as sales_order_id,
         s.salesorderdetailid as old_salesorderdetailid,
         '{{ env_var("ecom_source") }}_user' as source,
         s.carriertrackingnumber as carrier_tracking_number,
@@ -34,12 +20,10 @@ ecomerce_salesorderdetail as (
         s.modifieddate as updated_at,
         s.extract_date
     from {{ source("ecomerce", "ecomerce_salesorderdetail") }} s
-    left join ecom_saleorderheader_cte t
-    on s.salesorderid = t.old_salesorderid
 ),
 wholesale_salesorderdetail as (
     select
-        t.sales_order_id,
+        s.salesorderid as sales_order_id,
         s.salesorderdetailid as old_salesorderdetailid,
         '{{ env_var("wholesale_source") }}_store' as source,
         s.carriertrackingnumber as carrier_tracking_number,
@@ -52,8 +36,6 @@ wholesale_salesorderdetail as (
         s.modifieddate as updated_at,
         s.extract_date
     from {{ source("wholesale", "wholesale_system_salesorderdetail") }} s
-    left join wholesale_saleorderheader_cte t
-    on s.salesorderid = t.old_salesorderid
 ),
 salesorderdetail as (
     select * from ecomerce_salesorderdetail

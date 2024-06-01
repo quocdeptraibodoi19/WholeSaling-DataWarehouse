@@ -28,5 +28,5 @@ with order_statuses as (
 
 select 
   *,
-  {{ dbt_utils.generate_surrogate_key(['order_status_id']) }} as order_status_key,
+  {{ dbt_utils.generate_surrogate_key(['order_status_id']) }} as order_status_key
 from order_statuses

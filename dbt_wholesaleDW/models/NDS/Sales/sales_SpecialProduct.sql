@@ -1,5 +1,3 @@
-{{ config(materialized='view') }}
-
 {{ config(materialized='table') }}
 
 with ecom_special_product as (
