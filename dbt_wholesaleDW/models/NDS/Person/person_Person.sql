@@ -1,97 +1,110 @@
 {{ config(materialized='view') }}
 
-with online_user as (
+with valid_bussiness_entity as (
+    select * from {{ ref("person_BussinessEntity") }}
+    where is_valid = 1
+),
+online_user as (
     select
-        t.bussinessentityid,
-        "IN" as persontype,
-        s.namestyle,
+        t.bussiness_entity_id,
+        "IN" as person_type,
+        s.name_style,
         s.title,
-        s.firstname,
-        s.middlename,
-        s.lastname,
+        s.first_name,
+        s.middle_name,
+        s.last_name,
         s.suffix,
-        s.emailpromotion,
-        s.additionalcontactinfo,
+        s.email_promotion,
+        s.additional_contact_info,
         s.demographics,
         s.birthdate,
-        s.maritalstatus,
+        s.marital_status,
         s.gender,
-        s.totalchildren,
-        s.numberchildrenathome,
-        s.houseownerflag,
-        s.numbercarsowned,
-        s.datefirstpurchase,
-        s.commutedistance,
+        s.total_children,
+        s.number_children_at_home,
+        s.house_owner_flag,
+        s.number_cars_owned,
+        s.date_first_purchase,
+        s.commuted_distance,
         s.education,
         s.occupation,
-        s.modifieddate,
-        s.is_deleted,
-        s.extract_date
-    from {{ source("ecomerce", "ecomerce_user") }} s
-    inner join {{ ref("person_BussinessEntity") }} t
-    on s.userid = t.external_id and t.source = "ecom_user"
+        t.extract_date,
+        t.updated_at,
+        t.valid_from,
+        t.valid_to,
+        t.is_deleted,
+        t.is_valid
+    from {{ ref("stg__ecomerce_user") }} s
+    inner join valid_bussiness_entity t
+    on s.user_id = t.external_id and t.source = '{{ env_var("ecom_source") }}_user'
 ),
 employee as (
     select
-        t.bussinessentityid,
-        s.persontype,
-        s.namestyle,
+        t.bussiness_entity_id,
+        "EM" as person_type,
+        s.name_style,
         s.title,
-        s.firstname,
-        s.middlename,
-        s.lastname,
+        s.first_name,
+        s.middle_name,
+        s.last_name,
         s.suffix,
-        s.emailpromotion,
-        s.additionalcontactinfo,
+        s.email_promotion,
+        s.additional_contact_info,
         s.demographics,
         s.birthdate,
-        s.maritalstatus,
+        s.marital_status,
         s.gender,
-        s.totalchildren,
-        s.numberchildrenathome,
-        s.houseownerflag,
-        s.numbercarsowned,
-        s.datefirstpurchase,
-        s.commutedistance,
+        s.total_children,
+        s.number_children_at_home,
+        s.house_owner_flag,
+        s.number_cars_owned,
+        s.date_first_purchase,
+        s.commuted_distance,
         s.education,
         s.occupation,
-        s.modifieddate,
-        s.is_deleted,
-        s.extract_date
-    from {{ source("hr_system", "hr_system_employee") }} s
-    inner join {{ ref("person_BussinessEntity") }} t
-    on s.employeeid = t.external_id and t.source = "employee"
+        t.extract_date,
+        t.updated_at,
+        t.valid_from,
+        t.valid_to,
+        t.is_deleted,
+        t.is_valid
+    from {{ ref("stg__hr_system_employee") }} s
+    inner join valid_bussiness_entity t
+    on s.employee_id = t.external_id and t.source = '{{ env_var("hr_source") }}_employee'
 ),
 stackeholder as (
     select
-        t.bussinessentityid,
-        s.persontype,
-        s.namestyle,
+        t.bussiness_entity_id,
+        "SC" as person_type,
+        s.name_style,
         s.title,
-        s.firstname,
-        s.middlename,
-        s.lastname,
+        s.first_name,
+        s.middle_name,
+        s.last_name,
         s.suffix,
-        s.emailpromotion,
-        s.additionalcontactinfo,
+        s.email_promotion,
+        s.additional_contact_info,
         s.demographics,
         s.birthdate,
-        s.maritalstatus,
+        s.marital_status,
         s.gender,
-        s.totalchildren,
-        s.numberchildrenathome,
-        s.houseownerflag,
-        s.numbercarsowned,
-        s.datefirstpurchase,
-        s.commutedistance,
+        s.total_children,
+        s.number_children_at_home,
+        s.house_owner_flag,
+        s.number_cars_owned,
+        s.date_first_purchase,
+        s.commuted_distance,
         s.education,
         s.occupation,
-        s.modifieddate,
-        s.is_deleted,
-        s.extract_date
-    from {{ source("hr_system", "hr_system_stakeholder") }} s
-    inner join {{ ref("person_BussinessEntity") }} t
-    on s.stackholderid = t.external_id and t.source = "stakeholder"
+        t.extract_date,
+        t.updated_at,
+        t.valid_from,
+        t.valid_to,
+        t.is_deleted,
+        t.is_valid
+    from {{ ref("stg__hr_system_stakeholder") }} s
+    inner join valid_bussiness_entity t
+    on s.stackholder_id = t.external_id and t.source = '{{ env_var("hr_source") }}_stakeholder'
 ),
 person as (
     select * from online_user

@@ -2,18 +2,21 @@
 
 with CTE as (
     select 
-        bussinessentityid,
+        bussiness_entity_id,
         external_id
     from {{ ref("person_BussinessEntity") }} 
-    where source = "ecom_user"
+    where source = '{{ env_var("ecom_source") }}_user'
 )
 select
-    CTE.bussinessentityid as userid,
-    s.userid as old_userid,
-    s.accountnumber,
-    s.modifieddate,
+    CTE.bussiness_entity_id as user_id,
+    s.user_id as old_userid,
+    s.account_number,
+    s.extract_date,
+    s.updated_at,
+    s.valid_from,
+    s.valid_to,
     s.is_deleted,
-    s.extract_date
-from {{ source("ecomerce", "ecomerce_user") }} s
+    s.is_valid
+from {{ ref("stg__ecomerce_user") }} s
 inner join CTE
-on CTE.external_id = s.userid
+on CTE.external_id = s.user_id

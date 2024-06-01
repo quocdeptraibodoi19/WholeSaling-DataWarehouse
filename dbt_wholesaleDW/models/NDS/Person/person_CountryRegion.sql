@@ -1,25 +1,15 @@
-{{ config(materialized='view') }}
+{{ config(materialized='table') }}
 
-with cte as(
+with mapping_country_region as (
     select
-        t.Wholesaling as countryregioncode,
-        t.HR as hr_countryregioncode,
-        s.modifieddate,
-        s.is_deleted,
-        s.extract_date
-    from {{ source("wholesale", "wholesale_system_countryregion") }} s
-    inner join {{ ref("countrycode_mapping") }} t
-    on s.countryregioncode = t.Wholesaling
-),
-hr_name_cte as (
-    select
-        s.countryregioncode,
-        t.fullname as `name`,
-        s.modifieddate,
-        s.is_deleted,
-        s.extract_date
-    from cte s
-    inner join {{ source("hr_system", "hr_system_countryregion") }} t
-    on s.hr_countryregioncode = t.countrycode
+
+        t.country_name,
+        s.HR as {{ env_var("hr_source") }},
+        s.Wholesaling as {{ env_var("wholesale_source") }},
+        s.Ecommerce as {{ env_var("ecom_source") }}
+
+    from {{ ref("countrycode_mapping") }} s
+    inner join {{ ref("stg__hr_system_countryregion") }} t
+        on s.HR = t.country_code
 )
-select * from hr_name_cte
+select * from mapping_country_region

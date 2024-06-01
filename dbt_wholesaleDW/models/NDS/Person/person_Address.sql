@@ -2,67 +2,101 @@
 
 with CTE as (
     select
-        addressid as old_addressid,
-        addresstypeid,
+        vendor_address_id as id,
+        old_addressid,
+        address_type_id,
         addressline1,
         addressline2,
-        stateprovinceid,
-        postalcode,
-        spatiallocation,
-        modifieddate,
-        "vendor" as source,
-        vendorid as source_key
-    from {{ source("production", "product_management_platform_vendoraddress") }}
+        state_province_id,
+        city,
+        postal_code,
+        spatial_location,
+        '{{ env_var("product_source") }}_vendor' as source,
+        vendor_id as source_key,
+        extract_date,
+        updated_at,
+        valid_from,
+        valid_to,
+        is_deleted,
+        is_valid
+    from {{ ref("stg__product_management_platform_vendoraddress") }}
     union all
-    select 
-        addressid as old_addressid,
-        addresstypeid,
+    select
+        user_address_id as id,
+        old_addressid,
+        address_type_id,
         addressline1,
         addressline2,
-        stateprovinceid,
-        postalcode,
-        spatiallocation,
-        modifieddate,
-        "ecom_user" as source,
-        userid as source_key
-    from {{ source("ecomerce", "ecomerce_useraddress") }}
+        state_province_id,
+        city,
+        postal_code,
+        spatial_location,
+        '{{ env_var("ecom_source") }}_user' as source,
+        user_id as source_key,
+        extract_date,
+        updated_at,
+        valid_from,
+        valid_to,
+        is_deleted,
+        is_valid
+    from {{ ref("stg__ecomerce_useraddress") }}
     union all
-    select 
-        addressid as old_addressid,
-        addresstypeid,
+    select
+        employee_address_id as id,
+        old_addressid,
+        address_type_id,
         addressline1,
         addressline2,
-        stateprovinceid,
-        postalcode,
-        spatiallocation,
-        modifieddate,
-        "employee" as source,
-        employeeid as source_key
-    from {{ source("hr_system", "hr_system_employeeaddress") }}
+        state_province_id,
+        city,
+        postal_code,
+        spatial_location,
+        '{{ env_var("hr_source") }}_employee' as source,
+        employee_id as source_key,
+        extract_date,
+        updated_at,
+        valid_from,
+        valid_to,
+        is_deleted,
+        is_valid
+    from {{ ref("stg__hr_system_employeeaddress") }}
     union all
-    select 
-        addressid as old_addressid,
-        addresstypeid,
+    select
+        store_address_id as id,
+        old_addressid,
+        address_type_id,
         addressline1,
         addressline2,
-        stateprovinceid,
-        postalcode,
-        spatiallocation,
-        modifieddate,
-        "store" as source,
-        storeid as source_key
-    from {{ source("wholesale", "wholesale_system_storeaddress") }}
+        state_province_id,
+        city,
+        postal_code,
+        spatial_location,
+        '{{ env_var("wholesale_source") }}_store' as source,
+        store_id as source_key,
+        extract_date,
+        updated_at,
+        valid_from,
+        valid_to,
+        is_deleted,
+        is_valid
+    from {{ ref("stg__wholesale_system_storeaddress") }}
 )
 select
-    {{ dbt_utils.generate_surrogate_key(['old_addressid', 'source']) }} as addressid,
+    {{ dbt_utils.generate_surrogate_key(['id', 'source']) }} as addressid,
     old_addressid,
-    addresstypeid,
+    address_type_id,
     addressline1,
     addressline2,
-    stateprovinceid,
-    postalcode,
-    spatiallocation,
-    modifieddate,
+    state_province_id,
+    city,
+    postal_code,
+    spatial_location,
     source,
-    source_key
+    source_key,
+    extract_date,
+    updated_at,
+    valid_from,
+    valid_to,
+    is_deleted,
+    is_valid
 from CTE

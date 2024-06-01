@@ -6,4 +6,4 @@ with date_dimension as (
 select 
         {{ dbt_utils.generate_surrogate_key(['date_day']) }} as date_key,
     *
-From date_dimensionls
+From date_dimension

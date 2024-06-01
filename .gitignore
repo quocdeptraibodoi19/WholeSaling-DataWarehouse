@@ -19,3 +19,5 @@ test.ipynb
 different_tables.py
 
 local-env.sh
+
+test_parquet_hdfs.py
