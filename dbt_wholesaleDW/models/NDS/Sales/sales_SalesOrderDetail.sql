@@ -13,13 +13,16 @@ with ecomerce_salesorderdetail as (
         s.carriertrackingnumber as carrier_tracking_number,
         s.orderqty as order_qty,
         s.productid as product_id,
-        s.specialofferid as special_offer_id,
+        t.special_offer_id,
         s.unitprice as unit_price,
         s.unitpricediscount as unit_price_discount,
         s.linetotal as line_total,
         s.modifieddate as updated_at,
         s.extract_date
     from {{ source("ecomerce", "ecomerce_salesorderdetail") }} s
+    left join {{ ref("sales_SpecialOffer") }} as t
+        on s.specialofferid = t.old_special_offer_id
+            and t.source = '{{ env_var("ecom_source") }}'
 ),
 wholesale_salesorderdetail as (
     select
@@ -29,13 +32,16 @@ wholesale_salesorderdetail as (
         s.carriertrackingnumber as carrier_tracking_number,
         s.orderqty as order_qty,
         s.productid as product_id,
-        s.specialofferid as special_offer_id,
+        t.special_offer_id,
         s.unitprice as unit_price,
         s.unitpricediscount as unit_price_discount,
         s.linetotal as line_total,
         s.modifieddate as updated_at,
         s.extract_date
     from {{ source("wholesale", "wholesale_system_salesorderdetail") }} s
+    left join {{ ref("sales_SpecialOffer") }} as t
+        on s.specialofferid = t.old_special_offer_id
+            and t.source = '{{ env_var("wholesale_source") }}'
 ),
 salesorderdetail as (
     select * from ecomerce_salesorderdetail

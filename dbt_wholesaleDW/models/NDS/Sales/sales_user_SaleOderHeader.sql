@@ -53,9 +53,9 @@ CTE_1 as (
     select 
         s.salesorderid as sales_order_id,
         s.revisionnumber as revision_number,
-        s.orderdate as order_date,
-        s.duedate as due_date,
-        s.shipdate as ship_date,
+        from_unixtime(unix_timestamp(regexp_replace(orderdate, ' {2,}', ' '), 'MMM dd yyyy hh:mma'), 'yyyy-MM-dd HH:mm:ss') as order_date,
+        from_unixtime(unix_timestamp(regexp_replace(duedate, ' {2,}', ' '), 'MMM dd yyyy hh:mma'), 'yyyy-MM-dd HH:mm:ss') as due_date,
+        from_unixtime(unix_timestamp(regexp_replace(shipdate, ' {2,}', ' '), 'MMM dd yyyy hh:mma'), 'yyyy-MM-dd HH:mm:ss') as ship_date,
         s.`status`,
         "1" as online_order_flag,
         s.salesordernumber as sales_order_number,
