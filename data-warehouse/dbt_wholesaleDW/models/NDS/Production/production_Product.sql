@@ -1,4 +1,9 @@
-{{ config(materialized='view') }}
+{{ 
+    config(
+        materialized='incremental',
+        unique_key=['product_id', 'updated_at']
+    ) 
+}}
 
 select
     product_id,
@@ -31,3 +36,10 @@ select
     is_deleted,
     is_valid
 from {{ ref("stg__product_management_platform_product") }}
+
+where 1 = 1
+{% if is_incremental() %}
+
+    and updated_at >= ( select max(updated_at) from {{ this }} )
+
+{% endif %}

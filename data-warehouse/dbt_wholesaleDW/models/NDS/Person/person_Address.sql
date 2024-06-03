@@ -1,4 +1,9 @@
-{{ config(materialized='table') }}
+{{ 
+    config(
+        materialized='incremental',
+        unique_key=['addressid', 'updated_at']
+    ) 
+}}
 
 with CTE as (
     select
@@ -100,3 +105,9 @@ select
     is_deleted,
     is_valid
 from CTE
+where 1 = 1
+{% if is_incremental() %}
+
+    and updated_at >= ( select max(updated_at) from {{ this }} )
+
+{% endif %}

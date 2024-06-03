@@ -1,4 +1,9 @@
-{{ config(materialized='table') }}
+{{ 
+    config(
+        materialized='incremental',
+        unique_key=['customer_key', 'updated_at']
+    ) 
+}}
 
 select
     {{ dbt_utils.generate_surrogate_key(['sales_Customer.customer_id']) }} as customer_key,
@@ -32,7 +37,16 @@ select
             or person_AddressType.is_valid = 0
             then 0
         else 1
-    end as is_valid
+    end as is_valid,
+    greatest(
+        sales_Customer.updated_at,
+        person_Person.updated_at,
+        person_BusinessEntityAddress.updated_at,
+        person_Address.updated_at,
+        person_AddressType.updated_at,
+        person_StateProvince.updated_at
+    ) as updated_at
+
 from {{ ref('sales_Customer') }}
 left join {{ ref('person_Person') }} 
     on sales_Customer.person_id = person_Person.bussiness_entity_id
@@ -46,3 +60,10 @@ left join {{ ref('person_StateProvince') }}
     on person_StateProvince.state_province_id = person_Address.state_province_id
 left join {{ ref('person_CountryRegion') }} 
     on person_CountryRegion.{{ env_var("wholesale_source") }} = person_StateProvince.country_region_code
+
+where 1 = 1    
+{% if is_incremental() %}
+
+    and updated_at >= ( select max(updated_at) from {{ this }} )
+
+{% endif %}

@@ -1,4 +1,9 @@
-{{ config(materialized='table') }}
+{{ 
+    config(
+        materialized='incremental',
+        unique_key=['product_key', 'updated_at']
+    ) 
+}}
 
 select
     {{ dbt_utils.generate_surrogate_key(['production_Product.product_id']) }} as product_key,
@@ -19,9 +24,22 @@ select
             or production_ProductCategory.is_valid = 0
             then 0
         else 1
-    end as is_valid
+    end as is_valid,
+    greatest(
+        production_Product.updated_at,
+        production_ProductSubcategory.updated_at,
+        production_ProductCategory.updated_at
+    ) as updated_at
+
 from  {{ ref('production_Product') }}
 left join  {{ ref('production_ProductSubcategory') }} 
     on production_Product.product_subcategory_id = production_ProductSubcategory.product_subcategory_id
 left join  {{ ref('production_ProductCategory') }} 
     on production_ProductSubcategory.product_category_id = production_ProductCategory.product_category_id
+
+where 1 = 1
+{% if is_incremental() %}
+
+    and updated_at >= ( select max(updated_at) from {{ this }} )
+
+{% endif %}

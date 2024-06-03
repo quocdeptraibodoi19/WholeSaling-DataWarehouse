@@ -1,4 +1,9 @@
-{{ config(materialized='table') }}
+{{ 
+    config(
+        materialized='incremental',
+        unique_key='sales_key'
+    ) 
+}}
 
 select
     {{ dbt_utils.generate_surrogate_key(['sales_SalesOrderHeader.sales_order_id', 'sales_SalesOrderDetail.sales_order_detail_id']) }} as sales_key,
@@ -21,7 +26,6 @@ select
     sales_SalesOrderHeader.due_date,
     CAST(sales_SalesOrderHeader.online_order_flag AS INT) AS is_online,
     CAST(sales_SalesOrderDetail.unit_price_discount AS DECIMAL(10, 2)) AS unit_price_discount,
-    sales_SalesOrderHeader.sales_order_number,
     CAST(sales_SalesOrderDetail.unit_price AS DECIMAL(10, 2)) AS unit_price,
     CAST(sales_SalesOrderDetail.order_qty AS INT) AS order_qty,
     CAST(sales_SalesOrderDetail.line_total AS DECIMAL(10, 2)) AS sales_amount,
@@ -30,8 +34,16 @@ select
             then CAST(sales_SalesOrderDetail.line_total AS DECIMAL(10, 2)) * CAST(sales_SalesOrderDetail.unit_price_discount AS DECIMAL(10, 2))
         else CAST(sales_SalesOrderDetail.line_total AS DECIMAL(10, 2))
     end as total_discount,
-    sales_SalesOrderHeader.tax_amt 
+    sales_SalesOrderHeader.tax_amt
+
 from {{ ref('sales_SalesOrderHeader') }}
 inner join  {{ ref('sales_SalesOrderDetail') }} 
     on sales_SalesOrderHeader.old_salesorderid = sales_SalesOrderDetail.sales_order_id
         and sales_SalesOrderHeader.source = sales_SalesOrderDetail.source
+
+where 1 = 1
+{% if is_incremental() %}
+
+    and updated_at >= ( select max(updated_at) from {{ this }} )
+
+{% endif %}
