@@ -54,6 +54,14 @@ with DAG(
     start_date=datetime(2024, 1, 1),
     catchup=False,
 ) as dag:
+    
+    task_id = f"dbt_snapshot"
+    dbt_command = f"cd {DBT_PROJECT_DIR} && dbt snapshot"
+    previous_task = BashOperator(
+        task_id=task_id,
+        bash_command=dbt_command,
+        dag=dag,
+    )
     for model in dbt_selected_models:
         task_id = f"dbt_build_{model}"
         dbt_command = f"cd {DBT_PROJECT_DIR} && dbt build --select +{model}"
@@ -63,7 +71,5 @@ with DAG(
             dag=dag,
         )
         # Due to the resource limitation, set the tasks to run sequentially
-        if model != dbt_selected_models[0]:
-            build_task.set_upstream(previous_task)
-
+        build_task.set_upstream(previous_task)
         previous_task = build_task
