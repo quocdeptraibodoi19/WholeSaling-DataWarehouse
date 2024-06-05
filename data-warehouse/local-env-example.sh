@@ -39,7 +39,7 @@ export hadoop_port=9870
 export hadoop_user=hdfs
 
 export hdfs_host=$hadoop_host
-export hdfs_port=9001
+export hdfs_port=9000
 
 export hive_host=$hadoop_host
 export hive_port=10000
