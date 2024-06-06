@@ -39,9 +39,15 @@ export hadoop_port=9870
 export hadoop_user=hdfs
 
 export hdfs_host=$hadoop_host
-export hdfs_port=9001
+export hdfs_port=9000
 
-export hive_host=$hadoop_host
-export hive_port=10000
-export hive_user=hive
-export hive_database=${DW_SCHEMA}_staging
+export dw_host=$hadoop_host
+export dw_port=10000
+export dw_user=hive
+export dw_dimension_db=${DW_SCHEMA}_dds
+
+export visualization_opdb_host=
+export visualization_opdb_user=
+export visualization_opdb_password=
+export visualization_opdb_dbname=
+export visualization_opdb_port=
