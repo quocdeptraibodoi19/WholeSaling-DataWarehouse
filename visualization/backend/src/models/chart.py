@@ -2,9 +2,6 @@ from pydantic import BaseModel
 
 
 class ChartBase(BaseModel):
-    id: int
-    chartName: str
-    chartType: str
     labels: list[str]
 
 
@@ -28,7 +25,7 @@ class PieChartDataset(ChartDataset):
 
 
 class MapchartDataset(ChartDataset):
-    backgroundColor: str
+    label: str
     data: int | float
 
 

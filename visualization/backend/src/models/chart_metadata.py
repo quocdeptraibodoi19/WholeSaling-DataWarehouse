@@ -16,3 +16,15 @@ class ChartMetaData(BaseModel):
     state: State
     created_at: datetime
     updated_at: datetime
+
+class ClientDimensionMetaData(BaseModel):
+    dim_name: str
+    dim_column: str
+    dim_key: str
+    ref_fact_key: str
+
+class ClientChartMetaData(BaseModel):
+    chart_type: str
+    fact_name: str
+    fact_column: str
+    dimensions: list[ClientDimensionMetaData]
