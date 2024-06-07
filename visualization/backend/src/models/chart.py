@@ -54,3 +54,10 @@ class ChartState(BaseModel):
 class ChartMetaData(BaseModel):
     chart: MapChart | PieChart | BarChart | LineChart
     chart_state: ChartState
+
+
+class FetchedChartMetaData(BaseModel):
+    id: str
+    chartName: str
+    chartType: str
+    chart: BarChart | LineChart | PieChart | MapChart

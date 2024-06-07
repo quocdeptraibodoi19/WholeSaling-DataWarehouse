@@ -29,6 +29,7 @@ from models.chart import (
     MapChart,
     ChartMetaData,
     ChartState,
+    FetchedChartMetaData,
 )
 from src.constants import ConstantProvider
 
@@ -139,7 +140,7 @@ def preview_chart(
 
     except Exception:
         print(traceback.format_exc())
-        return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        raise (Exception)
     finally:
         data_warehouse_connection.disconnect()
 
@@ -205,6 +206,48 @@ def delete_chart(chart_id: str):
         if connection:
             connection.rollback()
             print("Transaction rolled back")
+        return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+
+@router.get("/charts", response_model=list[FetchedChartMetaData])
+def get_all_charts():
+    db_connection = OperationalDBConnection()
+    connection = db_connection.connect()
+    try:
+        cursor = connection.cursor()
+
+        select_query = OperationalDBConnection.get_postgres_sql("SELECT * FROM chart")
+        cursor.execute(select_query)
+
+        charts = cursor.fetchall()
+        columns = [desc[0] for desc in cursor.description]
+        db_charts = [dict(zip(columns, chart)) for chart in charts]
+
+        fetched_chart_data = []
+        for chart in db_charts:
+            chart_metadata = preview_chart(
+                client_chart_metadata=ClientChartMetaData(
+                    **chart["state"]["client_chart_metadata"]
+                ),
+                catched_colors=chart["state"]["catched_color"],
+            )
+
+            temp_chart_data = {
+                "id": chart["chart_id"],
+                "chartName": chart["chart_name"],
+                "chartType": chart["state"]["client_chart_metadata"]["chart_type"],
+                "chart": chart_metadata.get("chart"),
+            }
+            fetched_chart_data.append(FetchedChartMetaData(**temp_chart_data))
+
+        return fetched_chart_data
+    except Exception:
+        print(traceback.format_exc())
         return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     finally:
         if cursor:
