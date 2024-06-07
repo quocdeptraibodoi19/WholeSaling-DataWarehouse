@@ -49,5 +49,5 @@ export dw_dimension_db=${DW_SCHEMA}_dds
 export visualization_opdb_host=
 export visualization_opdb_user=
 export visualization_opdb_password=
-export visualization_opdb_dbname=
+export visualization_opdb_dbname=visualization
 export visualization_opdb_port=
