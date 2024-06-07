@@ -2,9 +2,6 @@ from pydantic import BaseModel
 
 
 class ChartBase(BaseModel):
-    id: int
-    chartName: str
-    chartType: str
     labels: list[str]
 
 

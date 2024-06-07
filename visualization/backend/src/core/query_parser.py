@@ -1,5 +1,11 @@
+import os
+import sys
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.dirname(SCRIPT_DIR))
+
 from abc import ABC, abstractmethod
-from ..constants import ConstantProvider
+
+from src.constants import ConstantProvider
 
 
 class SelectedDim:
@@ -58,7 +64,7 @@ class SelectedFact:
 
 class ParsingStrategy(ABC):
     @abstractmethod
-    def parse_query(self, metadata: dict):
+    def parse_query(self, selected_fact: SelectedFact):
         pass
 
 

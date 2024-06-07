@@ -9,6 +9,14 @@ class Connection:
 
     def connect(self):
         raise NotImplemented("Subclasses should override this method.")
+    
+    @property
+    def conn(self):
+        if self.conn is None:
+            raise LookupError(
+                "Connection is None ... please connect it to the external system first"
+            )
+        return self.conn
 
     def disconnect(self):
         if self.conn is not None:
