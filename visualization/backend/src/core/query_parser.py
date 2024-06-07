@@ -1,5 +1,6 @@
 import os
 import sys
+
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
 
@@ -85,16 +86,16 @@ class SimpleFactDimStrategy(ParsingStrategy):
         common_query = (
             f"{','.join(dim_columns)} FROM {fact_name} "
             f"INNER JOIN {dim_name} "
-            f"{fact_name}.{fact_key} = {dim_name}.{dim_key} "
+            f"ON {fact_name}.{fact_key} = {dim_name}.{dim_key} "
             f"GROUP BY {','.join(dim_columns)}"
         )
 
         if fact_column == fact_kpi_sale_amount:
             return (
-                f"SELECT SUM(sales_amount) AS {fact_kpi_sale_amount}, " + common_query
+                f'SELECT SUM(sales_amount) AS `{fact_kpi_sale_amount}`, ' + common_query
             )
         elif fact_column == fact_kpi_quantity:
-            return f"SELECT COUNT(*) AS {fact_kpi_quantity}, " + common_query
+            return f'SELECT COUNT(*) AS `{fact_kpi_quantity}`, ' + common_query
 
 
 class TwoDimFactStrategy(ParsingStrategy):
@@ -127,10 +128,10 @@ class TwoDimFactStrategy(ParsingStrategy):
 
         if fact_column == fact_kpi_sale_amount:
             return (
-                f"SELECT SUM(sales_amount) AS {fact_kpi_sale_amount}, " + common_query
+                f'SELECT SUM(sales_amount) AS `{fact_kpi_sale_amount}`, ' + common_query
             )
         elif fact_column == fact_kpi_quantity:
-            return f"SELECT COUNT(*) AS {fact_kpi_quantity}, " + common_query
+            return f'SELECT COUNT(*) AS `{fact_kpi_quantity}`, ' + common_query
 
 
 class QueryParser:

@@ -1,1 +1,3 @@
 local-env.sh
+
+__pycache__/

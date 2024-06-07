@@ -20,13 +20,12 @@ router = APIRouter(prefix="/charts", tags=["charts"])
 
 
 @router.post("/preview")
-async def preview_chart(client_chart_metadata: ClientChartMetaData):
-    try:
+def preview_chart(client_chart_metadata: ClientChartMetaData):
         data_warehouse_connection = DataWarehouseConnection()
+    # try:
         data_warehouse_connection.connect()
 
-        client_chart_metadata = client_chart_metadata.model_dump()
-        client_dimensions_metadata = ClientChartMetaData.dimensions
+        client_dimensions_metadata = client_chart_metadata.dimensions
 
         dimensions = []
         global_dim_columns = []
@@ -61,8 +60,9 @@ async def preview_chart(client_chart_metadata: ClientChartMetaData):
 
         query_parser_manager = QueryParserManager()
         query = query_parser_manager.parse_query(selected_fact)
+        print(f"The generated query is: {query}")
 
-        chart_data = pd.read_sql(query, data_warehouse_connection)
+        chart_data = pd.read_sql(query, data_warehouse_connection.conn)
         data_deserializor = DataDeserializor()
         deserialized_data = {}
 
@@ -93,7 +93,7 @@ async def preview_chart(client_chart_metadata: ClientChartMetaData):
             fact_col=client_chart_metadata.fact_column,
             deserialized_data=deserialized_data,
         )
-
+        print(f"CHART_METADATAAAAAAAAAA: {chart_metadata}")
         if client_chart_metadata.chart_type == ConstantProvider.bar_chart_name():
             return BarChart(**chart_metadata)
         elif client_chart_metadata.chart_type == ConstantProvider.line_chart_name():
@@ -103,7 +103,7 @@ async def preview_chart(client_chart_metadata: ClientChartMetaData):
         elif client_chart_metadata.chart_type == ConstantProvider.map_chart_name():
             return MapChart(**chart_metadata)
 
-    except:
-        return Response(status_code=status.HTTP_400_BAD_REQUEST)
-    finally:
-        data_warehouse_connection.disconnect()
+    # except:
+    #     return Response(status_code=status.HTTP_400_BAD_REQUEST)
+    # finally:
+    #     data_warehouse_connection.disconnect()

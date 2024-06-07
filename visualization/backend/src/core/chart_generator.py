@@ -1,25 +1,26 @@
-from color_manager import ColorManager
+import os
+import sys
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.dirname(SCRIPT_DIR))
+
+from .color_manager import ColorManager
 from src.constants import ConstantProvider
 
-import pandas as pd
-from typing import Iterator
 from abc import ABC, abstractmethod
 
 
 class ChartGeneratingStrategy(ABC):
     @abstractmethod
-    def chart_generating(self, fact_col: str, deserialized_data: dict, *args, **kwargs):
+    def chart_generating(
+        self, fact_col: str, deserialized_data: dict, color_manager: ColorManager
+    ):
         pass
 
 
 class OneDimChartGeneratingStrategy(ChartGeneratingStrategy):
     def chart_generating(
-        self,
-        fact_col: str,
-        color_manager: ColorManager,
-        deserialized_data: dict,
-        *args,
-        **kwargs
+        self, fact_col: str, deserialized_data: dict, color_manager: ColorManager
     ):
         dim_data = deserialized_data.keys()
         fact_data = []
@@ -42,10 +43,8 @@ class OneDimPieChartGenerattingStrategy(ChartGeneratingStrategy):
     def chart_generating(
         self,
         fact_col: str,
-        color_manager: ColorManager,
         deserialized_data: dict,
-        *args,
-        **kwargs
+        color_manager: ColorManager,
     ):
         dim_data = deserialized_data.keys()
         fact_data = []
@@ -65,7 +64,12 @@ class OneDimPieChartGenerattingStrategy(ChartGeneratingStrategy):
 
 
 class MapChartGeneratingStrategy(ChartGeneratingStrategy):
-    def chart_generating(self, fact_col: str, deserialized_data: dict, *args, **kwargs):
+    def chart_generating(
+        self,
+        fact_col: str,
+        deserialized_data: dict,
+        color_manager: ColorManager,
+    ):
         country_dim_data = deserialized_data.keys()
         fact_data = []
         for dim in country_dim_data:
@@ -86,10 +90,8 @@ class TwoDimChartGeneratingStrategy(ChartGeneratingStrategy):
     def chart_generating(
         self,
         fact_col: str,
-        color_manager: ColorManager,
         deserialized_data: dict,
-        *args,
-        **kwargs
+        color_manager: ColorManager,
     ):
 
         first_dim_data, sec_dim_data = [], []
@@ -123,12 +125,12 @@ class ChartGenerator:
         self.chart_generating_strategy = chart_generating_strategy
 
     def chart_generating(
-        self, fact_col: str, deserialized_data: dict, color_manger: ColorManager = None
+        self, fact_col: str, deserialized_data: dict, color_manger: ColorManager
     ):
-        self.chart_generating_strategy.chart_generating(
+        return self.chart_generating_strategy.chart_generating(
             fact_col=fact_col,
             deserialized_data=deserialized_data,
-            color_manger=color_manger,
+            color_manager=color_manger,
         )
 
 
@@ -158,9 +160,8 @@ class ChartGeneratorManager:
         else:
             self.chart_generator.set_strategy(TwoDimChartGeneratingStrategy())
 
-        self.chart_generator.chart_generating(
+        return self.chart_generator.chart_generating(
             fact_col=fact_col,
             deserialized_data=deserialized_data,
             color_manger=color_manger,
         )
-

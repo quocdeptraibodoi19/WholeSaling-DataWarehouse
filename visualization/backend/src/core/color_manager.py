@@ -2,8 +2,8 @@ import random
 
 
 class ColorManager:
-    def __init__(self, catched_colors: list[str]) -> None:
-        self.catched_colors = catched_colors
+    def __init__(self, catched_colors: list[str] = None) -> None:
+        self.catched_colors = catched_colors if catched_colors is not None else []
         self.cur = 0
 
     def generate_colors(self, num_colors: int) -> list[str]:

@@ -5,22 +5,22 @@ from psycopg2 import connect as psycopg2_connect
 
 class Connection:
     def __init__(self) -> None:
-        self.conn = None
+        self._conn = None
 
     def connect(self):
         raise NotImplemented("Subclasses should override this method.")
     
     @property
     def conn(self):
-        if self.conn is None:
+        if self._conn is None:
             raise LookupError(
                 "Connection is None ... please connect it to the external system first"
             )
-        return self.conn
+        return self._conn
 
     def disconnect(self):
-        if self.conn is not None:
-            self.conn.close()
+        if self._conn is not None:
+            self._conn.close()
 
 
 class DataWarehouseConnection(Connection):
@@ -34,9 +34,9 @@ class DataWarehouseConnection(Connection):
         }
 
     def connect(self):
-        if self.conn is None:
-            self.conn = hive_connect(**self.creds)
-        return self.conn
+        if self._conn is None:
+            self._conn = hive_connect(**self.creds)
+        return self._conn
 
 
 class OperationalDBConnection(Connection):
@@ -51,6 +51,6 @@ class OperationalDBConnection(Connection):
         }
 
     def connect(self):
-        if self.conn is None:
-            self.conn = psycopg2_connect(**self.creds)
-        return self.conn
+        if self._conn is None:
+            self._conn = psycopg2_connect(**self.creds)
+        return self._conn
