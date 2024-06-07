@@ -38,3 +38,6 @@ class ColorManager:
             self.append_colors(num_colors=1)
         self.cur += 1
         return self.catched_colors[self.cur - 1]
+    
+    def get_catched_color(self):
+        return self.catched_colors

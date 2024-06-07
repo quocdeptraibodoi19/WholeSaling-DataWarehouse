@@ -1,6 +1,6 @@
 from pyhive.hive import connect as hive_connect
 import os
-from psycopg2 import connect as psycopg2_connect
+from psycopg2 import connect as psycopg2_connect, sql
 
 
 class Connection:
@@ -54,3 +54,7 @@ class OperationalDBConnection(Connection):
         if self._conn is None:
             self._conn = psycopg2_connect(**self.creds)
         return self._conn
+
+    @staticmethod
+    def get_postgres_sql(query: str):
+        return sql.SQL(query)
