@@ -35,6 +35,6 @@ class ColorManager:
 
     def increment(self):
         if self.cur == len(self.catched_colors):
-            self.generate_colors(num_colors=1)
+            self.append_colors(num_colors=1)
         self.cur += 1
         return self.catched_colors[self.cur - 1]

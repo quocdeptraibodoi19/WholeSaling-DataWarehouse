@@ -25,7 +25,7 @@ class PieChartDataset(ChartDataset):
 
 
 class MapchartDataset(ChartDataset):
-    backgroundColor: str
+    label: str
     data: int | float
 
 

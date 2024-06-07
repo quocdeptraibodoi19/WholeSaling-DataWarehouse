@@ -12,6 +12,7 @@ select
     person_Address.postal_code, 
     person_Address.addressline1 || ' '|| coalesce(person_Address.addressline2, '') as address_line,
     person_StateProvince.state_province_name as state_name,
+    person_CountryRegion.{{ env_var("hr_source") }} as country_code,
     person_CountryRegion.country_name,
     case
         when person_Address.is_valid = 0 

@@ -22,7 +22,7 @@ class OneDimChartGeneratingStrategy(ChartGeneratingStrategy):
     def chart_generating(
         self, fact_col: str, deserialized_data: dict, color_manager: ColorManager
     ):
-        dim_data = deserialized_data.keys()
+        dim_data = sorted(list(deserialized_data.keys()))
         fact_data = []
         for dim in dim_data:
             fact_data.append(deserialized_data[dim][fact_col])
@@ -46,7 +46,7 @@ class OneDimPieChartGenerattingStrategy(ChartGeneratingStrategy):
         deserialized_data: dict,
         color_manager: ColorManager,
     ):
-        dim_data = deserialized_data.keys()
+        dim_data = sorted(list(deserialized_data.keys()))
         fact_data = []
         for dim in dim_data:
             fact_data.append(deserialized_data[dim][fact_col])
@@ -70,7 +70,7 @@ class MapChartGeneratingStrategy(ChartGeneratingStrategy):
         deserialized_data: dict,
         color_manager: ColorManager,
     ):
-        country_dim_data = deserialized_data.keys()
+        country_dim_data = sorted(list(deserialized_data.keys()))
         fact_data = []
         for dim in country_dim_data:
             fact_data.append(deserialized_data[dim][fact_col])
@@ -81,6 +81,7 @@ class MapChartGeneratingStrategy(ChartGeneratingStrategy):
                 zip(country_dim_data, fact_data),
             )
         )
+
         return {"labels": [], "datasets": datasets}
 
 
@@ -93,24 +94,26 @@ class TwoDimChartGeneratingStrategy(ChartGeneratingStrategy):
         deserialized_data: dict,
         color_manager: ColorManager,
     ):
-
+        print(f"The current deserialized_data is: {deserialized_data}")
         first_dim_data, sec_dim_data = [], []
 
-        first_dim_data = deserialized_data.keys()
-        sec_dim_data = deserialized_data[first_dim_data[0]].keys()
+        first_dim_data = sorted(list(deserialized_data.keys()))
+        sec_dim_data = sorted(list(deserialized_data[first_dim_data[0]].keys()))
 
         datasets = []
         for sec_dim in sec_dim_data:
             temp_fact_data = []
             temp_dict = {}
             for first_dim in first_dim_data:
+                print(f"first_dim: {first_dim}")
+                print(f"sec_dim: {sec_dim}")
                 temp_fact_data.append(deserialized_data[first_dim][sec_dim][fact_col])
-                temp_dict = {
-                    "label": sec_dim,
-                    "backgroundColor": color_manager.increment(),
-                    "data": temp_fact_data,
-                }
-                datasets.append(temp_dict)
+            temp_dict = {
+                "label": sec_dim,
+                "backgroundColor": color_manager.increment(),
+                "data": temp_fact_data,
+            }
+            datasets.append(temp_dict)
 
         return {"labels": first_dim_data, "datasets": datasets}
 
@@ -154,7 +157,7 @@ class ChartGeneratorManager:
             ):
                 self.chart_generator.set_strategy(OneDimChartGeneratingStrategy())
             elif chart_type == ConstantProvider.pie_chart_name():
-                self.chart_generator.set_strategy(OneDimChartGeneratingStrategy())
+                self.chart_generator.set_strategy(OneDimPieChartGenerattingStrategy())
             elif chart_type == ConstantProvider.map_chart_name():
                 self.chart_generator.set_strategy(MapChartGeneratingStrategy())
         else:
