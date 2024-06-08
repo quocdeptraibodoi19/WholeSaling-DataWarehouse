@@ -1,11 +1,11 @@
 AdventureWork:
   outputs:
-   dev:
-    type: spark
-    method: thrift
-    host: node01
-    port: 10000
-    user: hive
-    schema: "{{ env_var('DW_SCHEMA') }}" 
-    threads: 1 # Execute sequentially once per time due to the limitation on resource
+    dev:
+      type: spark
+      method: thrift
+      host: "{{ env_var('dw_host') }}"
+      port: "{{ env_var('dw_port') | int }}"
+      user: "{{ env_var('dw_user') }}"
+      schema: "{{ env_var('DW_SCHEMA') }}" 
+      threads: 1  # Execute sequentially once per time due to the limitation on resource
   target: dev

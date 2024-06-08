@@ -16,11 +16,18 @@ class SelectedDim:
         dim_columns: list[str],
         dim_key: str,
         ref_fact_key: str,
+        where_coditions: list[str] = None,
     ):
         self._dim_name = dim_name
         self._dim_columns = dim_columns
         self._dim_key = dim_key
         self._ref_fact_key = ref_fact_key
+        self._where_coditions = [] if where_coditions is None else where_coditions
+
+        if self._dim_name in ConstantProvider.SCD_dims_list():
+            self._where_coditions.append(
+                ConstantProvider.valid_dim_condition(self._dim_name)
+            )
 
     @property
     def dim_name(self) -> str:
@@ -37,6 +44,10 @@ class SelectedDim:
     @property
     def ref_fact_key(self) -> str:
         return self._ref_fact_key
+
+    @property
+    def where_coditions(self) -> list[str]:
+        return self._where_coditions
 
 
 class SelectedFact:
@@ -79,6 +90,11 @@ class SimpleFactDimStrategy(ParsingStrategy):
         dim_columns = selected_dim.dim_columns
         dim_key = selected_dim.dim_key
         fact_key = selected_dim.ref_fact_key
+        where_conditions = (
+            f" WHERE {' AND '.join(selected_dim.where_coditions)}"
+            if len(selected_dim.where_coditions) > 0
+            else ""
+        )
 
         fact_kpi_sale_amount = ConstantProvider.fact_kpi_sale_amount()
         fact_kpi_quantity = ConstantProvider.fact_kpi_quantity()
@@ -92,10 +108,16 @@ class SimpleFactDimStrategy(ParsingStrategy):
 
         if fact_column == fact_kpi_sale_amount:
             return (
-                f'SELECT SUM(sales_amount) AS `{fact_kpi_sale_amount}`, ' + common_query
+                f"SELECT SUM(sales_amount) AS `{fact_kpi_sale_amount}`, "
+                + common_query
+                + where_conditions
             )
         elif fact_column == fact_kpi_quantity:
-            return f'SELECT COUNT(*) AS `{fact_kpi_quantity}`, ' + common_query
+            return (
+                f"SELECT COUNT(*) AS `{fact_kpi_quantity}`, "
+                + common_query
+                + where_conditions
+            )
 
 
 class TwoDimFactStrategy(ParsingStrategy):
@@ -111,10 +133,26 @@ class TwoDimFactStrategy(ParsingStrategy):
         first_dim_name = selected_first_dim.dim_name
         first_dim_columns = selected_first_dim.dim_columns
         first_dim_key = selected_first_dim.dim_key
+        first_dim_conditions = (
+            ""
+            if len(selected_first_dim.where_coditions) == 0
+            else " AND ".join(selected_first_dim.where_coditions)
+        )
 
         sec_dim_name = selected_sec_dim.dim_name
         sec_dim_columns = selected_sec_dim.dim_columns
         sec_dim_key = selected_sec_dim.dim_key
+        sec_dim_conditions = (
+            ""
+            if len(selected_sec_dim.where_coditions) == 0
+            else " AND ".join(selected_sec_dim.where_coditions)
+        )
+
+        where_conditions = ""
+        if (first_dim_conditions, sec_dim_conditions) != ("", ""):
+            where_conditions = (
+                " WHERE " + first_dim_conditions + " " + sec_dim_conditions
+            )
 
         fact_kpi_sale_amount = ConstantProvider.fact_kpi_sale_amount()
         fact_kpi_quantity = ConstantProvider.fact_kpi_quantity()
@@ -128,10 +166,16 @@ class TwoDimFactStrategy(ParsingStrategy):
 
         if fact_column == fact_kpi_sale_amount:
             return (
-                f'SELECT SUM(sales_amount) AS `{fact_kpi_sale_amount}`, ' + common_query
+                f"SELECT SUM(sales_amount) AS `{fact_kpi_sale_amount}`, "
+                + common_query
+                + where_conditions
             )
         elif fact_column == fact_kpi_quantity:
-            return f'SELECT COUNT(*) AS `{fact_kpi_quantity}`, ' + common_query
+            return (
+                f"SELECT COUNT(*) AS `{fact_kpi_quantity}`, "
+                + common_query
+                + where_conditions
+            )
 
 
 class QueryParser:
@@ -160,3 +204,19 @@ class QueryParserManager:
         elif len(selected_fact.selected_dims) == 2:
             self.query_parser.set_strategy(TwoDimFactStrategy())
             return self.query_parser.parse_query(selected_fact=selected_fact)
+
+    @staticmethod
+    def total_orders_query():
+        return ConstantProvider.total_orders_query()
+
+    @staticmethod
+    def total_customers_query():
+        return ConstantProvider.total_customers_query()
+
+    @staticmethod
+    def total_sales_amount_query():
+        return ConstantProvider.total_sales_amount_query()
+
+    @staticmethod
+    def total_products_query():
+        return ConstantProvider.total_products_query()

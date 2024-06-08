@@ -61,3 +61,10 @@ class FetchedChartMetaData(BaseModel):
     chartName: str
     chartType: str
     chart: BarChart | LineChart | PieChart | MapChart
+
+
+class FetchedDataWidget(BaseModel):
+    totalSalesAmount: int | float
+    totalOrders: int
+    totalCustomers: int
+    totalProducts: int
