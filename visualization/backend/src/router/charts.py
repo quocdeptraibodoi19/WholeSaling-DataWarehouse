@@ -30,6 +30,7 @@ from models.chart import (
     ChartMetaData,
     ChartState,
     FetchedChartMetaData,
+    FetchedDataWidget,
 )
 from src.constants import ConstantProvider
 
@@ -254,3 +255,35 @@ def get_all_charts():
             cursor.close()
         if connection:
             connection.close()
+
+
+@router.get("/data-fetch", response_model=FetchedDataWidget)
+def data_fetching():
+    data_warehouse_connection = DataWarehouseConnection()
+    try:
+        data_warehouse_connection.connect()
+        connection = data_warehouse_connection.conn
+        cursor = connection.cursor()
+
+        queries = [
+            QueryParserManager.total_customers_query(),
+            QueryParserManager.total_sales_amount_query(),
+            QueryParserManager.total_orders_query(),
+            QueryParserManager.total_products_query(),
+        ]
+
+        result = {}
+        for query in queries:
+            cursor.execute(query)
+            record = cursor.fetchone()
+            result[cursor.description[0][0]] = record[0]
+
+        return result
+
+    except Exception:
+        print(traceback.format_exc())
+        raise (Exception)
+    finally:
+        if cursor:
+            cursor.close()
+        connection.close()
