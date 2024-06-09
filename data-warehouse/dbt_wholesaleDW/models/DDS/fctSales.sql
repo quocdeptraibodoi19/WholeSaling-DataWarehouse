@@ -34,7 +34,11 @@ select
             then CAST(sales_SalesOrderDetail.line_total AS DECIMAL(10, 2)) * CAST(sales_SalesOrderDetail.unit_price_discount AS DECIMAL(10, 2))
         else CAST(sales_SalesOrderDetail.line_total AS DECIMAL(10, 2))
     end as total_discount,
-    sales_SalesOrderHeader.tax_amt
+    sales_SalesOrderHeader.tax_amt,
+    greatest(
+        sales_SalesOrderHeader.updated_at,
+        sales_SalesOrderDetail.updated_at
+    ) as updated_at
 
 from {{ ref('sales_SalesOrderHeader') }}
 inner join  {{ ref('sales_SalesOrderDetail') }} 
