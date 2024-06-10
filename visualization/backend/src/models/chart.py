@@ -7,7 +7,7 @@ class ChartBase(BaseModel):
 
 
 class ChartDataset(BaseModel):
-    label: str
+    label: str | int | float
 
 
 class BarChartDataset(ChartDataset):
@@ -26,7 +26,6 @@ class PieChartDataset(ChartDataset):
 
 
 class MapchartDataset(ChartDataset):
-    label: str
     data: int | float
 
 
