@@ -90,11 +90,6 @@ class SimpleFactDimStrategy(ParsingStrategy):
         dim_columns = selected_dim.dim_columns
         dim_key = selected_dim.dim_key
         fact_key = selected_dim.ref_fact_key
-        where_conditions = (
-            f" WHERE {' AND '.join(selected_dim.where_coditions)}"
-            if len(selected_dim.where_coditions) > 0
-            else ""
-        )
 
         fact_kpi_sale_amount = ConstantProvider.fact_kpi_sale_amount()
         fact_kpi_quantity = ConstantProvider.fact_kpi_quantity()
@@ -103,21 +98,17 @@ class SimpleFactDimStrategy(ParsingStrategy):
             f"{','.join(dim_columns)} FROM {fact_name} "
             f"INNER JOIN {dim_name} "
             f"ON {fact_name}.{fact_key} = {dim_name}.{dim_key} "
-            f"GROUP BY {','.join(dim_columns)}"
+            f" WHERE {' AND '.join(selected_dim.where_coditions)} "
+            if len(selected_dim.where_coditions) > 0
+            else " " f"GROUP BY {','.join(dim_columns)}"
         )
 
         if fact_column == fact_kpi_sale_amount:
             return (
-                f"SELECT SUM(sales_amount) AS `{fact_kpi_sale_amount}`, "
-                + common_query
-                + where_conditions
+                f"SELECT SUM(sales_amount) AS `{fact_kpi_sale_amount}`, " + common_query
             )
         elif fact_column == fact_kpi_quantity:
-            return (
-                f"SELECT COUNT(*) AS `{fact_kpi_quantity}`, "
-                + common_query
-                + where_conditions
-            )
+            return f"SELECT COUNT(*) AS `{fact_kpi_quantity}`, " + common_query
 
 
 class TwoDimFactStrategy(ParsingStrategy):
@@ -148,12 +139,6 @@ class TwoDimFactStrategy(ParsingStrategy):
             else " AND ".join(selected_sec_dim.where_coditions)
         )
 
-        where_conditions = ""
-        if (first_dim_conditions, sec_dim_conditions) != ("", ""):
-            where_conditions = (
-                " WHERE " + first_dim_conditions + " " + sec_dim_conditions
-            )
-
         fact_kpi_sale_amount = ConstantProvider.fact_kpi_sale_amount()
         fact_kpi_quantity = ConstantProvider.fact_kpi_quantity()
 
@@ -161,21 +146,18 @@ class TwoDimFactStrategy(ParsingStrategy):
             f"{','.join(first_dim_columns)}, {','.join(sec_dim_columns)} FROM {fact_name} "
             f"INNER JOIN {first_dim_name} ON {fact_name}.{first_fact_key} = {first_dim_name}.{first_dim_key} "
             f"INNER JOIN {sec_dim_name} ON {fact_name}.{sec_fact_key} = {sec_dim_name}.{sec_dim_key} "
+            " WHERE " + first_dim_conditions + " " + sec_dim_conditions + " "
+            if (first_dim_conditions, sec_dim_conditions) != ("", "")
+            else " "
             f"GROUP BY {','.join(first_dim_columns)}, {','.join(sec_dim_columns)}"
         )
 
         if fact_column == fact_kpi_sale_amount:
             return (
-                f"SELECT SUM(sales_amount) AS `{fact_kpi_sale_amount}`, "
-                + common_query
-                + where_conditions
+                f"SELECT SUM(sales_amount) AS `{fact_kpi_sale_amount}`, " + common_query
             )
         elif fact_column == fact_kpi_quantity:
-            return (
-                f"SELECT COUNT(*) AS `{fact_kpi_quantity}`, "
-                + common_query
-                + where_conditions
-            )
+            return f"SELECT COUNT(*) AS `{fact_kpi_quantity}`, " + common_query
 
 
 class QueryParser:
