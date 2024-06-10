@@ -42,42 +42,7 @@ SELECT
     S.[ModifiedDate]
 FROM
     [AdventureWorks2014].[Sales].[SalesOrderDetail] S
-    INNER JOIN (
-        SELECT
-            ROW_NUMBER() OVER (
-                ORDER BY
-                    (
-                        SELECT
-                            NULL
-                    )
-            ) AS ProductID,
-            [ProductID] AS OldProductID,
-            [Name],
-            [ProductNumber],
-            [MakeFlag],
-            [FinishedGoodsFlag],
-            [Color],
-            [SafetyStockLevel],
-            [ReorderPoint],
-            [StandardCost],
-            [ListPrice],
-            [Size],
-            [SizeUnitMeasureCode],
-            [WeightUnitMeasureCode],
-            [Weight],
-            [DaysToManufacture],
-            [ProductLine],
-            [Class],
-            [Style],
-            [ProductSubcategoryID],
-            [ProductModelID],
-            [SellStartDate],
-            [SellEndDate],
-            [DiscontinuedDate],
-            [ModifiedDate]
-        FROM
-            [AdventureWorks2014].[Production].[Product]
-    ) AS CTE ON CTE.OldProductID = S.ProductID
+    INNER JOIN [AdventureWorks2014].[Production].[Product] CTE ON CTE.ProductID = S.ProductID
     INNER JOIN (
         SELECT
             ROW_NUMBER() OVER (

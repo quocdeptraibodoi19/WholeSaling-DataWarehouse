@@ -30,3 +30,20 @@ SELECT
     [ModifiedDate]
 FROM
     [AdventureWorks2014].[Sales].[ShoppingCartItem]
+WHERE
+    ProductID IN (
+        SELECT
+            ProductID
+        FROM
+            [AdventureWorks2014].[Production].[Product]
+        WHERE
+            [ProductID] IN (
+                SELECT
+                    [ProductID]
+                FROM
+                    [AdventureWorks2014].[Sales].[SalesOrderDetail] Q
+                    INNER JOIN [AdventureWorks2014].[Sales].[SalesOrderHeader] C ON C.SalesOrderID = Q.SalesOrderID
+                WHERE
+                    C.OnlineOrderFlag = 1
+            )
+    )
