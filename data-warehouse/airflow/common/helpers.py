@@ -247,12 +247,16 @@ class ConstantsProvider:
         return f"temp_delta_reconcile_delete_{ConstantsProvider.get_staging_table(source, table)}"
     
     @staticmethod
+    def get_resolved_DQ_table():
+        return "resolved_data_quality"
+
+    @staticmethod
     def get_DQ_table():
         return "data_quality"
 
     @staticmethod
     def get_DQ_table_schema():
-        return ["id", "source", "mapping_id", "mapping_source"]
+        return ["id", "source"]
     
     @staticmethod
     def get_fullload_ingest_file():

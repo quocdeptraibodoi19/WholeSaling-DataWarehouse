@@ -13,7 +13,13 @@ from datetime import datetime, timedelta
 from common.helpers import ConstantsProvider
 
 from airflow.models.dag import DAG
+from airflow.operators.python import PythonOperator
 from airflow.operators.bash import BashOperator
+
+from ingest.data_firewall import (
+    compare_and_identify_ambiguous_records,
+    move_ambiguous_records_to_DQ_table,
+)
 
 import subprocess
 
@@ -46,6 +52,22 @@ dbt_selected_models = [
 ]
 
 
+def ambiguous_recods_identification(
+    hive_tables: list[str], primary_key: str, ambiguous_key: str, logger: logging.Logger
+):
+    ambiguous_records = compare_and_identify_ambiguous_records(
+        hive_tables=hive_tables,
+        primary_key=primary_key,
+        ambiguous_key=ambiguous_key,
+        logger=logger,
+    )
+    if len(ambiguous_records) != 0:
+        move_ambiguous_records_to_DQ_table([ambiguous_records], logger)
+        raise (
+            f"There are {len(ambiguous_records)} ambiguous records. Please confirm it!"
+        )
+
+
 with DAG(
     f"data_warehouse_transformation",
     default_args=ConstantsProvider.default_dag_args(),
@@ -54,14 +76,31 @@ with DAG(
     start_date=datetime(2024, 1, 1),
     catchup=False,
 ) as dag:
-    
-    task_id = f"dbt_snapshot"
-    dbt_command = f"cd {DBT_PROJECT_DIR} && dbt snapshot"
-    previous_task = BashOperator(
-        task_id=task_id,
-        bash_command=dbt_command,
+
+    data_fire_wall = PythonOperator(
+        task_id="data_fire_wall",
+        python_callable=ambiguous_recods_identification,
+        op_kwargs={
+            "hive_tables": [
+                "product_management_platform_product",
+                "ecomerce_product",
+                "wholesale_system_product",
+            ],
+            "primary_key": "productid",
+            "ambiguous_key": "name",
+            "logger": logger,
+        },
         dag=dag,
     )
+
+    previous_task = BashOperator(
+        task_id=f"dbt_snapshot",
+        bash_command=f"cd {DBT_PROJECT_DIR} && dbt snapshot",
+        dag=dag,
+    )
+
+    data_fire_wall >> previous_task
+
     for model in dbt_selected_models:
         task_id = f"dbt_build_{model}"
         dbt_command = f"cd {DBT_PROJECT_DIR} && dbt build --select +{model}"
