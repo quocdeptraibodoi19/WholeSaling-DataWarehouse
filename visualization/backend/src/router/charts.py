@@ -70,8 +70,9 @@ def preview_chart(
             dim_name = dimension.dim_name
             dim_key = dimension.dim_key
             ref_fact_key = dimension.ref_fact_key
+            dim_condition=dimension.dim_condition
 
-            dimensions.append(SelectedDim(dim_name, dim_columns, dim_key, ref_fact_key))
+            dimensions.append(SelectedDim(dim_name, dim_columns, dim_key, ref_fact_key, dim_condition))
 
         selected_fact = SelectedFact(
             client_chart_metadata.fact_name,
@@ -186,7 +187,7 @@ def save_chart(chart_state: ChartState, chart_name: Annotated[str, Body()]):
             connection.close()
 
 
-@router.delete("/charts/{chart_id}")
+@router.delete("/{chart_id}")
 def delete_chart(chart_id: str):
     db_connection = OperationalDBConnection()
     connection = db_connection.connect()
@@ -215,7 +216,7 @@ def delete_chart(chart_id: str):
             connection.close()
 
 
-@router.get("/charts", response_model=list[FetchedChartMetaData])
+@router.get("/", response_model=list[FetchedChartMetaData])
 def get_all_charts():
     db_connection = OperationalDBConnection()
     connection = db_connection.connect()

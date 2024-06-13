@@ -16,18 +16,38 @@ class SelectedDim:
         dim_columns: list[str],
         dim_key: str,
         ref_fact_key: str,
-        where_coditions: list[str] = None,
+        dim_condition: list[str] = None,
     ):
         self._dim_name = dim_name
         self._dim_columns = dim_columns
         self._dim_key = dim_key
         self._ref_fact_key = ref_fact_key
-        self._where_coditions = [] if where_coditions is None else where_coditions
+
+        where_condition = self._process_raw_dim_condition(dim_condition)
+        self._where_coditions = [] if where_condition is None else [where_condition]
 
         if self._dim_name in ConstantProvider.SCD_dims_list():
             self._where_coditions.append(
                 ConstantProvider.valid_dim_condition(self._dim_name)
             )
+
+    def _process_raw_dim_condition(self, dim_condition: list[dict]):
+        if dim_condition == []:
+            return None
+        conditions = []
+        for condition in dim_condition:
+            temp_conditions = []
+            for condition_key in condition.keys():
+                if type(condition[condition_key]) == str:
+                    temp_conditions.append(
+                        f"{condition_key}='{condition[condition_key]}'"
+                    )
+                else:
+                    temp_conditions.append(
+                        f"{condition_key}={condition[condition_key]}"
+                    )
+            conditions.append(f'( {" and ".join(temp_conditions)} )')
+        return f'( {" or ".join(conditions)} )'
 
     @property
     def dim_name(self) -> str:

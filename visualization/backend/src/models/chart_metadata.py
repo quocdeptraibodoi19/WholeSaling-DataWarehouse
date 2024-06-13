@@ -22,6 +22,7 @@ class ClientDimensionMetaData(BaseModel):
     dim_column: str
     dim_key: str
     ref_fact_key: str
+    dim_condition: list[dict]
 
 class ClientChartMetaData(BaseModel):
     chart_type: str
