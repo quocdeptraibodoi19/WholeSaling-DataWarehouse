@@ -16,25 +16,48 @@ class SelectedDim:
         dim_columns: list[str],
         dim_key: str,
         ref_fact_key: str,
-        where_coditions: list[str] = None,
+        dim_condition: list[str] = None,
     ):
         self._dim_name = dim_name
         self._dim_columns = dim_columns
         self._dim_key = dim_key
         self._ref_fact_key = ref_fact_key
-        self._where_coditions = [] if where_coditions is None else where_coditions
+
+        where_condition = self._process_raw_dim_condition(dim_condition)
+        self._where_coditions = [] if where_condition is None else [where_condition]
 
         if self._dim_name in ConstantProvider.SCD_dims_list():
             self._where_coditions.append(
                 ConstantProvider.valid_dim_condition(self._dim_name)
             )
 
+    def __repr__(self):
+        return str((self._dim_name, self._dim_columns))
+
+    def _process_raw_dim_condition(self, dim_condition: list[dict]):
+        if dim_condition == []:
+            return None
+        conditions = []
+        for condition in dim_condition:
+            temp_conditions = []
+            for condition_key in condition.keys():
+                if type(condition[condition_key]) == str:
+                    temp_conditions.append(
+                        f"{condition_key}='{condition[condition_key]}'"
+                    )
+                else:
+                    temp_conditions.append(
+                        f"{condition_key}={condition[condition_key]}"
+                    )
+            conditions.append(f'( {" and ".join(temp_conditions)} )')
+        return f'( {" or ".join(conditions)} )'
+
     @property
     def dim_name(self) -> str:
         return self._dim_name
 
     @property
-    def dim_columns(self) -> str:
+    def dim_columns(self) -> list[str]:
         return self._dim_columns
 
     @property
@@ -127,26 +150,19 @@ class TwoDimFactStrategy(ParsingStrategy):
         first_dim_name = selected_first_dim.dim_name
         first_dim_columns = selected_first_dim.dim_columns
         first_dim_key = selected_first_dim.dim_key
-        first_dim_conditions = (
-            ""
-            if len(selected_first_dim.where_coditions) == 0
-            else " AND ".join(selected_first_dim.where_coditions)
-        )
 
         sec_dim_name = selected_sec_dim.dim_name
         sec_dim_columns = selected_sec_dim.dim_columns
         sec_dim_key = selected_sec_dim.dim_key
-        sec_dim_conditions = (
-            ""
-            if len(selected_sec_dim.where_coditions) == 0
-            else " AND ".join(selected_sec_dim.where_coditions)
-        )
 
-        where_conditions = " "
-        if (first_dim_conditions, sec_dim_conditions) != ("", ""):
-            where_conditions = (
-                " WHERE " + first_dim_conditions + " " + sec_dim_conditions + " "
-            )
+        dim_conditions = (
+            selected_first_dim.where_coditions + selected_sec_dim.where_coditions
+        )
+        where_conditions = (
+            f" WHERE {' AND '.join(dim_conditions)} "
+            if len(dim_conditions) > 0
+            else " "
+        )
 
         fact_kpi_sale_amount = ConstantProvider.fact_kpi_sale_amount()
         fact_kpi_quantity = ConstantProvider.fact_kpi_quantity()

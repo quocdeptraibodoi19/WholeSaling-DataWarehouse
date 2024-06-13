@@ -98,7 +98,8 @@ class TwoDimChartGeneratingStrategy(ChartGeneratingStrategy):
         first_dim_data, sec_dim_data = [], []
 
         first_dim_data = sorted(list(deserialized_data.keys()))
-        sec_dim_data = sorted(list(deserialized_data[first_dim_data[0]].keys()))
+        if len(first_dim_data) > 0:
+            sec_dim_data = sorted(list(deserialized_data[first_dim_data[0]].keys()))
 
         datasets = []
         for sec_dim in sec_dim_data:
