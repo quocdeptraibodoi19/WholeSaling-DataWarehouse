@@ -31,6 +31,9 @@ class SelectedDim:
                 ConstantProvider.valid_dim_condition(self._dim_name)
             )
 
+    def __repr__(self):
+        return str((self._dim_name, self._dim_columns))
+
     def _process_raw_dim_condition(self, dim_condition: list[dict]):
         if dim_condition == []:
             return None
@@ -54,7 +57,7 @@ class SelectedDim:
         return self._dim_name
 
     @property
-    def dim_columns(self) -> str:
+    def dim_columns(self) -> list[str]:
         return self._dim_columns
 
     @property
@@ -152,7 +155,9 @@ class TwoDimFactStrategy(ParsingStrategy):
         sec_dim_columns = selected_sec_dim.dim_columns
         sec_dim_key = selected_sec_dim.dim_key
 
-        dim_conditions = selected_first_dim.where_coditions + selected_sec_dim.where_coditions
+        dim_conditions = (
+            selected_first_dim.where_coditions + selected_sec_dim.where_coditions
+        )
         where_conditions = (
             f" WHERE {' AND '.join(dim_conditions)} "
             if len(dim_conditions) > 0

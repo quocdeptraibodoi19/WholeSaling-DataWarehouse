@@ -64,8 +64,7 @@ def preview_chart(
             else:
                 dim_columns = [dimension.dim_column]
                 is_other_dims = True
-
-            global_dim_columns += dim_columns
+                global_dim_columns += dim_columns
 
             dim_name = dimension.dim_name
             dim_key = dimension.dim_key
@@ -75,6 +74,12 @@ def preview_chart(
             dimensions.append(
                 SelectedDim(dim_name, dim_columns, dim_key, ref_fact_key, dim_condition)
             )
+
+        if is_dim_date_quarter:
+            global_dim_columns += [
+                ConstantProvider.dim_date_year_column(),
+                ConstantProvider.dim_date_quarter_column(),
+            ]
 
         selected_fact = SelectedFact(
             client_chart_metadata.fact_name,
