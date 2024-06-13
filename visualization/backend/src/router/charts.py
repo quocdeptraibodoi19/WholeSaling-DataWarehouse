@@ -70,9 +70,11 @@ def preview_chart(
             dim_name = dimension.dim_name
             dim_key = dimension.dim_key
             ref_fact_key = dimension.ref_fact_key
-            dim_condition=dimension.dim_condition
+            dim_condition = dimension.dim_condition
 
-            dimensions.append(SelectedDim(dim_name, dim_columns, dim_key, ref_fact_key, dim_condition))
+            dimensions.append(
+                SelectedDim(dim_name, dim_columns, dim_key, ref_fact_key, dim_condition)
+            )
 
         selected_fact = SelectedFact(
             client_chart_metadata.fact_name,
@@ -199,6 +201,33 @@ def delete_chart(chart_id: str):
             "DELETE FROM chart WHERE chart_id = %s"
         )
         cursor.execute(delete_query, (chart_id,))
+
+        connection.commit()
+        return Response(status_code=200)
+
+    except Exception:
+        print(traceback.format_exc())
+        if connection:
+            connection.rollback()
+            print("Transaction rolled back")
+        return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+
+@router.delete("/")
+def delete_chart():
+    db_connection = OperationalDBConnection()
+    connection = db_connection.connect()
+    try:
+        cursor = connection.cursor()
+        connection.autocommit = False
+
+        delete_query = OperationalDBConnection.get_postgres_sql("DELETE FROM chart")
+        cursor.execute(delete_query)
 
         connection.commit()
         return Response(status_code=200)
