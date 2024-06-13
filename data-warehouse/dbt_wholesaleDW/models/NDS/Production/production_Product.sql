@@ -5,8 +5,36 @@
     ) 
 }}
 
+with production_product as (
+    select *
+    from {{ ref("stg__product_management_platform_product") }}
+),
+
+ecom_product as (
+    select *
+    from {{ ref("stg__ecomerce_product") }}
+    where stg__ecomerce_product.product_name not in (
+        select product_name from production_product
+    )
+),
+
+wholesale_product as (
+    select *
+    from {{ ref("stg__wholesale_system_product") }}
+    where stg__wholesale_system_product.product_name not in (
+        select product_name from production_product
+    )
+),
+cte_product as (
+    select * from production_product
+    union all
+    select * from ecom_product
+    union all
+    select * from wholesale_product
+)
+
 select
-    product_id,
+    {{ dbt_utils.generate_surrogate_key(['cte_product.product_name']) }} as product_id,
     product_name,
     product_number,
     make_flag,
@@ -35,7 +63,7 @@ select
     valid_to,
     is_deleted,
     is_valid
-from {{ ref("stg__product_management_platform_product") }}
+from cte_product
 
 where 1 = 1
 {% if is_incremental() %}

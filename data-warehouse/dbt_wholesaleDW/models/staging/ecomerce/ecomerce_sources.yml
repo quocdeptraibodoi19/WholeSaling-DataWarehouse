@@ -84,3 +84,6 @@ sources:
     - name: ecomerce_salesorderheadersalesreason
       tests:
         - is_not_empty_table
+    - name: ecomerce_product
+      tests:
+        - is_not_empty_table

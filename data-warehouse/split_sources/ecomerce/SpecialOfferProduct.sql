@@ -20,37 +20,17 @@ FROM
     [AdventureWorks2014].[Sales].[SpecialOfferProduct] S
     INNER JOIN (
         SELECT
-            ROW_NUMBER() OVER (
-                ORDER BY
-                    (
-                        SELECT
-                            NULL
-                    )
-            ) AS ProductID,
-            [ProductID] AS OldProductID,
-            [Name],
-            [ProductNumber],
-            [MakeFlag],
-            [FinishedGoodsFlag],
-            [Color],
-            [SafetyStockLevel],
-            [ReorderPoint],
-            [StandardCost],
-            [ListPrice],
-            [Size],
-            [SizeUnitMeasureCode],
-            [WeightUnitMeasureCode],
-            [Weight],
-            [DaysToManufacture],
-            [ProductLine],
-            [Class],
-            [Style],
-            [ProductSubcategoryID],
-            [ProductModelID],
-            [SellStartDate],
-            [SellEndDate],
-            [DiscontinuedDate],
-            [ModifiedDate]
+            [ProductID]
         FROM
-            [AdventureWorks2014].[Production].[Product]
-    ) AS CTE ON CTE.OldProductID = S.ProductID
+            [AdventureWorks2014].[Production].[Product] s
+        WHERE
+            [ProductID] IN (
+                SELECT
+                    [ProductID]
+                FROM
+                    [AdventureWorks2014].[Sales].[SalesOrderDetail] Q
+                    INNER JOIN [AdventureWorks2014].[Sales].[SalesOrderHeader] C ON C.SalesOrderID = Q.SalesOrderID
+                WHERE
+                    C.OnlineOrderFlag = 1
+            )
+    ) AS CTE ON CTE.ProductID = S.ProductID

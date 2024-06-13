@@ -62,3 +62,6 @@ sources:
     - name: wholesale_system_storeaddress
       tests:
         - is_not_empty_table
+    - name: wholesale_system_product
+      tests:
+        - is_not_empty_table

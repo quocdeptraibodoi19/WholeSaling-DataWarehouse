@@ -99,10 +99,10 @@ class ConstantsProvider:
         if ConstantsProvider.get_environment() == "local":
             # This is the credentials for the python to connect to hiveserver2
             return {
-                "host": os.getenv("hive_host"),
-                "port": int(os.getenv("hive_port")),
-                "username": os.getenv("hive_user"),
-                "database": os.getenv("hive_database"),
+                "host": os.getenv("dw_host"),
+                "port": int(os.getenv("dw_port")),
+                "username": os.getenv("dw_user"),
+                "database": os.getenv("dw_staging_db"),
             }
 
     @staticmethod
@@ -113,7 +113,7 @@ class ConstantsProvider:
                 "appname": "ELT-SPARKAPP",
                 "hive.metastore.uris": os.getenv("spark_hive_metastore_uris"),
                 "spark.sql.warehouse.dir": os.getenv("spark_sql_warehouse_dir"),
-                "spark.default.db": os.getenv("hive_database"),
+                "spark.default.db": os.getenv("dw_staging_db"),
             }
 
     @staticmethod
@@ -201,6 +201,10 @@ class ConstantsProvider:
     @staticmethod
     def get_update_key():
         return 'ModifiedDate'
+    
+    @staticmethod
+    def get_airflow_all_tables_option():
+        return "All Tables"
 
     @staticmethod
     def get_sources_datetime_format_standardization():
@@ -208,7 +212,7 @@ class ConstantsProvider:
 
     @staticmethod
     def get_staging_DW_name():
-        return os.getenv("hive_database")
+        return os.getenv("dw_staging_db")
 
     @staticmethod
     def get_delta_key_table():
@@ -243,12 +247,16 @@ class ConstantsProvider:
         return f"temp_delta_reconcile_delete_{ConstantsProvider.get_staging_table(source, table)}"
     
     @staticmethod
+    def get_resolved_DQ_table():
+        return "resolved_data_quality"
+
+    @staticmethod
     def get_DQ_table():
         return "data_quality"
 
     @staticmethod
     def get_DQ_table_schema():
-        return ["id", "source", "mapping_id", "mapping_source"]
+        return ["id", "source"]
     
     @staticmethod
     def get_fullload_ingest_file():

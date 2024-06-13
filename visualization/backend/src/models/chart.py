@@ -3,11 +3,11 @@ from .chart_metadata import ClientChartMetaData
 
 
 class ChartBase(BaseModel):
-    labels: list[str]
+    labels: list[str | int | float]
 
 
 class ChartDataset(BaseModel):
-    label: str
+    label: str | int | float
 
 
 class BarChartDataset(ChartDataset):
@@ -26,7 +26,6 @@ class PieChartDataset(ChartDataset):
 
 
 class MapchartDataset(ChartDataset):
-    label: str
     data: int | float
 
 
