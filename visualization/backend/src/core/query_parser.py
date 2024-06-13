@@ -147,26 +147,17 @@ class TwoDimFactStrategy(ParsingStrategy):
         first_dim_name = selected_first_dim.dim_name
         first_dim_columns = selected_first_dim.dim_columns
         first_dim_key = selected_first_dim.dim_key
-        first_dim_conditions = (
-            ""
-            if len(selected_first_dim.where_coditions) == 0
-            else " AND ".join(selected_first_dim.where_coditions)
-        )
 
         sec_dim_name = selected_sec_dim.dim_name
         sec_dim_columns = selected_sec_dim.dim_columns
         sec_dim_key = selected_sec_dim.dim_key
-        sec_dim_conditions = (
-            ""
-            if len(selected_sec_dim.where_coditions) == 0
-            else " AND ".join(selected_sec_dim.where_coditions)
-        )
 
-        where_conditions = " "
-        if (first_dim_conditions, sec_dim_conditions) != ("", ""):
-            where_conditions = (
-                " WHERE " + first_dim_conditions + " " + sec_dim_conditions + " "
-            )
+        dim_conditions = selected_first_dim.where_coditions + selected_sec_dim.where_coditions
+        where_conditions = (
+            f" WHERE {' AND '.join(dim_conditions)} "
+            if len(dim_conditions) > 0
+            else " "
+        )
 
         fact_kpi_sale_amount = ConstantProvider.fact_kpi_sale_amount()
         fact_kpi_quantity = ConstantProvider.fact_kpi_quantity()
