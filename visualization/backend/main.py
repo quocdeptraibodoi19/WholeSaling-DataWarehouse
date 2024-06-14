@@ -14,6 +14,7 @@ app.include_router(router=chart_router)
 
 allowed_origins = [
     "http://0.0.0.0:8084",
+    "http://localhost:8084"
 ]
 
 app.add_middleware(
