@@ -1,25 +1,29 @@
 import pandas as pd
+from enum import Enum
 
+
+class DataDeserializationLevel(Enum):
+    LEVEL_1 = 1
+    LEVEL_2 = 2
 
 class DataDeserializor:
     def __init__(self) -> None:
         pass
 
     @staticmethod
-    def generate_combined_key(row, dim_cols, wishing_level):
-        if len(dim_cols) == 1:
-            first_level_key = row[dim_cols[0]]
+    def generate_combined_key(row, dim_cols, wishing_level, is_having_quarter):
+        if wishing_level == DataDeserializationLevel.LEVEL_1:
+            if is_having_quarter:
+                first_level_key = " - ".join(str(row[dim_col]) for dim_col in dim_cols)
+            else:
+                first_level_key = row[dim_cols[0]]
             second_level_key = None
-        elif wishing_level == 1:
-            first_level_key = " - ".join(str(row[dim_col]) for dim_col in dim_cols)
-            second_level_key = None
-        else:
-            if wishing_level >= len(dim_cols):
-                wishing_level = len(dim_cols) - 1
-            first_level_key = row[dim_cols[0]]
-            second_level_key = " - ".join(
-                str(row[dim_col]) for dim_col in dim_cols[1 : wishing_level + 1]
-            )
+        elif wishing_level == DataDeserializationLevel.LEVEL_2:
+            if is_having_quarter:
+                first_level_key = " - ".join(str(row[dim_col]) for dim_col in dim_cols[0:2])
+            else:
+                first_level_key = row[dim_cols[0]]
+            second_level_key = row[dim_cols[len(dim_cols) - 1]]
         return first_level_key, second_level_key
 
     @staticmethod
@@ -42,11 +46,12 @@ class DataDeserializor:
         dim_cols: list,
         data: pd.DataFrame,
         nested_dict: dict,
-        maximum_wishing_level: int,
+        wishing_level: int,
+        is_having_quarter: bool = False
     ):
         for _, row in data.iterrows():
             first_level_key, second_level_key = DataDeserializor.generate_combined_key(
-                row, dim_cols, maximum_wishing_level
+                row, dim_cols, wishing_level, is_having_quarter
             )
             value = row[fact_col]
             DataDeserializor.nested_dict_update(

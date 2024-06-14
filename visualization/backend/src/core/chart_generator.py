@@ -98,17 +98,21 @@ class TwoDimChartGeneratingStrategy(ChartGeneratingStrategy):
         first_dim_data, sec_dim_data = [], []
         print (f"the first dim data is: {deserialized_data.keys()}")
         first_dim_data = sorted(list(deserialized_data.keys()))
-        if len(first_dim_data) > 0:
-            sec_dim_data = sorted(list(deserialized_data[first_dim_data[0]].keys()))
+
+        for first_dim_key in first_dim_data:
+            sec_dim_data += list(deserialized_data[first_dim_key].keys())
+        sec_dim_data = list(set(sec_dim_data))
+        print (f"the second dim data is: {sec_dim_data}")
 
         datasets = []
         for sec_dim in sec_dim_data:
             temp_fact_data = []
             temp_dict = {}
             for first_dim in first_dim_data:
-                print(f"first_dim: {first_dim}")
-                print(f"sec_dim: {sec_dim}")
-                temp_fact_data.append(deserialized_data[first_dim][sec_dim][fact_col])
+                if deserialized_data[first_dim].get(sec_dim):
+                    temp_fact_data.append(deserialized_data[first_dim][sec_dim][fact_col])
+                else:
+                    temp_fact_data.append(0)
             temp_dict = {
                 "label": sec_dim,
                 "backgroundColor": color_manager.increment(),

@@ -17,7 +17,7 @@ import traceback
 import json
 
 from core.connections import DataWarehouseConnection, OperationalDBConnection
-from core.data_processor import DataDeserializor
+from core.data_processor import DataDeserializor, DataDeserializationLevel
 from core.color_manager import ColorManager
 from core.chart_generator import ChartGeneratorManager
 from core.query_parser import SelectedFact, SelectedDim, QueryParserManager
@@ -50,7 +50,7 @@ def preview_chart(
 
         dimensions = []
         global_dim_columns = []
-        is_dim_date_quarter, is_other_dims = False, False
+        is_dim_date_quarter = False
         for dimension in client_dimensions_metadata:
             if (
                 dimension.dim_name == ConstantProvider.dim_date_name()
@@ -63,7 +63,6 @@ def preview_chart(
                 ]
             else:
                 dim_columns = [dimension.dim_column]
-                is_other_dims = True
                 global_dim_columns += dim_columns
 
             dim_name = dimension.dim_name
@@ -76,10 +75,10 @@ def preview_chart(
             )
 
         if is_dim_date_quarter:
-            global_dim_columns += [
+            global_dim_columns = [
                 ConstantProvider.dim_date_year_column(),
                 ConstantProvider.dim_date_quarter_column(),
-            ]
+            ] + global_dim_columns
 
         selected_fact = SelectedFact(
             client_chart_metadata.fact_name,
@@ -95,32 +94,31 @@ def preview_chart(
         data_deserializor = DataDeserializor()
         deserialized_data = {}
 
-        is_one_dim = False
-        if is_dim_date_quarter and not is_other_dims:
+        if len(dimensions) == 1:
             data_deserializor.multi_dim_deserialization(
                 client_chart_metadata.fact_column,
                 global_dim_columns,
                 chart_data,
                 deserialized_data,
-                1,
+                DataDeserializationLevel.LEVEL_1,
+                is_dim_date_quarter,
             )
-            is_one_dim = True
         else:
             data_deserializor.multi_dim_deserialization(
                 client_chart_metadata.fact_column,
                 global_dim_columns,
                 chart_data,
                 deserialized_data,
-                2,
+                DataDeserializationLevel.LEVEL_2,
+                is_dim_date_quarter,
             )
 
         color_manager = ColorManager(catched_colors=catched_colors)
-        is_one_dim = is_one_dim or len(global_dim_columns) == 1
         chart_generator_manager = ChartGeneratorManager()
 
         chart_metadata = chart_generator_manager.chart_generating(
             chart_type=client_chart_metadata.chart_type,
-            is_one_dim=is_one_dim,
+            is_one_dim=len(dimensions) == 1,
             fact_col=client_chart_metadata.fact_column,
             deserialized_data=deserialized_data,
             color_manger=color_manager,
