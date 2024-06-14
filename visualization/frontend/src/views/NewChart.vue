@@ -678,7 +678,9 @@ async function addChart() {
     console.log("Chart added successfully:", response.data);
     // Optionally reset fields after adding
     clearSelections();
-    router.push("/dashboard");
+    router.push("/dashboard").then(() => {
+      window.location.reload();
+    });
   } catch (error) {
     console.error("Error adding chart:", error);
   }

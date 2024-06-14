@@ -98,6 +98,8 @@ import HighchartsVue from "vue-highcharts";
 import mapInit from "highcharts/modules/map";
 import worldMap from "@highcharts/map-collection/custom/world.geo.json";
 import MapChart from "../components/MapChart.vue";
+import { useStore } from 'vuex';
+import { computed } from 'vue';
 
 mapInit(Highcharts);
 
@@ -112,46 +114,32 @@ import Navbar from "../components/Navbar.vue";
 import "../assets/styles/tailwind.css";
 import { ref } from "vue";
 
-const charts = ref(null);
 
+const store = useStore();
+const charts = computed(() => store.state.charts);
+const totals = computed(() => store.state.totals);
+const loading = computed(() => store.state.loading);
 
-const totals = ref(null);
-
-const loading = ref(false);
-
-async function fetchData() {
-  loading.value = true;
-  try {
-    const [totalsResponse] = await Promise.all([
-      axios.get(dataFetchAPI)
-    ]);
-    totals.value = totalsResponse.data;
-    console.log(totals.value)
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    // Handle errors as needed
+onMounted(() => {
+  if (!store.state.charts || !store.state.totals) {
+    console.log(2)
+    store.dispatch('fetchData');
   }
-  try {
-    const [chartsResponse] = await Promise.all([
-      axios.get(fetchAllChartsAPI)
-    ]);
-    charts.value = chartsResponse.data;
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    // Handle errors as needed
-  }
-  loading.value = false;
-}
+});
 
-// async function fetchData() {
+// const charts = ref(null);
+
+// const totals = ref(null);
+
+
+
+// async function fetchCharts() {
+//   console.log(1);
 //   loading.value = true;
 //   try {
-//     const [chartsResponse, totalsResponse] = await Promise.all([
-//       axios.get(dataFetchAPI),
-//       axios.get(fetchAllChartsAPI),
+//     const [chartsResponse] = await Promise.all([
+//       axios.get(fetchAllChartsAPI)
 //     ]);
-//     totals.value = totalsResponse.data;
-//     console.log(totals.value)
 //     charts.value = chartsResponse.data;
 //   } catch (error) {
 //     console.error("Error fetching data:", error);
@@ -160,21 +148,19 @@ async function fetchData() {
 //   loading.value = false;
 // }
 
-// function deleteChart(index) {
-//   const chartId = charts.value[index].id;
-//   console.log(chartId);
-//   charts.value.splice(index, 1); // Remove the chart from the array
-// }
-
-// async function deleteChart(index) {
-//   const chartId = charts.value[index].id;
-//   axios
-//     .post("/api/delete-chart", { id: chartId }) // Adjust the endpoint as necessary
-//     .then(() => {
-//       charts.value.splice(index, 1); // Remove the chart from the array
-//       console.log("Chart deleted successfully");
-//     })
-//     .catch((error) => console.error("Error deleting chart:", error));
+// async function fetchTotals() {
+//   loading.value = true;
+//   try {
+//     const [totalsResponse] = await Promise.all([
+//       axios.get(dataFetchAPI)
+//     ]);
+//     totals.value = totalsResponse.data;
+//     console.log(totals.value)
+//   } catch (error) {
+//     console.error("Error fetching data:", error);
+//     // Handle errors as needed
+//   }
+//   loading.value = false;
 // }
 
 async function deleteChart(index) {
@@ -188,5 +174,5 @@ async function deleteChart(index) {
   }
 }
 
-onMounted(fetchData);
+// onMounted(fetchData);
 </script>
