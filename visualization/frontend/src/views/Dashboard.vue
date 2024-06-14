@@ -101,9 +101,9 @@ import MapChart from "../components/MapChart.vue";
 
 mapInit(Highcharts);
 
-const fetchAllChartsAPI = "http://0.0.0.0:8081/charts/";
-const dataFetchAPI = "http://0.0.0.0:8081/charts/data-fetch";
-const deleteChartAPI = "http://0.0.0.0:8081/charts";
+const fetchAllChartsAPI = "http://localhost:8081/charts/";
+const dataFetchAPI = "http://localhost:8081/charts/data-fetch";
+const deleteChartAPI = "http://localhost:8081/charts";
 
 import { onMounted } from 'vue';
 

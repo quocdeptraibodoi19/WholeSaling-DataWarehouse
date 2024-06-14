@@ -375,8 +375,8 @@ import { ref, computed, watch } from "vue";
 
 
 // APT
-const previewChartAPI = "http://0.0.0.0:8081/charts/preview";
-const saveChartAPI = "http://0.0.0.0:8081/charts/save-chart";
+const previewChartAPI = "http://localhost:8081/charts/preview";
+const saveChartAPI = "http://localhost:8081/charts/save-chart";
 
 
 // const selectedCustomerDim = ref("");
