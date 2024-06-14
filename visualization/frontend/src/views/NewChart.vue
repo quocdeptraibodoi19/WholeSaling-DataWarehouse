@@ -324,11 +324,11 @@
       <!-- Chart -->
       <Bar v-if="chartData && selectedChartType === 'bar'" :data="chartData" />
       <Line v-if="chartData && selectedChartType === 'line'" :data="chartData" />
-      <div class="w-[600px]">
-        <Pie v-if="chartData && selectedChartType === 'pie'" :data="chartData" />
+      <div v-if="chartData && selectedChartType === 'pie'" class="w-[600px]">
+        <Pie :data="chartData" />
       </div>
-      <div class="w-[1000px] h-[600px]">
-        <MapChart v-if="chartData && selectedChartType === 'map'" :data="chartData" :chartId="0" />
+      <div v-if="chartData && selectedChartType === 'map'" class="w-[1000px] h-[600px]">
+        <MapChart :data="chartData" :chartId="0" />
       </div>
     </div>
   </div>
