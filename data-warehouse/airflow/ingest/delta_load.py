@@ -453,7 +453,14 @@ def check_full_load_yet(logger: logging.Logger, table: str, source: str):
 
         data_df = hive_sys.execute(query=query)
 
-        return data_df.empty is False
+        if data_df.empty:
+            return False
+        
+        LSET = str(data_df.to_dict("records")[0]["LSET"])
+        if LSET == 'None':
+            return False
+        
+        return True
 
     except Exception as e:
         logger.error(f"An error occurred: {e}")
