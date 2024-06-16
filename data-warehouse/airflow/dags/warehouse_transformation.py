@@ -62,8 +62,8 @@ def ambiguous_recods_identification(
         logger=logger,
     )
     if len(ambiguous_records) != 0:
-        move_ambiguous_records_to_DQ_table([ambiguous_records], logger)
-        raise (
+        move_ambiguous_records_to_DQ_table(logger, [ambiguous_records])
+        raise Exception (
             f"There are {len(ambiguous_records)} ambiguous records. Please confirm it!"
         )
 

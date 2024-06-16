@@ -55,7 +55,7 @@ def get_resolved_ambiguous_records(hive_sys: HiveDataHook, logger: logging.Logge
     resolved_ambiguous_records_query = (
         f"SELECT {','.join(DQ_table_schema)} FROM {ConstantsProvider.get_resolved_DQ_table()}"
     )
-    return list(hive_sys.execute(resolved_ambiguous_records_query))[0]
+    return hive_sys.execute(resolved_ambiguous_records_query)
 
 
 def data_hive_query_generator(
@@ -86,6 +86,8 @@ def compare_and_identify_ambiguous_records(
         hive_sys.connect()
 
         resolved_ambiguous_df = get_resolved_ambiguous_records(hive_sys, logger)
+        print(f"concat: {resolved_ambiguous_df}")
+        print(f"cailol: {type(resolved_ambiguous_df)}")
         resolved_ids = resolved_ambiguous_df["id"].tolist()
         resolved_sources = resolved_ambiguous_df["source"].tolist()
 
