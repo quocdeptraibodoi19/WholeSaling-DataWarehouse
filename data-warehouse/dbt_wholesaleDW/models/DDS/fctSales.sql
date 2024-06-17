@@ -38,7 +38,7 @@ select
     greatest(
         sales_SalesOrderHeader.updated_at,
         sales_SalesOrderDetail.updated_at
-    ) as updated_at
+    ) as fct_updated_at
 
 from {{ ref('sales_SalesOrderHeader') }}
 inner join  {{ ref('sales_SalesOrderDetail') }} 
@@ -48,6 +48,6 @@ inner join  {{ ref('sales_SalesOrderDetail') }}
 where 1 = 1
 {% if is_incremental() %}
 
-    and updated_at >= ( select max(updated_at) from {{ this }} )
+    and fct_updated_at >= ( select max(fct_updated_at) from {{ this }} )
 
 {% endif %}

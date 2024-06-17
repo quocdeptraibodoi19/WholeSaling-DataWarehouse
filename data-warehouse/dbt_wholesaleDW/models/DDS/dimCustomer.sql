@@ -45,7 +45,7 @@ select
         person_Address.updated_at,
         person_AddressType.updated_at,
         person_StateProvince.updated_at
-    ) as updated_at
+    ) as dim_updated_at
 
 from {{ ref('sales_Customer') }}
 left join {{ ref('person_Person') }} 
@@ -64,6 +64,6 @@ left join {{ ref('person_CountryRegion') }}
 where 1 = 1    
 {% if is_incremental() %}
 
-    and updated_at >= ( select max(updated_at) from {{ this }} )
+    and dim_updated_at >= ( select max(dim_updated_at) from {{ this }} )
 
 {% endif %}
