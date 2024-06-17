@@ -129,6 +129,10 @@ class ConstantsProvider:
         return f"trg_{table}_delete"
     
     @staticmethod
+    def modified_date_update_trigger(table):
+        return f"trg_{table}_modifieddate_update"
+
+    @staticmethod
     def delete_log_table_name(table):
         return f"delete_{table}_log"
 
@@ -268,7 +272,7 @@ class ConstantsProvider:
 
     @staticmethod
     def get_data_key_ingest_file():
-        return "data_keys_{}.csv"
+        return "data_keys_{}.parquet"
 
     @staticmethod
     def get_data_firewall_file():
@@ -349,6 +353,15 @@ class DataManipulatingManager:
 
         return transform
 
+    @staticmethod
+    def mapping_column_data_collection(column_1: str, column_2: str):
+        def transform(data: pd.DataFrame, logger: logging.Logger):
+            data[column_1] = data[column_2]
+            logger.info(f"Mapping column {column_1} with value of the column {column_2} ...")
+            logger.info(f"Tunning the dataframe: {data[column_1]}")
+            return data
+
+        return transform
 class SourceConfigHandler():
     def __init__(self, source: str, is_fullload: bool) -> None:
         self.full_load = is_fullload

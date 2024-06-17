@@ -1,7 +1,7 @@
 {{ 
     config(
         materialized='incremental',
-        unique_key=['product_key', 'updated_at']
+        unique_key=['product_key', 'dim_updated_at']
     ) 
 }}
 
@@ -29,7 +29,7 @@ select
         production_Product.updated_at,
         production_ProductSubcategory.updated_at,
         production_ProductCategory.updated_at
-    ) as updated_at
+    ) as dim_updated_at
 
 from  {{ ref('production_Product') }}
 left join  {{ ref('production_ProductSubcategory') }} 
@@ -40,6 +40,6 @@ left join  {{ ref('production_ProductCategory') }}
 where 1 = 1
 {% if is_incremental() %}
 
-    and updated_at >= ( select max(updated_at) from {{ this }} )
+    and dim_updated_at >= ( select max(dim_updated_at) from {{ this }} )
 
 {% endif %}
