@@ -1,7 +1,7 @@
 {{ 
     config(
         materialized='incremental',
-        unique_key=['address_key', 'updated_at']
+        unique_key=['address_key', 'dim_updated_at']
     ) 
 }}
 

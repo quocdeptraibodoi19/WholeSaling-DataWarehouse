@@ -95,7 +95,8 @@ with DAG(
 
     previous_task = BashOperator(
         task_id=f"dbt_snapshot",
-        bash_command=f"cd {DBT_PROJECT_DIR} && dbt snapshot",
+        # bash_command=f"cd {DBT_PROJECT_DIR} && dbt snapshot",
+        bash_command=f"cd {DBT_PROJECT_DIR}",
         dag=dag,
     )
 
