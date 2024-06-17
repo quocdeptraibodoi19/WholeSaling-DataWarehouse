@@ -1,306 +1,315 @@
 <template>
   <Navbar></Navbar>
+
   <div class="flex items-start">
-    <!-- Choose Fact, Dim value -->
+    <!-- Sidebar -->
     <div
-      class="flex flex-col w-[360px] h-full items-start gap-12 shrink-0 p-6 border-r border-solid bg-background-accent-2">
-      <div class="flex flex-col items-start gap-4 self-stretch">
-        <!-- Chart Type Selection -->
-        <div class="flex flex-col items-start gap-2 self-stretch">
-          <legend class="text-black [font-family:Figtree] text-2xl font-bold leading-[normal]">
-            Chart Type
-          </legend>
-          <div class="flex flex-col gap-2">
-            <label class="flex items-center gap-2">
-              <input type="radio" value="bar" v-model="selectedChartType" class="[font-family:Figtree]" />
-              Bar Chart
-            </label>
-            <label class="flex items-center gap-2">
-              <input type="radio" value="pie" v-model="selectedChartType" class="[font-family:Figtree]" />
-              Pie Chart
-            </label>
-            <label class="flex items-center gap-2">
-              <input type="radio" value="line" v-model="selectedChartType" class="[font-family:Figtree]" />
-              Line Chart
-            </label>
-            <label class="flex items-center gap-2">
-              <input type="radio" value="map" v-model="selectedChartType" class="[font-family:Figtree]" />
-              Map Chart
-            </label>
+      class="flex flex-col w-[360px] h-full items-start gap-12 shrink-0 p-6  border-r border-solid bg-background-accent-2">
+      <div class="flex flex-col justify-between h-full w-full">
+        <div class="overflow-auto">
+          <div class="flex flex-col items-start gap-4 self-stretch">
+            <!-- Chart Type Selection -->
+            <div class="flex flex-col items-start gap-2 self-stretch">
+              <legend class="text-black [font-family:Figtree] text-2xl font-bold leading-[normal]">
+                Chart Type
+              </legend>
+              <div class="flex flex-col gap-2">
+                <label class="flex items-center gap-2">
+                  <input type="radio" value="bar" v-model="selectedChartType" class="[font-family:Figtree]" />
+                  Bar Chart
+                </label>
+                <label class="flex items-center gap-2">
+                  <input type="radio" value="pie" v-model="selectedChartType" class="[font-family:Figtree]" />
+                  Pie Chart
+                </label>
+                <label class="flex items-center gap-2">
+                  <input type="radio" value="line" v-model="selectedChartType" class="[font-family:Figtree]" />
+                  Line Chart
+                </label>
+                <label class="flex items-center gap-2">
+                  <input type="radio" value="map" v-model="selectedChartType" class="[font-family:Figtree]" />
+                  Map Chart
+                </label>
+              </div>
+            </div>
+
+            <!-- KPI Selection -->
+            <div class="flex flex-col items-start gap-2 self-stretch">
+              <legend class="text-black [font-family:Figtree] text-2xl font-bold leading-[normal]">
+                KPI
+              </legend>
+              <div class="flex flex-col gap-2">
+                <label class="flex items-center gap-2">
+                  <input type="radio" :value="{
+                    fact_name: 'fctSales',
+                    fact_column: 'Sales Amount',
+                  }" v-model="selectedFact" />
+                  Sales Amount
+                </label>
+                <label class="flex items-center gap-2">
+                  <input type="radio" :value="{
+                    fact_name: 'fctSales',
+                    fact_column: 'Quantity',
+                  }" v-model="selectedFact" />
+                  Quantity
+                </label>
+              </div>
+            </div>
+
+            <hr class="bg-border" />
+
+            <!-- Time section -->
+            <div class="flex flex-col items-start gap-2 self-stretch">
+              <legend class="text-black [font-family:Figtree] text-2xl font-bold leading-[normal]">
+                Time
+              </legend>
+              <div class="flex flex-col gap-2">
+                <div>
+                  <!-- radio -->
+                  <label class="flex items-center gap-2">
+                    <input type="radio" value="year_number" v-model="dimTime.dim_column" />
+                    Year
+                  </label>
+
+                  <!-- checkbox -->
+                  <div class="pl-5" v-if="dimTime.dim_column == 'year_number'">
+                    <label class="flex items-center gap-2">
+                      <input type="checkbox" @change="selectAll('year', $event)" :checked="allSelected('year')" />
+                      Select All
+                    </label>
+                    <label class="flex items-center gap-2" v-for="year in years" :key="year">
+                      <input type="checkbox" :value="{ year_number: year }" v-model="dimTime.dim_condition" />
+                      {{ year }}
+                    </label>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="flex items-center gap-2">
+                    <input type="radio" value="quarter_of_year" v-model="dimTime.dim_column" />
+                    Quarter
+                  </label>
+                  <div class="pl-5" v-if="dimTime.dim_column == 'quarter_of_year'">
+                    <label class="flex items-center gap-2">
+                      <input type="checkbox" @change="selectAll('quarter', $event)" :checked="allSelected('quarter')" />
+                      Select All
+                    </label>
+                    <label class="flex items-center gap-2" v-for="quarter in quarters" :key="quarter">
+                      <input type="checkbox" :value="{ quarter_of_year: quarter.quarter, year_number: quarter.year }"
+                        v-model="dimTime.dim_condition" />
+                      Q{{ quarter.quarter }} - {{ quarter.year }}
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Customer section -->
+            <div class="flex flex-col items-start gap-2 self-stretch">
+              <legend class="text-black [font-family:Figtree] text-2xl font-bold leading-[normal]">
+                Customer
+              </legend>
+              <div class="flex flex-col gap-2">
+                <!-- gender -->
+                <div>
+                  <!-- radio -->
+                  <label class="flex items-center gap-2">
+                    <input type="radio" value="gender" v-model="dimCustomer.dim_column" />
+                    Gender
+                  </label>
+
+                  <!-- checkbox -->
+                  <div class="pl-5" v-if="dimCustomer.dim_column == 'gender'">
+                    <label class="flex items-center gap-2">
+                      <input type="checkbox" @change="selectAll('gender', $event)" :checked="allSelected('gender')" />
+                      Select All
+                    </label>
+                    <label class="flex items-center gap-2">
+                      <input type="checkbox" :value="{ gender: 'M' }" v-model="dimCustomer.dim_condition" />
+                      Male
+                    </label>
+                    <label class="flex items-center gap-2">
+                      <input type="checkbox" :value="{ gender: 'F' }" v-model="dimCustomer.dim_condition" />
+                      Female
+                    </label>
+                  </div>
+                </div>
+
+                <!-- education -->
+                <div>
+                  <!-- radio -->
+                  <label class="flex items-center gap-2">
+                    <input type="radio" value="education" v-model="dimCustomer.dim_column" />
+                    Education
+                  </label>
+
+                  <!-- checkbox -->
+                  <div class="pl-5" v-if="dimCustomer.dim_column == 'education'">
+                    <label class="flex items-center gap-2">
+                      <input type="checkbox" @change="selectAll('education', $event)"
+                        :checked="allSelected('education')" />
+                      Select All
+                    </label>
+                    <label class="flex items-center gap-2" v-for="education in education" :key="education">
+                      <input type="checkbox" :value="{ education: education }" v-model="dimCustomer.dim_condition" />
+                      {{ education }}
+                    </label>
+                  </div>
+                </div>
+
+                <!-- occupation -->
+                <div>
+                  <!-- radio -->
+                  <label class="flex items-center gap-2">
+                    <input type="radio" value="occupation" v-model="dimCustomer.dim_column" />
+                    Occupation
+                  </label>
+
+                  <!-- checkbox -->
+                  <div class="pl-5" v-if="dimCustomer.dim_column == 'occupation'">
+                    <label class="flex items-center gap-2">
+                      <input type="checkbox" @change="selectAll('occupation', $event)"
+                        :checked="allSelected('occupation')" />
+                      Select All
+                    </label>
+                    <label class="flex items-center gap-2" v-for="occupation in occupation" :key="occupation">
+                      <input type="checkbox" :value="{ occupation: occupation }" v-model="dimCustomer.dim_condition" />
+                      {{ occupation }}
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Product section -->
+            <div class="flex flex-col items-start gap-2 self-stretch">
+              <legend class="text-black [font-family:Figtree] text-2xl font-bold leading-[normal]">
+                Product
+              </legend>
+              <div class="flex flex-col gap-2">
+                <!-- Product category -->
+                <div>
+                  <!-- radio -->
+                  <label class="flex items-center gap-2">
+                    <input type="radio" value="product_category_name" v-model="dimProduct.dim_column" />
+                    Product Category
+                  </label>
+
+                  <!-- checkbox -->
+                  <div class="pl-5" v-if="dimProduct.dim_column == 'product_category_name'">
+                    <label class="flex items-center gap-2">
+                      <input type="checkbox" @change="selectAll('product_category_name', $event)"
+                        :checked="allSelected('product_category_name')" />
+                      Select All
+                    </label>
+                    <label class="flex items-center gap-2" v-for="category in categories" :key="category">
+                      <input type="checkbox" :value="{ product_category_name: category }"
+                        v-model="dimProduct.dim_condition" />
+                      {{ category }}
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Product subcategory -->
+                <div>
+                  <!-- radio -->
+                  <label class="flex items-center gap-2">
+                    <input type="radio" value="product_subcategory_name" v-model="dimProduct.dim_column" />
+                    Product Subcategory
+                  </label>
+
+                  <!-- checkbox -->
+                  <div class="pl-5" v-if="dimProduct.dim_column == 'product_subcategory_name'">
+                    <label class="flex items-center gap-2">
+                      <input type="checkbox" @change="selectAll('product_subcategory_name', $event)"
+                        :checked="allSelected('product_subcategory_name')" />
+                      Select All
+                    </label>
+                    <label class="flex items-center gap-2" v-for="subcategory in subcategories" :key="subcategory">
+                      <input type="checkbox" :value="{ product_subcategory_name: subcategory }"
+                        v-model="dimProduct.dim_condition" />
+                      {{ subcategory }}
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Promotion section -->
+            <div class="flex flex-col items-start gap-2 self-stretch">
+              <legend class="text-black [font-family:Figtree] text-2xl font-bold leading-[normal]">
+                Promotion
+              </legend>
+              <div class="flex flex-col gap-2">
+                <!-- Promotion type -->
+                <div>
+                  <!-- radio -->
+                  <label class="flex items-center gap-2">
+                    <input type="radio" value="type" v-model="dimPromotion.dim_column" />
+                    Promotion type
+                  </label>
+
+                  <!-- checkbox -->
+                  <div class="pl-5" v-if="dimPromotion.dim_column == 'type'">
+                    <label class="flex items-center gap-2">
+                      <input type="checkbox" @change="selectAll('type', $event)" :checked="allSelected('type')" />
+                      Select All
+                    </label>
+                    <label class="flex items-center gap-2" v-for="promotion in promotions" :key="promotion">
+                      <input type="checkbox" :value="{ type: promotion }" v-model="dimPromotion.dim_condition" />
+                      {{ promotion }}
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Country section -->
+            <div class="flex flex-col items-start gap-2 self-stretch">
+              <legend class="text-black [font-family:Figtree] text-2xl font-bold leading-[normal]">
+                Location
+              </legend>
+              <div class="flex flex-col gap-2">
+                <!-- Promotion type -->
+                <div>
+                  <!-- radio -->
+                  <label class="flex items-center gap-2">
+                    <input type="radio" :value="getAddressDimValue" v-model="dimLocation.dim_column" />
+                    Country
+                  </label>
+
+                  <!-- checkbox -->
+                  <div class="pl-5" v-if="dimLocation.dim_column == 'country_name' ||
+                    dimLocation.dim_column == 'country_code'
+                    ">
+                    <label class="flex items-center gap-2">
+                      <input type="checkbox" @change="selectAll('country', $event)" :checked="allSelected('country')" />
+                      Select All
+                    </label>
+                    <label class="flex items-center gap-2" v-for="country in countries" :key="country">
+                      <input type="checkbox" :value="{
+                        country_name: country.country_name,
+                        country_code: country.country_code,
+                      }" v-model="dimLocation.dim_condition" />
+                      {{ country.country_name }}
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button @click="clearSelections" class="text-primary [font-family:Figtree] text-base font-bold leading-5">
+              Clear Selection
+            </button>
           </div>
         </div>
-
-        <!-- KPI Selection -->
-        <div class="flex flex-col items-start gap-2 self-stretch">
-          <legend class="text-black [font-family:Figtree] text-2xl font-bold leading-[normal]">
-            KPI
-          </legend>
-          <div class="flex flex-col gap-2">
-            <label class="flex items-center gap-2">
-              <input type="radio" :value="{
-                fact_name: 'fctSales',
-                fact_column: 'Sales Amount',
-              }" v-model="selectedFact" />
-              Sales Amount
-            </label>
-            <label class="flex items-center gap-2">
-              <input type="radio" :value="{
-                fact_name: 'fctSales',
-                fact_column: 'Quantity',
-              }" v-model="selectedFact" />
-              Quantity
-            </label>
-          </div>
+        <div class="fixed-button-container px-6 py-6 bg-background-accent-2 border-r border-solid">
+          <button @click="fetchData"
+            class="w-[311px] flex justify-center w-full items-center gap-2.5 self-stretch bg-primary px-6 py-3 rounded-xl text-white [font-family:Figtree] text-base font-bold leading-6">
+            Visualize
+          </button>
         </div>
-
-        <hr class="bg-border" />
-
-        <!-- Time section -->
-        <div class="flex flex-col items-start gap-2 self-stretch">
-          <legend class="text-black [font-family:Figtree] text-2xl font-bold leading-[normal]">
-            Time
-          </legend>
-          <div class="flex flex-col gap-2">
-            <div>
-              <!-- radio -->
-              <label class="flex items-center gap-2">
-                <input type="radio" value="year_number" v-model="dimTime.dim_column" />
-                Year
-              </label>
-
-              <!-- checkbox -->
-              <div class="pl-5" v-if="dimTime.dim_column == 'year_number'">
-                <label class="flex items-center gap-2">
-                  <input type="checkbox" @change="selectAll('year', $event)" :checked="allSelected('year')" />
-                  Select All
-                </label>
-                <label class="flex items-center gap-2" v-for="year in years" :key="year">
-                  <input type="checkbox" :value="{ year_number: year }" v-model="dimTime.dim_condition" />
-                  {{ year }}
-                </label>
-              </div>
-            </div>
-
-            <div>
-              <label class="flex items-center gap-2">
-                <input type="radio" value="quarter_of_year" v-model="dimTime.dim_column" />
-                Quarter
-              </label>
-              <div class="pl-5" v-if="dimTime.dim_column == 'quarter_of_year'">
-                <label class="flex items-center gap-2">
-                  <input type="checkbox" @change="selectAll('quarter', $event)" :checked="allSelected('quarter')" />
-                  Select All
-                </label>
-                <label class="flex items-center gap-2" v-for="quarter in quarters" :key="quarter">
-                  <input type="checkbox" :value="{ quarter_of_year: quarter.quarter, year_number: quarter.year }"
-                    v-model="dimTime.dim_condition" />
-                  Q{{ quarter.quarter }} - {{ quarter.year }}
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Customer section -->
-        <div class="flex flex-col items-start gap-2 self-stretch">
-          <legend class="text-black [font-family:Figtree] text-2xl font-bold leading-[normal]">
-            Customer
-          </legend>
-          <div class="flex flex-col gap-2">
-            <!-- gender -->
-            <div>
-              <!-- radio -->
-              <label class="flex items-center gap-2">
-                <input type="radio" value="gender" v-model="dimCustomer.dim_column" />
-                Gender
-              </label>
-
-              <!-- checkbox -->
-              <div class="pl-5" v-if="dimCustomer.dim_column == 'gender'">
-                <label class="flex items-center gap-2">
-                  <input type="checkbox" @change="selectAll('gender', $event)" :checked="allSelected('gender')" />
-                  Select All
-                </label>
-                <label class="flex items-center gap-2">
-                  <input type="checkbox" :value="{ gender: 'M' }" v-model="dimCustomer.dim_condition" />
-                  Male
-                </label>
-                <label class="flex items-center gap-2">
-                  <input type="checkbox" :value="{ gender: 'F' }" v-model="dimCustomer.dim_condition" />
-                  Female
-                </label>
-              </div>
-            </div>
-
-            <!-- education -->
-            <div>
-              <!-- radio -->
-              <label class="flex items-center gap-2">
-                <input type="radio" value="education" v-model="dimCustomer.dim_column" />
-                Education
-              </label>
-
-              <!-- checkbox -->
-              <div class="pl-5" v-if="dimCustomer.dim_column == 'education'">
-                <label class="flex items-center gap-2">
-                  <input type="checkbox" @change="selectAll('education', $event)" :checked="allSelected('education')" />
-                  Select All
-                </label>
-                <label class="flex items-center gap-2" v-for="education in education" :key="education">
-                  <input type="checkbox" :value="{ education: education }" v-model="dimCustomer.dim_condition" />
-                  {{ education }}
-                </label>
-              </div>
-            </div>
-
-            <!-- occupation -->
-            <div>
-              <!-- radio -->
-              <label class="flex items-center gap-2">
-                <input type="radio" value="occupation" v-model="dimCustomer.dim_column" />
-                Occupation
-              </label>
-
-              <!-- checkbox -->
-              <div class="pl-5" v-if="dimCustomer.dim_column == 'occupation'">
-                <label class="flex items-center gap-2">
-                  <input type="checkbox" @change="selectAll('occupation', $event)" :checked="allSelected('occupation')" />
-                  Select All
-                </label>
-                <label class="flex items-center gap-2" v-for="occupation in occupation" :key="occupation">
-                  <input type="checkbox" :value="{ occupation: occupation }" v-model="dimCustomer.dim_condition" />
-                  {{ occupation }}
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Product section -->
-        <div class="flex flex-col items-start gap-2 self-stretch">
-          <legend class="text-black [font-family:Figtree] text-2xl font-bold leading-[normal]">
-            Product
-          </legend>
-          <div class="flex flex-col gap-2">
-            <!-- Product category -->
-            <div>
-              <!-- radio -->
-              <label class="flex items-center gap-2">
-                <input type="radio" value="product_category_name" v-model="dimProduct.dim_column" />
-                Product Category
-              </label>
-
-              <!-- checkbox -->
-              <div class="pl-5" v-if="dimProduct.dim_column == 'product_category_name'">
-                <label class="flex items-center gap-2">
-                  <input type="checkbox" @change="selectAll('product_category_name', $event)"
-                    :checked="allSelected('product_category_name')" />
-                  Select All
-                </label>
-                <label class="flex items-center gap-2" v-for="category in categories" :key="category">
-                  <input type="checkbox" :value="{ product_category_name: category }"
-                    v-model="dimProduct.dim_condition" />
-                  {{ category }}
-                </label>
-              </div>
-            </div>
-
-            <!-- Product subcategory -->
-            <div>
-              <!-- radio -->
-              <label class="flex items-center gap-2">
-                <input type="radio" value="product_subcategory_name" v-model="dimProduct.dim_column" />
-                Product Subcategory
-              </label>
-
-              <!-- checkbox -->
-              <div class="pl-5" v-if="dimProduct.dim_column == 'product_subcategory_name'">
-                <label class="flex items-center gap-2">
-                  <input type="checkbox" @change="selectAll('product_subcategory_name', $event)"
-                    :checked="allSelected('product_subcategory_name')" />
-                  Select All
-                </label>
-                <label class="flex items-center gap-2" v-for="subcategory in subcategories" :key="subcategory">
-                  <input type="checkbox" :value="{ product_subcategory_name: subcategory }"
-                    v-model="dimProduct.dim_condition" />
-                  {{ subcategory }}
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Promotion section -->
-        <div class="flex flex-col items-start gap-2 self-stretch">
-          <legend class="text-black [font-family:Figtree] text-2xl font-bold leading-[normal]">
-            Promotion
-          </legend>
-          <div class="flex flex-col gap-2">
-            <!-- Promotion type -->
-            <div>
-              <!-- radio -->
-              <label class="flex items-center gap-2">
-                <input type="radio" value="type" v-model="dimPromotion.dim_column" />
-                Promotion type
-              </label>
-
-              <!-- checkbox -->
-              <div class="pl-5" v-if="dimPromotion.dim_column == 'type'">
-                <label class="flex items-center gap-2">
-                  <input type="checkbox" @change="selectAll('type', $event)" :checked="allSelected('type')" />
-                  Select All
-                </label>
-                <label class="flex items-center gap-2" v-for="promotion in promotions" :key="promotion">
-                  <input type="checkbox" :value="{ type: promotion }" v-model="dimPromotion.dim_condition" />
-                  {{ promotion }}
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Country section -->
-        <div class="flex flex-col items-start gap-2 self-stretch">
-          <legend class="text-black [font-family:Figtree] text-2xl font-bold leading-[normal]">
-            Location
-          </legend>
-          <div class="flex flex-col gap-2">
-            <!-- Promotion type -->
-            <div>
-              <!-- radio -->
-              <label class="flex items-center gap-2">
-                <input type="radio" :value="getAddressDimValue" v-model="dimLocation.dim_column" />
-                Country
-              </label>
-
-              <!-- checkbox -->
-              <div class="pl-5" v-if="dimLocation.dim_column == 'country_name' ||
-                dimLocation.dim_column == 'country_code'
-                ">
-                <label class="flex items-center gap-2">
-                  <input type="checkbox" @change="selectAll('country', $event)" :checked="allSelected('country')" />
-                  Select All
-                </label>
-                <label class="flex items-center gap-2" v-for="country in countries" :key="country">
-                  <input type="checkbox" :value="{
-                    country_name: country.country_name,
-                    country_code: country.country_code,
-                  }" v-model="dimLocation.dim_condition" />
-                  {{ country.country_name }}
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <button @click="clearSelections" class="text-primary [font-family:Figtree] text-base font-bold leading-5">
-          Clear Selection
-        </button>
       </div>
-      <button @click="fetchData"
-        class="flex justify-center items-center gap-2.5 self-stretch bg-primary px-6 py-3 rounded-xl text-white [font-family:Figtree] text-base font-bold leading-6">
-        Visualize
-      </button>
     </div>
 
     <!-- Chart Name field & Chart Visualization -->
@@ -656,6 +665,7 @@ async function fetchData() {
       }
     });
     chartData.value = response.data.chart;
+    console.log(chartData.value)
     chartState.value = response.data.chart_state;
     console.log(chartData)
     console.log(chartState)
@@ -758,5 +768,25 @@ const getAddressDimValue = computed(() => {
 
 .spinner-container {
   margin-top: 128px;
+}
+
+.overflow-auto {
+  max-height: calc(100vh - 206px);
+  overflow-y: auto;
+}
+
+.fixed-button-container {
+  position: fixed;
+  /* Fixed positioning to make it stick */
+  bottom: 0px;
+  /* Distance from the bottom of the viewport */
+  left: 0px;
+  /* Distance from the right of the viewport */
+  z-index: 1000;
+  /* Ensures it stays on top of other content */
+}
+
+.height-calculate {
+  height: calc(100vh-400px);
 }
 </style>

@@ -55,7 +55,10 @@
       <div class="grid grid-cols-12 w-full gap-6">
         <Chart v-for="(chart, index) in charts" :key="chart.id" class="col-span-6" :chartType="chart.chartType"
           :chartData="chart.chart" :chartName="chart.chartName" :index="index" @deleteChart="deleteChart"></Chart>
-        <!-- <MapChart /> -->
+        <router-link to="/newchart" v-if="isVisible"
+          class="text-[#94a3b8] h-[360px] border-2 border-solid rounded-2xl col-span-6 flex justify-center align-center items-center text-2xl [font-family:Figtree]">
+          + New Chart
+        </router-link>
       </div>
 
       <!-- Loading -->
@@ -114,6 +117,8 @@ import { ref } from "vue";
 
 const charts = ref(null);
 
+const isVisible = ref(false);
+
 
 const totals = ref(null);
 
@@ -126,6 +131,7 @@ async function fetchData() {
       axios.get(dataFetchAPI)
     ]);
     totals.value = totalsResponse.data;
+
     console.log(totals.value)
   } catch (error) {
     console.error("Error fetching data:", error);
@@ -141,6 +147,7 @@ async function fetchData() {
     // Handle errors as needed
   }
   loading.value = false;
+  isVisible.value = true;
 }
 
 // async function fetchData() {
