@@ -6,10 +6,17 @@
         <div class="text-black [font-family:Figtree] text-5xl font-bold leading-[normal]">
           Sales Analysis
         </div>
-        <router-link to="/newchart"
-          class="inline-flex justify-center items-center gap-2.5 px-6 py-3 rounded-xl bg-primary [font-family:Figtree] text-white font-bold">Add
-          new chart
-        </router-link>
+        <div class="flex flex-row gap-3">
+          <button @click="refreshData"
+            class="flex justify-center items-center gap-2.5 self-stretch text-primary border-2 border-primary px-6 py-3 rounded-xl [font-family:Figtree] text-base font-bold leading-6">
+            Refresh data
+          </button>
+          <router-link to="/newchart"
+            class="inline-flex justify-center items-center gap-2.5 px-6 py-3 rounded-xl bg-primary [font-family:Figtree] text-white font-bold">Add
+            new chart
+          </router-link>
+
+        </div>
       </div>
 
 
@@ -56,7 +63,7 @@
         <Chart v-for="(chart, index) in charts" :key="chart.id" class="col-span-6" :chartType="chart.chartType"
           :chartData="chart.chart" :chartName="chart.chartName" :index="index" @deleteChart="deleteChart"></Chart>
         <router-link to="/newchart" v-if="isVisible"
-          class="text-[#94a3b8] h-[360px] border-2 border-solid rounded-2xl col-span-6 flex justify-center align-center items-center text-2xl [font-family:Figtree]">
+          class="text-[#94a3b8] h-[400px] border border-solid rounded-2xl col-span-6 flex justify-center align-center items-center text-2xl [font-family:Figtree]">
           + New Chart
         </router-link>
       </div>
@@ -104,8 +111,9 @@ import MapChart from "../components/MapChart.vue";
 
 mapInit(Highcharts);
 
-const fetchAllChartsAPI = "http://localhost:8081/charts/";
-const dataFetchAPI = "http://localhost:8081/charts/data-fetch";
+const fetchAllChartsAPI = "http://localhost:8081/charts/dashboards";
+const refreshChartsAPI = "http://localhost:8081/charts/refresh";
+// const dataFetchAPI = "http://localhost:8081/charts/widgets";
 const deleteChartAPI = "http://localhost:8081/charts";
 
 import { onMounted } from 'vue';
@@ -127,21 +135,34 @@ const loading = ref(false);
 async function fetchData() {
   loading.value = true;
   try {
-    const [totalsResponse] = await Promise.all([
-      axios.get(dataFetchAPI)
+    const [chartsResponse] = await Promise.all([
+      axios.get(fetchAllChartsAPI)
     ]);
-    totals.value = totalsResponse.data;
-
+    console.log(JSON.stringify(chartsResponse))
+    totals.value = chartsResponse.data.fetchDataWidget;
+    charts.value = chartsResponse.data.charts;
     console.log(totals.value)
   } catch (error) {
     console.error("Error fetching data:", error);
     // Handle errors as needed
   }
+  loading.value = false;
+  isVisible.value = true;
+}
+
+async function refreshData() {
+  totals.value = null;
+  charts.value = null;
+  isVisible.value = false;
+  loading.value = true;
   try {
     const [chartsResponse] = await Promise.all([
-      axios.get(fetchAllChartsAPI)
+      axios.get(refreshChartsAPI)
     ]);
-    charts.value = chartsResponse.data;
+    console.log(JSON.stringify(chartsResponse))
+    totals.value = chartsResponse.data.fetchDataWidget;
+    charts.value = chartsResponse.data.charts;
+    console.log(totals.value)
   } catch (error) {
     console.error("Error fetching data:", error);
     // Handle errors as needed

@@ -303,9 +303,9 @@
             </button>
           </div>
         </div>
-        <div class="fixed-button-container px-6 py-6 bg-background-accent-2 border-r border-solid">
+        <div class="w-[360px] fixed-button-container px-6 py-6 bg-background-accent-2 border-r border-solid">
           <button @click="fetchData"
-            class="w-[311px] flex justify-center w-full items-center gap-2.5 self-stretch bg-primary px-6 py-3 rounded-xl text-white [font-family:Figtree] text-base font-bold leading-6">
+            class="w-[360px] flex justify-center w-full items-center gap-2.5 self-stretch bg-primary px-6 py-3 rounded-xl text-white [font-family:Figtree] text-base font-bold leading-6">
             Visualize
           </button>
         </div>
@@ -682,7 +682,10 @@ async function addChart() {
     console.log(1)
     console.log(chartState.value)
     const response = await axios.post(saveChartAPI, {
-      chart_state: chartState.value,
+      chart_metadata: {
+        chart: chartData.value,
+        chart_state: chartState.value,
+      },
       chart_name: chartName.value,
     });
     console.log("Chart added successfully:", response.data);
