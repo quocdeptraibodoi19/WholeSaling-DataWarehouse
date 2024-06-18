@@ -28,9 +28,9 @@ from models.chart import (
     LineChart,
     MapChart,
     ChartMetaData,
-    ChartState,
     FetchedChartMetaData,
     FetchedDataWidget,
+    DashBoard,
 )
 from src.constants import ConstantProvider
 
@@ -153,7 +153,7 @@ def preview_chart(
 
 
 @router.post("/save-chart")
-def save_chart(chart_state: ChartState, chart_name: Annotated[str, Body()]):
+def save_chart(chart_metadata: ChartMetaData, chart_name: Annotated[str, Body()]):
     db_connection = OperationalDBConnection()
     connection = db_connection.connect()
     try:
@@ -162,8 +162,8 @@ def save_chart(chart_state: ChartState, chart_name: Annotated[str, Body()]):
 
         insert_query = OperationalDBConnection.get_postgres_sql(
             """
-                INSERT INTO chart (chart_name, state, created_at, updated_at)
-                VALUES (%s, %s, %s, %s)
+                INSERT INTO chart (chart_name, cached_chart, state, created_at, updated_at)
+                VALUES (%s, %s, %s, %s, %s)
             """
         )
 
@@ -171,7 +171,8 @@ def save_chart(chart_state: ChartState, chart_name: Annotated[str, Body()]):
             insert_query,
             (
                 chart_name,
-                json.dumps(chart_state.model_dump()),
+                json.dumps(chart_metadata.chart.model_dump()),
+                json.dumps(chart_metadata.chart_state.model_dump()),
                 datetime.now(),
                 datetime.now(),
             ),
@@ -248,8 +249,38 @@ def delete_chart():
             connection.close()
 
 
+def cache_chart(charts):
+    db_connection = OperationalDBConnection()
+    connection = db_connection.connect()
+    try:
+        cursor = connection.cursor()
+        connection.autocommit = False
+
+        for chart in charts:
+            update_query = OperationalDBConnection.get_postgres_sql(
+                "UPDATE chart SET cached_chart = %s, updated_at = %s  WHERE chart_id = %s"
+            )
+            cursor.execute(
+                update_query,
+                (
+                    chart["id"],
+                    datetime.now(),
+                    chart["chart"],
+                ),
+            )
+
+        connection.commit()
+    except Exception:
+        print(traceback.format_exc())
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+
 @router.get("/", response_model=list[FetchedChartMetaData])
-def get_all_charts():
+def get_all_charts(is_cached: bool = True):
     db_connection = OperationalDBConnection()
     connection = db_connection.connect()
     try:
@@ -264,20 +295,26 @@ def get_all_charts():
 
         fetched_chart_data = []
         for chart in db_charts:
-            chart_metadata = preview_chart(
-                client_chart_metadata=ClientChartMetaData(
-                    **chart["state"]["client_chart_metadata"]
-                ),
-                catched_colors=chart["state"]["catched_color"],
-            )
+            if is_cached:
+                chart_metadata = chart["cached_chart"]
+            else:
+                chart_metadata = preview_chart(
+                    client_chart_metadata=ClientChartMetaData(
+                        **chart["state"]["client_chart_metadata"]
+                    ),
+                    catched_colors=chart["state"]["catched_color"],
+                ).get("chart")
 
             temp_chart_data = {
                 "id": chart["chart_id"],
                 "chartName": chart["chart_name"],
                 "chartType": chart["state"]["client_chart_metadata"]["chart_type"],
-                "chart": chart_metadata.get("chart"),
+                "chart": chart_metadata,
             }
             fetched_chart_data.append(FetchedChartMetaData(**temp_chart_data))
+
+        if not is_cached:
+            cache_chart(fetched_chart_data)
 
         return fetched_chart_data
     except Exception:
@@ -290,26 +327,81 @@ def get_all_charts():
             connection.close()
 
 
-@router.get("/data-fetch", response_model=FetchedDataWidget)
-def data_fetching():
+def fetch_cached_metric_result(metric: str):
+    db_connection = OperationalDBConnection()
+    connection = db_connection.connect()
+    try:
+        cursor = connection.cursor()
+        select_query = OperationalDBConnection.get_postgres_sql(
+            "SELECT result FROM information_cached_metric WHERE metric = %s"
+        )
+        cursor.execute(select_query, (metric,))
+
+        return cursor.fetchone()
+    except Exception:
+        print(traceback.format_exc())
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+
+def cache_metric_result(metrics: dict):
+    db_connection = OperationalDBConnection()
+    connection = db_connection.connect()
+    try:
+        cursor = connection.cursor()
+        connection.autocommit = False
+
+        for metric in metrics:
+            insert_query = OperationalDBConnection.get_postgres_sql(
+                """
+                INSERT INTO information_cached_metric (metric, result)
+                VALUES (%s, %s)
+                ON CONFLICT (metric)
+                DO UPDATE SET result = EXCLUDED.result
+                """
+            )
+            cursor.execute(insert_query, (metric, metrics[metric],))
+
+        connection.commit()
+    except Exception:
+        print(traceback.format_exc())
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+
+@router.get("/widgets", response_model=FetchedDataWidget)
+def get_widgets(is_cached: bool = True):
     data_warehouse_connection = DataWarehouseConnection()
     try:
         data_warehouse_connection.connect()
         connection = data_warehouse_connection.conn
         cursor = connection.cursor()
 
-        queries = [
-            QueryParserManager.total_customers_query(),
-            QueryParserManager.total_sales_amount_query(),
-            QueryParserManager.total_orders_query(),
-            QueryParserManager.total_products_query(),
-        ]
+        metrics = {
+            "totalSalesAmount": QueryParserManager.total_sales_amount_query(),
+            "totalOrders": QueryParserManager.total_orders_query(),
+            "totalCustomers": QueryParserManager.total_customers_query(),
+            "totalProducts": QueryParserManager.total_products_query(),
+        }
 
         result = {}
-        for query in queries:
-            cursor.execute(query)
+        for metric in metrics.keys():
+            cached_result = fetch_cached_metric_result(metric)
+            if cached_result is not None and is_cached:
+                result[metric] = cached_result[0]
+                continue
+
+            cursor.execute(metrics[metric])
             record = cursor.fetchone()
-            result[cursor.description[0][0]] = record[0]
+            result[metric] = record[0]
+
+        cache_metric_result(result)
 
         return result
 
@@ -320,3 +412,16 @@ def data_fetching():
         if cursor:
             cursor.close()
         connection.close()
+
+
+@router.get("/dashboards", response_model=DashBoard)
+def get_dashboard():
+    return {"charts": get_all_charts(), "fetchDataWidget": get_widgets()}
+
+
+@router.get("/refresh", response_model=DashBoard)
+def refresh_dashboard():
+    return {
+        "charts": get_all_charts(is_cached=False),
+        "fetchDataWidget": get_widgets(is_cached=False),
+    }

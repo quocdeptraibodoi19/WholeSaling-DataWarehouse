@@ -67,3 +67,7 @@ class FetchedDataWidget(BaseModel):
     totalOrders: int
     totalCustomers: int
     totalProducts: int
+
+class DashBoard(BaseModel):
+    fetchDataWidget: FetchedDataWidget
+    charts: list[FetchedChartMetaData]
