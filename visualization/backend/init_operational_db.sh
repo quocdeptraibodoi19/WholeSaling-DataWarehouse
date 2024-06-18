@@ -23,6 +23,7 @@ export PGPASSWORD=$visualization_opdb_password
 
 # Connect to the remote PostgreSQL database and create the database if it doesn't exist
 echo "Connecting to the remote PostgreSQL database..."
+psql -h $visualization_opdb_host -p $visualization_opdb_port -U $visualization_opdb_user -d postgres -t -c "DROP DATABASE IF EXISTS visualization"
 psql -h $visualization_opdb_host -p $visualization_opdb_port -U $visualization_opdb_user -d postgres -t -c "CREATE DATABASE visualization"
 
 # Switch to the target database
@@ -37,12 +38,18 @@ CREATE EXTENSION \"uuid-ossp\";
 CREATE TABLE chart (
     chart_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     chart_name VARCHAR(255),
+    cached_chart JSONB,
     state JSONB,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_chart_id ON chart USING btree(chart_id);
+
+CREATE TABLE information_cached_metric (
+    metric VARCHAR(255) PRIMARY KEY,
+    result FLOAT NULL DEFAULT NULL
+)
 "
 
 # Unset environments related to Postgres
