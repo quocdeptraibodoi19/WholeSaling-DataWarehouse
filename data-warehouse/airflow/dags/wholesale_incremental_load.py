@@ -13,13 +13,15 @@ import ast
 
 from airflow.models.dag import DAG
 from airflow.models.param import Param
-from airflow.utils.task_group import TaskGroup
-from airflow.operators.python import PythonOperator, BranchPythonOperator
-from airflow.operators.bash import BashOperator
+from airflow.operators.python import (
+    PythonOperator,
+    BranchPythonOperator,
+    ShortCircuitOperator,
+)
 from airflow.utils.edgemodifier import Label
 from airflow.operators.empty import EmptyOperator
 
-from common.helpers import ConstantsProvider, SourceConfigHandler
+from common.helpers import ConstantsProvider, SourceConfigHandler, branching_tasks
 
 from ingest.delta_load import (
     delta_source_to_HDFS,
@@ -101,19 +103,19 @@ with DAG(
     },
 ) as dag:
 
-    branching_tables_task = BranchPythonOperator(
-        task_id=f"branching_table_in_{source}",
-        python_callable=branching_tasks,
-        op_kwargs={
-            "chosen_tables_param": "{{ params.considered_tables }}",
-            "default_tables": default_table_options,
-        },
-        dag=dag,
-    )
-
     for table_config in source_config_handler.get_tables_configs():
         table = table_config.get("table")
         task_identifier = f"{table}_from_{source}"
+
+        branching_tables_task = ShortCircuitOperator(
+            task_id=f"branchin_table_{source}_{table}",
+            python_callable=branching_tasks,
+            op_kwargs={
+                "table": table,
+                "chosen_tables_param": "{{ params.considered_tables }}",
+            },
+            dag=dag,
+        )
 
         incremental_dummy_task = EmptyOperator(
             task_id=f"{task_identifier}_dummy_stage_incremental_load",

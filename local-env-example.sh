@@ -52,3 +52,10 @@ export visualization_opdb_user=
 export visualization_opdb_password=
 export visualization_opdb_dbname=visualization
 export visualization_opdb_port=
+
+export airflow_host=
+export airflow_db=
+export airflow_user=
+export airflow_pass=
+export airflow_port=
+export AIRFLOW__DATABASE__SQL_ALCHEMY_CONN="postgresql+psycopg2://$airflow_user:$airflow_pass@$airflow_host:$airflow_port/$airflow_db"

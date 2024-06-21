@@ -44,17 +44,17 @@ def resolve_ambiguities(combined_df, ambiguous_key, ambiguous_threshold=97):
 def get_resolved_ambiguous_records(hive_sys: HiveDataHook, logger: logging.Logger):
     DQ_table_schema = ConstantsProvider.get_DQ_table_schema()
 
-    check_if_dq_table_exist = f"SHOW TABLES IN {ConstantsProvider.get_staging_DW_name()} LIKE '{ConstantsProvider.get_DQ_table()}'"
+    check_if_dq_table_exist = f"SHOW TABLES IN {ConstantsProvider.get_staging_DW_name()} LIKE '{ConstantsProvider.get_resolved_DQ_table()}'"
     logger.info(
         f"Checking the existence of data quality table with: {check_if_dq_table_exist}"
     )
     checking_df = hive_sys.execute(query=check_if_dq_table_exist)
     if checking_df.empty:
-        logger.info(f"The table {ConstantsProvider.get_resolved_DQ_table()} is being empty...")
+        logger.info(
+            f"The table {ConstantsProvider.get_resolved_DQ_table()} is being empty..."
+        )
         return pd.DataFrame(columns=DQ_table_schema)
-    resolved_ambiguous_records_query = (
-        f"SELECT {','.join(DQ_table_schema)} FROM {ConstantsProvider.get_resolved_DQ_table()}"
-    )
+    resolved_ambiguous_records_query = f"SELECT {','.join(DQ_table_schema)} FROM {ConstantsProvider.get_resolved_DQ_table()}"
     return hive_sys.execute(resolved_ambiguous_records_query)
 
 
@@ -132,19 +132,21 @@ def move_ambiguous_records_to_DQ_table(
         hdfs_sys.connect()
         hive_sys.connect()
 
-        logger.info(f"Moving data into HDFS...")
+        time_to_move = datetime.now().strftime("%Y-%m-%d_%H_%M_%S")
+
+        logger.info(f"Moving data into HDFS at the time {time_to_move}")
         hdfs_ingester = DataIngester(HDFSLandingZoneIngestionStrategy())
         hdfs_ingester.ingest(
             data_collection=data_collection,
             ingested_file_name=ConstantsProvider.get_data_firewall_file(),
             HDFS_location_dir=ConstantsProvider.HDFS_LandingZone_data_firewall_base_dir(
-                datetime.now().strftime("%Y-%m-%d")
+                time_to_move
             ),
         )
 
         DQ_table_schema = hdfs_sys.execute(command="data_schema")(
             base_dir=ConstantsProvider.HDFS_LandingZone_data_firewall_base_dir(
-                datetime.now().strftime("%Y-%m-%d")
+                time_to_move
             ),
             file_name=ConstantsProvider.get_data_firewall_file(),
         )
@@ -154,9 +156,7 @@ def move_ambiguous_records_to_DQ_table(
             table_columns=DQ_table_schema,
             hive_table_name=ConstantsProvider.get_DQ_table(),
             HDFS_table_location_dir=(
-                ConstantsProvider.HDFS_LandingZone_data_firewall_base_dir(
-                    datetime.now().strftime("%Y-%m-%d")
-                )
+                ConstantsProvider.HDFS_LandingZone_data_firewall_base_dir(time_to_move)
             ),
         )
 
