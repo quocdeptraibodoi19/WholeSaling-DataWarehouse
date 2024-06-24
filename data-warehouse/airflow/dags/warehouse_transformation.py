@@ -72,7 +72,7 @@ with DAG(
     f"data_warehouse_transformation",
     default_args=ConstantsProvider.default_dag_args(),
     description=f"A tranformation part (T) in the ELT pipeline",
-    schedule=timedelta(hours=24),
+    schedule='0 3 * * *', # Daily at 3 AM
     start_date=datetime(2024, 1, 1),
     catchup=False,
 ) as dag:

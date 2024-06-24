@@ -89,7 +89,7 @@ with DAG(
     f"{source}_incremental_load",
     default_args=ConstantsProvider.default_dag_args(),
     description=f"An incremental load data pipleline to ingest data from sources",
-    schedule=timedelta(hours=24),
+    schedule='0 */3 * * *', # Every 3 hours
     start_date=datetime(2024, 1, 1),
     catchup=False,
     params={

@@ -32,7 +32,7 @@ with DAG(
     f"{source}_full_load",
     default_args=ConstantsProvider.default_dag_args(),
     description=f"A full load data pipleline to ingest data from sources",
-    schedule=timedelta(hours=24),
+    schedule='0 4 * * 6', # Saturdays at 4 AM
     start_date=datetime(2024, 1, 1),
     catchup=False,
     params={
