@@ -3,6 +3,7 @@ version: 2
 sources:
  - name: wholesale
    schema: "{{ env_var('DW_SCHEMA')  + '_staging' }}"
+   tags: ['staging']
    description: Source tables replicated from WholeSaling System.
    tables:
     - name: wholesale_system_countryregion

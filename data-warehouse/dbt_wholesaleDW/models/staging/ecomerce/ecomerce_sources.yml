@@ -4,6 +4,7 @@ sources:
  - name: ecomerce
    schema: "{{ env_var('DW_SCHEMA')  + '_staging' }}"
    description: Source tables replicated from Ecomerce System.
+   tags: ['staging']
    tables: 
     - name: ecomerce_salesreason
       tests:
