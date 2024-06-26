@@ -16,6 +16,10 @@ class ConstantProvider:
         return "map"
 
     @staticmethod
+    def map_region_chart_name():
+        return "map_region"
+    
+    @staticmethod
     def fact_kpi_sale_amount():
         return "Sales Amount"
 

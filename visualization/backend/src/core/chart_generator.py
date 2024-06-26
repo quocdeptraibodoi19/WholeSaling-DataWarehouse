@@ -96,13 +96,13 @@ class TwoDimChartGeneratingStrategy(ChartGeneratingStrategy):
     ):
         print(f"The current deserialized_data is: {deserialized_data}")
         first_dim_data, sec_dim_data = [], []
-        print (f"the first dim data is: {deserialized_data.keys()}")
+        print(f"the first dim data is: {deserialized_data.keys()}")
         first_dim_data = sorted(list(deserialized_data.keys()))
 
         for first_dim_key in first_dim_data:
             sec_dim_data += list(deserialized_data[first_dim_key].keys())
         sec_dim_data = list(set(sec_dim_data))
-        print (f"the second dim data is: {sec_dim_data}")
+        print(f"the second dim data is: {sec_dim_data}")
 
         datasets = []
         for sec_dim in sec_dim_data:
@@ -110,7 +110,9 @@ class TwoDimChartGeneratingStrategy(ChartGeneratingStrategy):
             temp_dict = {}
             for first_dim in first_dim_data:
                 if deserialized_data[first_dim].get(sec_dim):
-                    temp_fact_data.append(deserialized_data[first_dim][sec_dim][fact_col])
+                    temp_fact_data.append(
+                        deserialized_data[first_dim][sec_dim][fact_col]
+                    )
                 else:
                     temp_fact_data.append(0)
             temp_dict = {
@@ -163,7 +165,10 @@ class ChartGeneratorManager:
                 self.chart_generator.set_strategy(OneDimChartGeneratingStrategy())
             elif chart_type == ConstantProvider.pie_chart_name():
                 self.chart_generator.set_strategy(OneDimPieChartGenerattingStrategy())
-            elif chart_type == ConstantProvider.map_chart_name():
+            elif chart_type in (
+                ConstantProvider.map_chart_name(),
+                ConstantProvider.map_region_chart_name(),
+            ):
                 self.chart_generator.set_strategy(MapChartGeneratingStrategy())
         else:
             self.chart_generator.set_strategy(TwoDimChartGeneratingStrategy())

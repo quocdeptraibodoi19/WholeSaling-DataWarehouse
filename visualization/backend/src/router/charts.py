@@ -139,7 +139,10 @@ def preview_chart(
             metadata["chart"] = LineChart(**chart_metadata)
         elif client_chart_metadata.chart_type == ConstantProvider.pie_chart_name():
             metadata["chart"] = PieChart(**chart_metadata)
-        elif client_chart_metadata.chart_type == ConstantProvider.map_chart_name():
+        elif client_chart_metadata.chart_type in (
+            ConstantProvider.map_chart_name(),
+            ConstantProvider.map_region_chart_name(),
+        ):
             metadata["chart"] = MapChart(**chart_metadata)
 
         print(f"The returned data is: {metadata}")
@@ -363,7 +366,13 @@ def cache_metric_result(metrics: dict):
                 DO UPDATE SET result = EXCLUDED.result
                 """
             )
-            cursor.execute(insert_query, (metric, metrics[metric],))
+            cursor.execute(
+                insert_query,
+                (
+                    metric,
+                    metrics[metric],
+                ),
+            )
 
         connection.commit()
     except Exception:
