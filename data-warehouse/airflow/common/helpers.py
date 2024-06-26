@@ -9,6 +9,9 @@ import logging
 
 import yaml
 
+import ast
+
+
 class ConstantsProvider:
     @staticmethod
     def get_environment():
@@ -27,6 +30,7 @@ class ConstantsProvider:
                 "email_on_retry": False,
                 "retries": 0,
                 "retry_delay": timedelta(minutes=5),
+                'execution_timeout': timedelta(minutes=30),  # Increase this as needed
             }
 
     @staticmethod
@@ -81,7 +85,11 @@ class ConstantsProvider:
     @staticmethod
     def HDFS_creds():
         if ConstantsProvider.get_environment() == "local":
-            return {"host": os.getenv("hdfs_host"), "port": os.getenv("hdfs_port"), "user": os.getenv("hadoop_user")}
+            return {
+                "host": os.getenv("hdfs_host"),
+                "port": os.getenv("hdfs_port"),
+                "user": os.getenv("hadoop_user"),
+            }
 
     @staticmethod
     def Presto_Staging_Hive_creds():
@@ -127,7 +135,7 @@ class ConstantsProvider:
     @staticmethod
     def delete_trigger_name(table):
         return f"trg_{table}_delete"
-    
+
     @staticmethod
     def modified_date_update_trigger(table):
         return f"trg_{table}_modifieddate_update"
@@ -138,11 +146,14 @@ class ConstantsProvider:
 
     @staticmethod
     def delete_date_custom_cast_delete_log():
-        return "deleted_time", 'CONVERT(NVARCHAR(MAX), deleted_time, 121)'
-    
+        return "deleted_time", "CONVERT(NVARCHAR(MAX), deleted_time, 121)"
+
     @staticmethod
     def HDFS_LandingZone_base_dir(
-        source_system: str = None, table_name: str = None, date_str: str = None, is_full_load=True
+        source_system: str = None,
+        table_name: str = None,
+        date_str: str = None,
+        is_full_load=True,
     ):
         # This is the path convention for the Hive partitions in HDFS.
         base_path = "/staging/" if is_full_load else "/staging/delta_load/"
@@ -173,11 +184,11 @@ class ConstantsProvider:
             base_path += f"{ConstantsProvider.ingested_meta_field()}={date_str}/"
 
         return base_path
-    
+
     @staticmethod
     def HDFS_LandingZone_data_firewall_base_dir(date_str: str):
         return f"/data_firewall/{ConstantsProvider.ingested_meta_field()}={date_str}/"
-    
+
     @staticmethod
     def ingested_meta_field():
         return "extract_date"
@@ -204,8 +215,8 @@ class ConstantsProvider:
 
     @staticmethod
     def get_update_key():
-        return 'ModifiedDate'
-    
+        return "ModifiedDate"
+
     @staticmethod
     def get_airflow_all_tables_option():
         return "All Tables"
@@ -249,7 +260,7 @@ class ConstantsProvider:
     @staticmethod
     def get_delta_reconcile_delete_temp_view_table(source: str, table: str):
         return f"temp_delta_reconcile_delete_{ConstantsProvider.get_staging_table(source, table)}"
-    
+
     @staticmethod
     def get_resolved_DQ_table():
         return "resolved_data_quality"
@@ -261,7 +272,7 @@ class ConstantsProvider:
     @staticmethod
     def get_DQ_table_schema():
         return ["id", "source"]
-    
+
     @staticmethod
     def get_fullload_ingest_file():
         return "ingested_data_{}.parquet"
@@ -357,30 +368,50 @@ class DataManipulatingManager:
     def mapping_column_data_collection(column_1: str, column_2: str):
         def transform(data: pd.DataFrame, logger: logging.Logger):
             data[column_1] = data[column_2]
-            logger.info(f"Mapping column {column_1} with value of the column {column_2} ...")
+            logger.info(
+                f"Mapping column {column_1} with value of the column {column_2} ..."
+            )
             logger.info(f"Tunning the dataframe: {data[column_1]}")
             return data
 
         return transform
-class SourceConfigHandler():
+
+
+class SourceConfigHandler:
     def __init__(self, source: str, is_fullload: bool) -> None:
         self.full_load = is_fullload
         self.source = source
         with open(
-                ConstantsProvider.config_file_path(source=self.source),
-                "r",
-            ) as file:
-            self.tables_configs = yaml.load(file, yaml.Loader).get("full_load" if self.full_load else "delta_load")
+            ConstantsProvider.config_file_path(source=self.source),
+            "r",
+        ) as file:
+            self.tables_configs = yaml.load(file, yaml.Loader).get(
+                "full_load" if self.full_load else "delta_load"
+            )
 
     def get_source(self):
         return self.source
-    
+
     def get_tables_configs(self):
         return self.tables_configs
-    
+
     def is_full_load(self):
         return self.full_load
-    
+
     def get_list_tables(self):
         return [table_config.get("table") for table_config in self.tables_configs]
-           
+
+
+def branching_tasks(table: str, chosen_tables_param: str) -> bool:
+    chosen_tables = ast.literal_eval(chosen_tables_param)
+
+    if (
+        len(chosen_tables) == 0
+        or ConstantsProvider.get_airflow_all_tables_option() in chosen_tables
+    ):
+        return True
+
+    if table in chosen_tables:
+        return True
+
+    return False

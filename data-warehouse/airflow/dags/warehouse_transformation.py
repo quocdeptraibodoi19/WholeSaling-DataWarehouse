@@ -61,8 +61,8 @@ def ambiguous_recods_identification(
         ambiguous_key=ambiguous_key,
         logger=logger,
     )
+    move_ambiguous_records_to_DQ_table(logger, [ambiguous_records])
     if len(ambiguous_records) != 0:
-        move_ambiguous_records_to_DQ_table(logger, [ambiguous_records])
         raise Exception (
             f"There are {len(ambiguous_records)} ambiguous records. Please confirm it!"
         )
@@ -72,7 +72,7 @@ with DAG(
     f"data_warehouse_transformation",
     default_args=ConstantsProvider.default_dag_args(),
     description=f"A tranformation part (T) in the ELT pipeline",
-    schedule=timedelta(hours=24),
+    schedule='0 3 * * *', # Daily at 3 AM
     start_date=datetime(2024, 1, 1),
     catchup=False,
 ) as dag:
@@ -95,8 +95,8 @@ with DAG(
 
     previous_task = BashOperator(
         task_id=f"dbt_snapshot",
-        # bash_command=f"cd {DBT_PROJECT_DIR} && dbt snapshot",
-        bash_command=f"cd {DBT_PROJECT_DIR}",
+        bash_command=f"cd {DBT_PROJECT_DIR} && dbt snapshot",
+        # bash_command=f"cd {DBT_PROJECT_DIR}",
         dag=dag,
     )
 

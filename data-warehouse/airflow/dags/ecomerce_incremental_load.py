@@ -9,15 +9,18 @@ import logging
 logger = logging.getLogger(__name__)
 
 from datetime import datetime, timedelta
-import ast
 
 from airflow.models.dag import DAG
 from airflow.models.param import Param
-from airflow.operators.python import PythonOperator, BranchPythonOperator
+from airflow.operators.python import (
+    PythonOperator,
+    BranchPythonOperator,
+    ShortCircuitOperator,
+)
 from airflow.utils.edgemodifier import Label
 from airflow.operators.empty import EmptyOperator
 
-from common.helpers import ConstantsProvider, SourceConfigHandler
+from common.helpers import ConstantsProvider, SourceConfigHandler, branching_tasks
 
 from ingest.delta_load import (
     delta_source_to_HDFS,
@@ -63,28 +66,11 @@ def full_or_incremental_branch_detector(
     return task_to_implemented
 
 
-def branching_tasks(chosen_tables_param: str, default_tables: list[str]) -> list[str]:
-    chosen_tables = ast.literal_eval(chosen_tables_param)
-
-    if (
-        len(chosen_tables) == 0
-        or ConstantsProvider.get_airflow_all_tables_option() in chosen_tables
-    ):
-        chosen_tables = default_tables
-
-    considered_tasks = []
-    for table in chosen_tables:
-        task_identifier = f"{table}_from_{source}"
-        considered_tasks.append(f"{task_identifier}_full_incremental_branching")
-
-    return considered_tasks
-
-
 with DAG(
     f"{source}_incremental_load",
     default_args=ConstantsProvider.default_dag_args(),
     description=f"An incremental load data pipleline to ingest data from sources",
-    schedule=timedelta(hours=24),
+    schedule='0 * * * *', # Every hour
     start_date=datetime(2024, 1, 1),
     catchup=False,
     params={
@@ -98,19 +84,19 @@ with DAG(
     },
 ) as dag:
 
-    branching_tables_task = BranchPythonOperator(
-        task_id=f"branching_table_in_{source}",
-        python_callable=branching_tasks,
-        op_kwargs={
-            "chosen_tables_param": "{{ params.considered_tables }}",
-            "default_tables": default_table_options,
-        },
-        dag=dag,
-    )
-
     for table_config in source_config_handler.get_tables_configs():
         table = table_config.get("table")
         task_identifier = f"{table}_from_{source}"
+
+        branching_tables_task = ShortCircuitOperator(
+            task_id=f"branchin_table_{source}_{table}",
+            python_callable=branching_tasks,
+            op_kwargs={
+                "table": table,
+                "chosen_tables_param": "{{ params.considered_tables }}",
+            },
+            dag=dag,
+        )
 
         incremental_dummy_task = EmptyOperator(
             task_id=f"{task_identifier}_dummy_stage_incremental_load",

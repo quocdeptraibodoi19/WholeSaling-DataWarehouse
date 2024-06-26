@@ -37,24 +37,33 @@ models:
     # Config indicated by + and applies to all files under models/example/
     staging:
       +materialized: view
-      +schema: staging_scd
+      +schema: staging
+      +tags: ['staging']
 
     NDS:
       +materialized: view
       +schema: nds
+      +tags: ['nds']
     
     DDS:
       +materialized: table
       +schema: dds
+      +tags: ['dds']
 
 snapshots:
   dbt_wholesaleDW:
-    +target_schema: "{{ env_var('DW_SCHEMA')  + '_staging_scd' }}"
+    +target_schema: "{{ env_var('DW_SCHEMA')  + '_staging' }}"
     +file_format: delta
     +strategy: timestamp
     +updated_at: ModifiedDate
     +invalidate_hard_deletes: true
+    +tags: ['staging']
   
 seeds:
   dbt_wholesaleDW:
     +schema: staging
+    +tags: ['staging']
+
+sources:
+  dbt_wholesaleDW:
+    +tags: ['staging']

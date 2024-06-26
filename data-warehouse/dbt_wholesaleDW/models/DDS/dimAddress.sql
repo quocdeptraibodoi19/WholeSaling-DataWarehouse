@@ -15,6 +15,8 @@ with source_data as (
         person_StateProvince.state_province_name as state_name,
         person_CountryRegion.{{ env_var("hr_source") }} as country_code,
         person_CountryRegion.country_name,
+        person_CountryRegion.sale_region,
+        person_CountryRegion.sale_region_code,
         case
             when person_Address.is_valid = 0 
                 or person_StateProvince.is_valid = 0
