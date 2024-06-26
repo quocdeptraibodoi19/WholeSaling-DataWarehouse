@@ -1,163 +1,163 @@
-HR,Wholesaling,Ecommerce
-AFG,AF,AF
-ALB,AL,AL
-DZA,DZ,DZ
-AND,AD,AD
-AGO,AO,AO
-ATG,AG,AG
-ARG,AR,AR
-ARM,AM,AM
-AUS,AU,AU
-AUT,AT,AT
-AZE,AZ,AZ
-BHS,BS,BS
-BHR,BH,BH
-BGD,BD,BD
-BRB,BB,BB
-BLR,BY,BY
-BEL,BE,BE
-BLZ,BZ,BZ
-BEN,BJ,BJ
-BTN,BT,BT
-BOL,BO,BO
-BIH,BA,BA
-BWA,BW,BW
-BRA,BR,BR
-BRN,BN,BN
-BGR,BG,BG
-BFA,BF,BF
-BDI,BI,BI
-KHM,KH,KH
-CMR,CM,CM
-CAN,CA,CA
-CPV,CV,CV
-CAF,CF,CF
-TCD,TD,TD
-CHL,CL,CL
-CHN,CN,CN
-COL,CO,CO
-COM,KM,KM
-COG,CG,CG
-CRI,CR,CR
-HRV,HR,HR
-CUB,CU,CU
-CYP,CY,CY
-CZE,CZ,CZ
-DNK,DK,DK
-DJI,DJ,DJ
-DMA,DM,DM
-DOM,DO,DO
-TLS,TL,TL
-ECU,EC,EC
-EGY,EG,EG
-SLV,SV,SV
-GNQ,GQ,GQ
-ERI,ER,ER
-EST,EE,EE
-SWZ,SZ,SZ
-ETH,ET,ET
-FJI,FJ,FJ
-FIN,FI,FI
-FRA,FR,FR
-GAB,GA,GA
-GMB,GM,GM
-GEO,GE,GE
-DEU,DE,DE
-GHA,GH,GH
-GRC,GR,GR
-GRD,GD,GD
-GTM,GT,GT
-GIN,GN,GN
-GNB,GW,GW
-GUY,GY,GY
-HTI,HT,HT
-HND,HN,HN
-HUN,HU,HU
-ISL,IS,IS
-IND,IN,IN
-IDN,ID,ID
-IRN,IR,IR
-IRQ,IQ,IQ
-IRL,IE,IE
-ISR,IL,IL
-ITA,IT,IT
-JAM,JM,JM
-JPN,JP,JP
-JOR,JO,JO
-KAZ,KZ,KZ
-KEN,KE,KE
-KIR,KI,KI
-PRK,KP,KP
-KOR,KR,KR
-XKX,,
-KWT,KW,KW
-KGZ,KG,KG
-LAO,LA,LA
-LVA,LV,LV
-LBN,LB,LB
-LSO,LS,LS
-LBR,LR,LR
-LBY,LY,LY
-LIE,LI,LI
-LTU,LT,LT
-LUX,LU,LU
-MDG,MG,MG
-MWI,MW,MW
-MYS,MY,MY
-MDV,MV,MV
-MLI,ML,ML
-MLT,MT,MT
-MHL,MH,MH
-MRT,MR,MR
-MUS,MU,MU
-MEX,MX,MX
-FSM,FM,FM
-MDA,MD,MD
-MCO,MC,MC
-MNG,MN,MN
-MNE,,
-MAR,MA,MA
-MOZ,MZ,MZ
-MMR,MM,MM
-NAM,,
-NRU,NR,NR
-NPL,NP,NP
-NLD,NL,NL
-NZL,NZ,NZ
-NIC,NI,NI
-NER,NE,NE
-NGA,NG,NG
-MKD,MK,MK
-NOR,NO,NO
-OMN,OM,OM
-PAK,PK,PK
-PLW,PW,PW
-PSE,PS,PS
-PAN,PA,PA
-PNG,PG,PG
-PRY,PY,PY
-PER,PE,PE
-PHL,PH,PH
-POL,PL,PL
-PRT,PT,PT
-QAT,QA,QA
-ROU,RO,RO
-RUS,RU,RU
-RWA,RW,RW
-KNA,KN,KN
-LCA,LC,LC
-GBR,GB,GB
-MNP,MP,MP
-VIR,VI,VI
-ASM,AS,AS
-USA,US,US
-UMI,UM,UM
-URY,UY,UY
-UZB,UZ,UZ
-VUT,VU,VU
-VAT,VA,VA
-VEN,VE,VE
-VNM,VN,VN
-YEM,YE,YE
-ZMB,ZM,ZM
-ZWE,ZW,ZW
+HR,Wholesaling,Ecommerce,sale_region
+AFG,AF,AF,Asia
+ALB,AL,AL,Europe
+DZA,DZ,DZ,Africa
+AND,AD,AD,Europe
+AGO,AO,AO,Africa
+ATG,AG,AG,North America
+ARG,AR,AR,South America
+ARM,AM,AM,Asia
+AUS,AU,AU,Australia/Oceania
+AUT,AT,AT,Europe
+AZE,AZ,AZ,Asia
+BHS,BS,BS,North America
+BHR,BH,BH,Asia
+BGD,BD,BD,Asia
+BRB,BB,BB,North America
+BLR,BY,BY,Europe
+BEL,BE,BE,Europe
+BLZ,BZ,BZ,North America
+BEN,BJ,BJ,Africa
+BTN,BT,BT,Asia
+BOL,BO,BO,South America
+BIH,BA,BA,Europe
+BWA,BW,BW,Africa
+BRA,BR,BR,South America
+BRN,BN,BN,Asia
+BGR,BG,BG,Europe
+BFA,BF,BF,Africa
+BDI,BI,BI,Africa
+KHM,KH,KH,Asia
+CMR,CM,CM,Africa
+CAN,CA,CA,North America
+CPV,CV,CV,Africa
+CAF,CF,CF,Africa
+TCD,TD,TD,Africa
+CHL,CL,CL,South America
+CHN,CN,CN,Asia
+COL,CO,CO,South America
+COM,KM,KM,Africa
+COG,CG,CG,Africa
+CRI,CR,CR,North America
+HRV,HR,HR,Europe
+CUB,CU,CU,North America
+CYP,CY,CY,Europe
+CZE,CZ,CZ,Europe
+DNK,DK,DK,Europe
+DJI,DJ,DJ,Africa
+DMA,DM,DM,North America
+DOM,DO,DO,North America
+TLS,TL,TL,Asia
+ECU,EC,EC,South America
+EGY,EG,EG,Africa
+SLV,SV,SV,North America
+GNQ,GQ,GQ,Africa
+ERI,ER,ER,Africa
+EST,EE,EE,Europe
+SWZ,SZ,SZ,Africa
+ETH,ET,ET,Africa
+FJI,FJ,FJ,Australia/Oceania
+FIN,FI,FI,Europe
+FRA,FR,FR,Europe
+GAB,GA,GA,Africa
+GMB,GM,GM,Africa
+GEO,GE,GE,Asia
+DEU,DE,DE,Europe
+GHA,GH,GH,Africa
+GRC,GR,GR,Europe
+GRD,GD,GD,North America
+GTM,GT,GT,North America
+GIN,GN,GN,Africa
+GNB,GW,GW,Africa
+GUY,GY,GY,South America
+HTI,HT,HT,North America
+HND,HN,HN,North America
+HUN,HU,HU,Europe
+ISL,IS,IS,Europe
+IND,IN,IN,Asia
+IDN,ID,ID,Asia
+IRN,IR,IR,Asia
+IRQ,IQ,IQ,Asia
+IRL,IE,IE,Europe
+ISR,IL,IL,Asia
+ITA,IT,IT,Europe
+JAM,JM,JM,North America
+JPN,JP,JP,Asia
+JOR,JO,JO,Asia
+KAZ,KZ,KZ,Asia
+KEN,KE,KE,Africa
+KIR,KI,KI,Australia/Oceania
+PRK,KP,KP,Asia
+KOR,KR,KR,Asia
+XKX,,Europe
+KWT,KW,KW,Asia
+KGZ,KG,KG,Asia
+LAO,LA,LA,Asia
+LVA,LV,LV,Europe
+LBN,LB,LB,Asia
+LSO,LS,LS,Africa
+LBR,LR,LR,Africa
+LBY,LY,LY,Africa
+LIE,LI,LI,Europe
+LTU,LT,LT,Europe
+LUX,LU,LU,Europe
+MDG,MG,MG,Africa
+MWI,MW,MW,Africa
+MYS,MY,MY,Asia
+MDV,MV,MV,Asia
+MLI,ML,ML,Africa
+MLT,MT,MT,Europe
+MHL,MH,MH,Australia/Oceania
+MRT,MR,MR,Africa
+MUS,MU,MU,Africa
+MEX,MX,MX,North America
+FSM,FM,FM,Australia/Oceania
+MDA,MD,MD,Europe
+MCO,MC,MC,Europe
+MNG,MN,MN,Asia
+MNE,,,Europe
+MAR,MA,MA,Africa
+MOZ,MZ,MZ,Africa
+MMR,MM,MM,Asia
+NAM,,,Africa
+NRU,NR,NR,Australia/Oceania
+NPL,NP,NP,Asia
+NLD,NL,NL,Europe
+NZL,NZ,NZ,Australia/Oceania
+NIC,NI,NI,North America
+NER,NE,NE,Africa
+NGA,NG,NG,Africa
+MKD,MK,MK,Europe
+NOR,NO,NO,Europe
+OMN,OM,OM,Asia
+PAK,PK,PK,Asia
+PLW,PW,PW,Australia/Oceania
+PSE,PS,PS,Asia
+PAN,PA,PA,North America
+PNG,PG,PG,Australia/Oceania
+PRY,PY,PY,South America
+PER,PE,PE,South America
+PHL,PH,PH,Asia
+POL,PL,PL,Europe
+PRT,PT,PT,Europe
+QAT,QA,QA,Asia
+ROU,RO,RO,Europe
+RUS,RU,RU,Europe
+RWA,RW,RW,Africa
+KNA,KN,KN,North America
+LCA,LC,LC,North America
+GBR,GB,GB,Europe
+MNP,MP,MP,Australia/Oceania
+VIR,VI,VI,North America
+ASM,AS,AS,Australia/Oceania
+USA,US,US,North America
+UMI,UM,UM,Australia/Oceania
+URY,UY,UY,South America
+UZB,UZ,UZ,Asia
+VUT,VU,VU,Australia/Oceania
+VAT,VA,VA,Europe
+VEN,VE,VE,South America
+VNM,VN,VN,Asia
+YEM,YE,YE,Asia
+ZMB,ZM,ZM,Africa
+ZWE,ZW,ZW,Africa
