@@ -4,7 +4,7 @@
   <div class="flex items-start">
     <!-- Sidebar -->
     <div
-      class="flex flex-col w-[360px] h-full items-start gap-12 shrink-0 p-6  border-r border-solid bg-background-accent-2">
+      class="flex flex-col w-[270px] h-full items-start gap-12 shrink-0 p-6  border-r border-solid bg-background-accent-2">
       <div class="flex flex-col justify-between h-full w-full">
         <div class="overflow-auto">
           <div class="flex flex-col items-start gap-4 self-stretch">
@@ -328,12 +328,12 @@
           </div>
         </div>
         <div
-          class="w-[360px] fixed-button-container px-6 py-6 bg-background-accent-2 border-r border-solid flex flex-col gap-4 items-start">
+          class="w-[270px] fixed-button-container px-6 py-6 bg-background-accent-2 border-r border-solid flex flex-col gap-4 items-start">
           <button @click="clearSelections" class="text-primary [font-family:Figtree] text-base font-bold leading-5">
             Clear Selection
           </button>
           <button @click="fetchData"
-            class="w-[360px] flex justify-center w-full items-center gap-2.5 self-stretch bg-primary px-6 py-3 rounded-xl text-white [font-family:Figtree] text-base font-bold leading-6">
+            class="w-[220px] flex justify-center w-full items-center gap-2.5 self-stretch bg-primary px-6 py-3 rounded-xl text-white [font-family:Figtree] text-base font-bold leading-6">
             Visualize
           </button>
         </div>
@@ -838,7 +838,7 @@ const getAddressDimValue2 = computed(() => {
 }
 
 .overflow-auto {
-  max-height: calc(100vh - 206px);
+  max-height: calc(100vh - 236px);
   overflow-y: auto;
 }
 
