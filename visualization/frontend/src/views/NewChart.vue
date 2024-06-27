@@ -270,11 +270,11 @@
                 Location
               </legend>
               <div class="flex flex-col gap-2">
-                <!-- Promotion type -->
+                <!-- Country -->
                 <div>
                   <!-- radio -->
                   <label class="flex items-center gap-2">
-                    <input type="radio" :value="getAddressDimValue" v-model="dimLocation.dim_column" />
+                    <input type="radio" :value="getAddressDimValue1" v-model="dimLocation.dim_column" />
                     Country
                   </label>
 
@@ -295,15 +295,43 @@
                     </label>
                   </div>
                 </div>
+
+                <!-- Region -->
+                <div>
+                  <!-- radio -->
+                  <label class="flex items-center gap-2">
+                    <input type="radio" :value="getAddressDimValue2" v-model="dimLocation.dim_column" />
+                    Region
+                  </label>
+
+                  <!-- checkbox -->
+                  <div class="pl-5" v-if="dimLocation.dim_column == 'sale_region' ||
+                    dimLocation.dim_column == 'sale_region_code'
+                    ">
+                    <label class="flex items-center gap-2">
+                      <input type="checkbox" @change="selectAll('region', $event)" :checked="allSelected('region')" />
+                      Select All
+                    </label>
+                    <label class="flex items-center gap-2" v-for="region in regions" :key="region">
+                      <input type="checkbox" :value="{
+                        sale_region: region.sale_region,
+                        sale_region_code: region.sale_region_code,
+                      }" v-model="dimLocation.dim_condition" />
+                      {{ region.sale_region }}
+                    </label>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <button @click="clearSelections" class="text-primary [font-family:Figtree] text-base font-bold leading-5">
-              Clear Selection
-            </button>
+
           </div>
         </div>
-        <div class="w-[360px] fixed-button-container px-6 py-6 bg-background-accent-2 border-r border-solid">
+        <div
+          class="w-[360px] fixed-button-container px-6 py-6 bg-background-accent-2 border-r border-solid flex flex-col gap-4 items-start">
+          <button @click="clearSelections" class="text-primary [font-family:Figtree] text-base font-bold leading-5">
+            Clear Selection
+          </button>
           <button @click="fetchData"
             class="w-[360px] flex justify-center w-full items-center gap-2.5 self-stretch bg-primary px-6 py-3 rounded-xl text-white [font-family:Figtree] text-base font-bold leading-6">
             Visualize
@@ -331,13 +359,16 @@
       </div>
 
       <!-- Chart -->
-      <Bar v-if="chartData && selectedChartType === 'bar'" :data="chartData" />
-      <Line v-if="chartData && selectedChartType === 'line'" :data="chartData" />
-      <div v-if="chartData && selectedChartType === 'pie'" class="w-[600px]">
+      <Bar v-if="chartData && effectiveChartType === 'bar'" :data="chartData" />
+      <Line v-if="chartData && effectiveChartType === 'line'" :data="chartData" />
+      <div v-if="chartData && effectiveChartType === 'pie'" class="w-[600px]">
         <Pie :data="chartData" />
       </div>
-      <div v-if="chartData && selectedChartType === 'map'" class="w-[1000px] h-[600px]">
+      <div v-if="chartData && effectiveChartType === 'map'" class="w-[1000px] h-[600px]">
         <MapChart :data="chartData" :chartId="0" />
+      </div>
+      <div v-if="chartData && effectiveChartType === 'map_region'" class="w-[1000px] h-[600px]">
+        <MapChartRegion :data="chartData" :chartId="0" />
       </div>
     </div>
   </div>
@@ -349,6 +380,7 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 
 import MapChart from "@/components/MapChart.vue";
+import MapChartRegion from "@/components/MapChartRegion.vue";
 import { Bar, Pie, Line } from "vue-chartjs";
 import {
   Chart as ChartJS,
@@ -398,6 +430,14 @@ const selectedFact = ref("");
 const chartData = ref(null);
 const chartState = ref(null);
 const selectedChartType = ref("bar"); // default to bar chart
+const effectiveChartType = computed(() => {
+  if (selectedChartType.value === "map" && selectedDimensions.value.some(dim =>
+    dim.dim_column === 'sale_region' || dim.dim_column === 'sale_region_code'
+  )) {
+    return "map_region";
+  }
+  return selectedChartType.value;
+});
 
 const loading = ref(false);
 
@@ -485,6 +525,12 @@ const countries = ref([
   { country_name: "United Kingdom", country_code: "GBR" },
 ]);
 
+const regions = ref([
+  { sale_region: "North America", sale_region_code: "na" },
+  { sale_region: "Australia/Oceania", sale_region_code: "oc" },
+  { sale_region: "Europe", sale_region_code: "eu" },
+]);
+
 // List of DIM
 const dimTime = ref({
   dim_name: "dimdate",
@@ -569,6 +615,14 @@ const selectAll = (section, event) => {
       }))
       : [];
   }
+  else if (section === "region") {
+    dimLocation.value.dim_condition = isChecked
+      ? regions.value.map((region) => ({
+        sale_region: region.sale_region,
+        sale_region_code: region.sale_region_code,
+      }))
+      : [];
+  }
 };
 
 const allSelected = (section) => {
@@ -594,10 +648,10 @@ const allSelected = (section) => {
   return false;
 };
 
-watch(selectedChartType, (newType) => {
-  // Reset dimensions if chart type changes
-  clearSelections();
-});
+// watch(selectedChartType, (newType) => {
+//   // Reset dimensions if chart type changes
+//   clearSelections();
+// });
 
 const selectedDimensions = computed(() => {
   return [
@@ -636,6 +690,14 @@ const canAddChart = computed(() => {
 
 async function fetchData() {
   chartData.value = null;
+
+  // if (selectedChartType.value == "map" && selectedDimensions.value.some(dim =>
+  //   dim.dim_column === 'sale_region' || dim.dim_column === 'sale_region_code'
+  // )) {
+  //   selectedChartType.value = "map_region";
+  // }
+
+
   if (
     selectedDimensions.value.length === 0 ||
     selectedDimensions.value.length > 2
@@ -644,31 +706,28 @@ async function fetchData() {
     return;
   }
 
-  console.log({
+  console.log(JSON.stringify({
     client_chart_metadata: {
-      chart_type: selectedChartType.value,
+      chart_type: effectiveChartType.value,
       fact_name: selectedFact.value.fact_name,
       fact_column: selectedFact.value.fact_column,
       dimensions: selectedDimensions.value,
     }
-  })
+  }))
 
   loading.value = true;
   window.scrollTo(0, 0);
   try {
     const response = await axios.post(previewChartAPI, {
       client_chart_metadata: {
-        chart_type: selectedChartType.value,
+        chart_type: effectiveChartType.value,
         fact_name: selectedFact.value.fact_name,
         fact_column: selectedFact.value.fact_column,
         dimensions: selectedDimensions.value,
       }
     });
     chartData.value = response.data.chart;
-    console.log(chartData.value)
     chartState.value = response.data.chart_state;
-    console.log(chartData)
-    console.log(chartState)
   } catch (error) {
     console.error("Error fetching data:", error);
     chartData.value = null; // Reset chart data on error
@@ -679,8 +738,6 @@ async function fetchData() {
 
 async function addChart() {
   try {
-    console.log(1)
-    console.log(chartState.value)
     const response = await axios.post(saveChartAPI, {
       chart_metadata: {
         chart: chartData.value,
@@ -719,7 +776,6 @@ function clearSelections() {
 }
 
 watch(selectedDimensions, (newVal) => {
-  console.log(selectedDimensions);
   let maxDims;
   if (selectedChartType.value == "bar" || selectedChartType.value == "line")
     maxDims = 2;
@@ -733,14 +789,22 @@ watch(selectedDimensions, (newVal) => {
   }
 });
 
+watch(selectedChartType, (newVal) => {
+  clearSelections();
+});
+
 const chartOptions = {
   responsive: false,
   maintainAspectRatio: true,
 };
 
-const getAddressDimValue = computed(() => {
+const getAddressDimValue1 = computed(() => {
   return selectedChartType.value === "map" ? "country_code" : "country_name";
 });
+const getAddressDimValue2 = computed(() => {
+  return selectedChartType.value === "map" ? "sale_region_code" : "sale_region";
+});
+
 </script>
 
 <style>
