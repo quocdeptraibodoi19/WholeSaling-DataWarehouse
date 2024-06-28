@@ -16,6 +16,7 @@ import traceback
 
 import json
 
+from router.authentication import get_current_user
 from core.connections import DataWarehouseConnection, OperationalDBConnection
 from core.data_processor import DataDeserializor, DataDeserializationLevel
 from core.color_manager import ColorManager
@@ -32,6 +33,7 @@ from models.chart import (
     FetchedDataWidget,
     DashBoard,
 )
+from models.user import User
 from src.constants import ConstantProvider
 
 router = APIRouter(prefix="/charts", tags=["charts"])
@@ -156,7 +158,7 @@ def preview_chart(
 
 
 @router.post("/save-chart")
-def save_chart(chart_metadata: ChartMetaData, chart_name: Annotated[str, Body()]):
+def save_chart(chart_metadata: ChartMetaData, chart_name: Annotated[str, Body()], user: User = Depends(get_current_user)):
     db_connection = OperationalDBConnection()
     connection = db_connection.connect()
     try:
@@ -165,14 +167,15 @@ def save_chart(chart_metadata: ChartMetaData, chart_name: Annotated[str, Body()]
 
         insert_query = OperationalDBConnection.get_postgres_sql(
             """
-                INSERT INTO chart (chart_name, cached_chart, state, created_at, updated_at)
-                VALUES (%s, %s, %s, %s, %s)
+                INSERT INTO chart (user_id, chart_name, cached_chart, state, created_at, updated_at)
+                VALUES (%s, %s, %s, %s, %s, %s)
             """
         )
 
         cursor.execute(
             insert_query,
             (
+                user.user_id,
                 chart_name,
                 json.dumps(chart_metadata.chart.model_dump()),
                 json.dumps(chart_metadata.chart_state.model_dump()),
@@ -197,7 +200,7 @@ def save_chart(chart_metadata: ChartMetaData, chart_name: Annotated[str, Body()]
 
 
 @router.delete("/{chart_id}")
-def delete_chart(chart_id: str):
+def delete_chart(chart_id: str, user: User = Depends(get_current_user)):
     db_connection = OperationalDBConnection()
     connection = db_connection.connect()
     try:
@@ -205,9 +208,9 @@ def delete_chart(chart_id: str):
         connection.autocommit = False
 
         delete_query = OperationalDBConnection.get_postgres_sql(
-            "DELETE FROM chart WHERE chart_id = %s"
+            "DELETE FROM chart WHERE chart_id = %s and user_id = %s"
         )
-        cursor.execute(delete_query, (chart_id,))
+        cursor.execute(delete_query, (chart_id, user.user_id))
 
         connection.commit()
         return Response(status_code=200)
@@ -226,15 +229,15 @@ def delete_chart(chart_id: str):
 
 
 @router.delete("/")
-def delete_chart():
+def delete_chart(user: User = Depends(get_current_user)):
     db_connection = OperationalDBConnection()
     connection = db_connection.connect()
     try:
         cursor = connection.cursor()
         connection.autocommit = False
 
-        delete_query = OperationalDBConnection.get_postgres_sql("DELETE FROM chart")
-        cursor.execute(delete_query)
+        delete_query = OperationalDBConnection.get_postgres_sql("DELETE FROM chart where user_id = %s")
+        cursor.execute(delete_query, (user.user_id,))
 
         connection.commit()
         return Response(status_code=200)
@@ -252,7 +255,7 @@ def delete_chart():
             connection.close()
 
 
-def cache_chart(charts):
+def cache_chart(charts, user_id: str):
     db_connection = OperationalDBConnection()
     connection = db_connection.connect()
     try:
@@ -261,7 +264,7 @@ def cache_chart(charts):
 
         for chart in charts:
             update_query = OperationalDBConnection.get_postgres_sql(
-                "UPDATE chart SET cached_chart = %s, updated_at = %s  WHERE chart_id = %s"
+                "UPDATE chart SET cached_chart = %s, updated_at = %s  WHERE chart_id = %s and user_id = %s"
             )
             cursor.execute(
                 update_query,
@@ -269,6 +272,7 @@ def cache_chart(charts):
                     chart["id"],
                     datetime.now(),
                     chart["chart"],
+                    user_id
                 ),
             )
 
@@ -283,14 +287,14 @@ def cache_chart(charts):
 
 
 @router.get("/", response_model=list[FetchedChartMetaData])
-def get_all_charts(is_cached: bool = True):
+def get_all_charts(is_cached: bool = True, user: User = Depends(get_current_user)):
     db_connection = OperationalDBConnection()
     connection = db_connection.connect()
     try:
         cursor = connection.cursor()
 
-        select_query = OperationalDBConnection.get_postgres_sql("SELECT * FROM chart")
-        cursor.execute(select_query)
+        select_query = OperationalDBConnection.get_postgres_sql("SELECT * FROM chart where user_id = %s")
+        cursor.execute(select_query, (user.user_id,))
 
         charts = cursor.fetchall()
         columns = [desc[0] for desc in cursor.description]
@@ -317,7 +321,7 @@ def get_all_charts(is_cached: bool = True):
             fetched_chart_data.append(FetchedChartMetaData(**temp_chart_data))
 
         if not is_cached:
-            cache_chart(fetched_chart_data)
+            cache_chart(fetched_chart_data, user.user_id)
 
         return fetched_chart_data
     except Exception:
@@ -424,13 +428,13 @@ def get_widgets(is_cached: bool = True):
 
 
 @router.get("/dashboards", response_model=DashBoard)
-def get_dashboard():
-    return {"charts": get_all_charts(), "fetchDataWidget": get_widgets()}
+def get_dashboard(user: User = Depends(get_current_user)):
+    return {"charts": get_all_charts(user=user), "fetchDataWidget": get_widgets()}
 
 
 @router.get("/refresh", response_model=DashBoard)
-def refresh_dashboard():
+def refresh_dashboard(user: User = Depends(get_current_user)):
     return {
-        "charts": get_all_charts(is_cached=False),
+        "charts": get_all_charts(is_cached=False, user=user),
         "fetchDataWidget": get_widgets(is_cached=False),
     }
