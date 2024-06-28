@@ -124,13 +124,15 @@ import "../assets/styles/tailwind.css";
 import { ref } from "vue";
 
 const charts = ref(null);
-
 const isVisible = ref(false);
-
-
 const totals = ref(null);
-
 const loading = ref(false);
+
+const token = localStorage.getItem('access_token');
+if (token) {
+  axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+}
+
 
 async function fetchData() {
   loading.value = true;

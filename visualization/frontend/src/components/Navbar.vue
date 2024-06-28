@@ -17,13 +17,26 @@
 </template>
 
 <script setup>
+import axios from 'axios';
 import { useRouter } from "vue-router";
 const router = useRouter();
 
 function logout() {
-  console.log(router);
+  // Clear localStorage where the token is stored
+  localStorage.removeItem('access_token');
+
+  // Optionally, if you use axios defaults for tokens, remove it
+  if (axios.defaults.headers.common['Authorization']) {
+    delete axios.defaults.headers.common['Authorization'];
+  }
+
+  // Use sessionStorage.clear() if you are storing other session-related data
   sessionStorage.clear(); // Clearing session storage or any authentication tokens.
-  router.push("/login"); // Navigate to login page.
+
+  // Navigate to login page
+  router.push("/login").catch(error => {
+    console.error("Router error:", error);
+  });
 }
 </script>
 
