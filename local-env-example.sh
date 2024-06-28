@@ -53,6 +53,10 @@ export visualization_opdb_password=
 export visualization_opdb_dbname=visualization
 export visualization_opdb_port=
 
+export SECRET_KEY=
+export ALGORITHM=HS256
+export ACCESS_TOKEN_EXPIRE_MINUTES=30
+
 export airflow_host=
 export airflow_db=
 export airflow_user=
