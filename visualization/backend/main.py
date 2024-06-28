@@ -5,12 +5,14 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
 
 from src.router.charts import router as chart_router
+from src.router.authentication import router as authentication_router
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 app.include_router(router=chart_router)
+app.include_router(router=authentication_router)
 
 allowed_origins = [
     "http://0.0.0.0:8084",
