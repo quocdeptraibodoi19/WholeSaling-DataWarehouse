@@ -10,9 +10,6 @@ select
     CAST(sales_SpecialOffer.start_date AS DATE) AS start_date,
     CAST(sales_SpecialOffer.end_date AS DATE) AS end_date,
     CAST(sales_SpecialOffer.min_qty AS INT) AS min_qty,
-    CAST(sales_SpecialOffer.max_qty AS INT) AS max_qty,
-    case
-        when sales_SpecialOffer.is_valid = 0 then 0
-        else 1
-    end as is_valid
+    CAST(sales_SpecialOffer.max_qty AS INT) AS max_qty
 from {{ ref('sales_SpecialOffer') }}
+where sales_SpecialOffer.is_valid != 0

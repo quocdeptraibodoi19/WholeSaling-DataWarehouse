@@ -1,7 +1,9 @@
 {{ 
     config(
         materialized='incremental',
-        unique_key=['bussiness_entity_id', 'updated_at']
+        unique_key=['bussiness_entity_id', 'updated_at'],
+        file_format='delta',
+        incremental_strategy='merge'
     ) 
 }}
 

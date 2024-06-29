@@ -412,7 +412,7 @@ def get_widgets(is_cached: bool = True):
 
             cursor.execute(metrics[metric])
             record = cursor.fetchone()
-            result[metric] = record[0]
+            result[metric] = f"{record[0]:,}"
 
         cache_metric_result(result)
 

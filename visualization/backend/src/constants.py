@@ -61,7 +61,7 @@ class ConstantProvider:
 
     @staticmethod
     def SCD_dims_list():
-        return ["dimcustomer", "dimaddress", "dimpromotion"]
+        return ["dimcustomer", "dimaddress"]
 
     @staticmethod
     def valid_dim_condition(dim_table: str):
