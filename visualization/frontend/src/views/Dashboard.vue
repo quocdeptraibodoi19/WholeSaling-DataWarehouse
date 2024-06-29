@@ -34,7 +34,7 @@
         <div
           class="grow shrink basis-0 px-6 py-3 bg-white rounded-lg border border-slate-200 flex-col justify-start items-start inline-flex">
           <div class="self-stretch text-text-secondary text-base font-semibold font-['Figtree'] leading-normal">
-            Total Number of Order
+            Total Number of Orders
           </div>
           <div class="self-stretch text-sky-950 text-4xl font-bold font-['Figtree'] leading-normal">
             {{ totals.totalOrders }}
@@ -43,7 +43,7 @@
         <div
           class="grow shrink basis-0 px-6 py-3 bg-white rounded-lg border border-slate-200 flex-col justify-start items-start inline-flex">
           <div class="self-stretch text-text-secondary text-base font-semibold font-['Figtree'] leading-normal">
-            Total Number of Customer
+            Total Number of Customers
           </div>
           <div class="self-stretch text-sky-950 text-4xl font-bold font-['Figtree'] leading-normal">
             {{ totals.totalCustomers }}
@@ -52,7 +52,7 @@
         <div
           class="grow shrink basis-0 px-6 py-3 bg-white rounded-lg border border-slate-200 flex-col justify-start items-start inline-flex">
           <div class="self-stretch text-text-secondary text-base font-semibold font-['Figtree'] leading-normal">
-            Total Number of Product
+            Total Number of Products
           </div>
           <div class="self-stretch text-sky-950 text-4xl font-bold font-['Figtree'] leading-normal">
             {{ totals.totalProducts }}

@@ -58,6 +58,7 @@ onMounted(async () => {
         ],
       },
       series: [{
+        name: "",
         data: jsonData.map(data => ({
           code: data['label'], // Make sure 'label' matches the continent codes in your map data
           value: data['data']
