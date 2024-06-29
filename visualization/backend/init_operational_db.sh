@@ -60,7 +60,7 @@ CREATE INDEX idx_chart_id ON chart USING btree(chart_id);
 
 CREATE TABLE information_cached_metric (
     metric VARCHAR(255) PRIMARY KEY,
-    result FLOAT NULL DEFAULT NULL
+    result VARCHAR(255) NULL DEFAULT NULL
 )
 "
 
