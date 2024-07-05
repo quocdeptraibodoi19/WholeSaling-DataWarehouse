@@ -117,6 +117,7 @@ def login(login_form: OAuth2PasswordRequestForm = Depends()):
         cursor.execute(query, (login_form.username,))
         result = cursor.fetchone()
 
+        db_user = None
         if result:
             user_id, first_name, last_name, user_name, hashed_password = result
             db_user = DBUser(
@@ -128,9 +129,9 @@ def login(login_form: OAuth2PasswordRequestForm = Depends()):
             )
 
         if not db_user or not verify_password(login_form.password, db_user.password):
-            return Response(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                content="Incorrect username or password",
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Incorrect username or password",
                 headers={"WWW-Authenticate": "Bearer"},
             )
 

@@ -1,7 +1,9 @@
 {{ 
     config(
         materialized='incremental',
-        unique_key=['credit_card_id', 'updated_at']
+        unique_key=['credit_card_id', 'updated_at'],
+        file_format='delta',
+        incremental_strategy='merge'
     ) 
 }}
 

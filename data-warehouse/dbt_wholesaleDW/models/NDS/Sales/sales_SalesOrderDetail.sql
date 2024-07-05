@@ -1,7 +1,9 @@
 {{ 
     config(
         materialized='incremental',
-        unique_key='sales_order_detail_id'
+        unique_key='sales_order_detail_id',
+        file_format='delta',
+        incremental_strategy='merge'
     ) 
 }}
 
