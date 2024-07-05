@@ -63,10 +63,10 @@ class FetchedChartMetaData(BaseModel):
 
 
 class FetchedDataWidget(BaseModel):
-    totalSalesAmount: int | float
-    totalOrders: int
-    totalCustomers: int
-    totalProducts: int
+    totalSalesAmount: int | float | str
+    totalOrders: int | str
+    totalCustomers: int | str
+    totalProducts: int | str
 
 class DashBoard(BaseModel):
     fetchDataWidget: FetchedDataWidget
