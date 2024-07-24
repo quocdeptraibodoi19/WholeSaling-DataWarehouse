@@ -68,23 +68,6 @@ def full_or_incremental_branch_detector(
     return task_to_implemented
 
 
-def branching_tasks(chosen_tables_param: str, default_tables: list[str]) -> list[str]:
-    chosen_tables = ast.literal_eval(chosen_tables_param)
-
-    if (
-        len(chosen_tables) == 0
-        or ConstantsProvider.get_airflow_all_tables_option() in chosen_tables
-    ):
-        chosen_tables = default_tables
-
-    considered_tasks = []
-    for table in chosen_tables:
-        task_identifier = f"{table}_from_{source}"
-        considered_tasks.append(f"{task_identifier}_full_incremental_branching")
-
-    return considered_tasks
-
-
 with DAG(
     f"{source}_incremental_load",
     default_args=ConstantsProvider.default_dag_args(),
