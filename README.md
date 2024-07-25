@@ -1,4 +1,5 @@
 # WholeSaling-DataWarehouse
 
 ## Software Architecture:
-![Data Warehouse Architecture](./system-architecture.png)
+![Data Warehouse Architecture](./concrete-system-architecture.png)
+
