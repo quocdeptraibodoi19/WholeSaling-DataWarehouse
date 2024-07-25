@@ -12,5 +12,5 @@ After within this database, we need to create the resolved data quality:
     CREATE TABLE resolved_data_quality(id string, source string) USING delta;
 ```
 
-## Software Architecture:
-![Data Warehouse Architecture](./data-architecture.drawio.png)
+## Data Flow Architecture:
+![Data Flow Architecture](./data-flow-architecture.png)
