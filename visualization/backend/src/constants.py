@@ -110,5 +110,4 @@ class ConstantProvider:
         return f"""
             SELECT COUNT(*) AS totalProducts
             FROM {ConstantProvider.dim_product_name()}
-            WHERE is_valid =  1
         """
