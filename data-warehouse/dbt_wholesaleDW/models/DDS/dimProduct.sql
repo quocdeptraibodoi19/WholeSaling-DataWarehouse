@@ -29,13 +29,13 @@ with source_data as (
         on production_Product.product_subcategory_id = production_ProductSubcategory.product_subcategory_id
     left join {{ ref('production_ProductCategory') }} production_ProductCategory
         on production_ProductSubcategory.product_category_id = production_ProductCategory.product_category_id
+    where production_Product.is_valid != 0
+        and production_ProductSubcategory.is_valid != 0
+        and production_ProductCategory.is_valid != 0
 )
 
 select *
 from source_data
-where production_Product.is_valid != 0
-  and production_ProductSubcategory.is_valid != 0
-  and production_ProductCategory.is_valid != 0
-  {% if is_incremental() %}
-  and dim_updated_at >= (select max(dim_updated_at) from {{ this }})
-  {% endif %}
+{% if is_incremental() %}
+where dim_updated_at >= (select max(dim_updated_at) from {{ this }})
+{% endif %}
