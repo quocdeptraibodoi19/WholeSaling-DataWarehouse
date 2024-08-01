@@ -127,7 +127,7 @@ class SimpleFactDimStrategy(ParsingStrategy):
             f"INNER JOIN {dim_name} "
             f"ON {fact_name}.{fact_key} = {dim_name}.{dim_key} "
         )
-        common_query += where_conditions + f"GROUP BY {','.join(dim_columns)}"
+        common_query += where_conditions + f"GROUP BY {','.join(dim_columns)} " + f" ORDER BY {','.join(dim_columns)}" 
 
         if fact_column == fact_kpi_sale_amount:
             return (
@@ -175,7 +175,8 @@ class TwoDimFactStrategy(ParsingStrategy):
 
         common_query += (
             where_conditions
-            + f"GROUP BY {','.join(first_dim_columns)}, {','.join(sec_dim_columns)}"
+            + f"GROUP BY {','.join(first_dim_columns)}, {','.join(sec_dim_columns)} "
+            + f"ORDER BY {','.join(first_dim_columns)}, {','.join(sec_dim_columns)} "
         )
 
         if fact_column == fact_kpi_sale_amount:
