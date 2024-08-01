@@ -269,9 +269,9 @@ def cache_chart(charts, user_id: str):
             cursor.execute(
                 update_query,
                 (
-                    chart["id"],
+                    json.dumps(chart.chart.model_dump()),
                     datetime.now(),
-                    chart["chart"],
+                    chart.id,
                     user_id
                 ),
             )
