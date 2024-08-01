@@ -101,7 +101,7 @@ class TwoDimChartGeneratingStrategy(ChartGeneratingStrategy):
 
         for first_dim_key in first_dim_data:
             sec_dim_data += list(deserialized_data[first_dim_key].keys())
-        sec_dim_data = list(set(sec_dim_data))
+        sec_dim_data = sorted(list(set(sec_dim_data)))
         print(f"the second dim data is: {sec_dim_data}")
 
         datasets = []
